@@ -99,8 +99,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     y = gPars::source.y_center + R*std::sin(phi) * mm;
     z = gPars::source.z_center + gPars::source.z_width*(G4UniformRand() - 0.5) * mm;
     //G4ThreeVector position(x, y, z);
-    //G4ThreeVector position = gPars::debugging.EL_gap_center;
-    G4ThreeVector position = gPars::debugging.THGEM1_hole_center;
+    G4ThreeVector position = gPars::debugging.EL_gap_center;
+    //G4ThreeVector position = gPars::debugging.THGEM1_hole_center;
+    //position.setX(0 * 0.9); position.setY(0 * 0.9 * std::sqrt(3.0));
     single_particle.SetParticlePosition(position);
     photon._pos = G4ThreeVector(position);
     //------------------------------------

@@ -48,18 +48,23 @@ HexagonalMappingData HexagonalMapping::GetIndices(const G4ThreeVector &position)
   return out;
 }
 
+bool HexagonalMapping::isInCell(const HexagonalMappingData& map_info) const
+{
+  return map_info.isInCell() && (map_info.cell_x_ind < cell_x_num) && (map_info.cell_y_ind < cell_y_num);
+}
+
 HexagonalMappingData HexagonalMapping::MapToCell(const HexagonalMappingData& map_info, bool ignore_z) const
 {
   HexagonalMappingData out = map_info;
   G4ThreeVector rel_pos = map_info.position - g_container_pos;
-  if (!ignore_z && (rel_pos.z() < -container_z_size / 2.0 || rel_pos.z() > container_z_size / 2.0)) {
+  if (!ignore_z && (rel_pos.z() < -container_z_size / 2.0 - tolerance || rel_pos.z() > container_z_size / 2.0 + tolerance)) {
     return out;
   }
   out = GetIndices(map_info.position);
   out.momentum = map_info.momentum;
   out.polarization = map_info.polarization;
   out.position = map_info.position;
-  if (!out.isInCell() || out.cell_x_ind >= cell_x_num || out.cell_y_ind >= cell_y_num) {
+  if (!isInCell(out)) {
     return out;
   }
 
@@ -74,7 +79,7 @@ HexagonalMappingData HexagonalMapping::MapToCell(const HexagonalMappingData& map
   out.momentum.setY(out.momentum.y() * (out.cell_y_ind % 2 ? 1 : -1));
   out.polarization.setX(out.polarization.x() * (out.cell_x_ind % 2 ? 1 : -1));
   out.polarization.setY(out.polarization.y() * (out.cell_y_ind % 2 ? 1 : -1));
-  return out;
+  return MapFromCell(out, true); // instead of 'return out;' to remedy edge cases
 }
 
 HexagonalMappingData HexagonalMapping::MapFromCell(const HexagonalMappingData& map_info, bool ignore_z) const
@@ -84,44 +89,21 @@ HexagonalMappingData HexagonalMapping::MapFromCell(const HexagonalMappingData& m
   out.polarization = map_info.polarization;
   out.position = G4ThreeVector(- container_x_size / 2.0, - container_y_size / 2.0, - container_z_size / 2.0);
   out.position += g_container_pos;
-  if (!map_info.isInCell() || map_info.cell_x_ind >= cell_x_num || map_info.cell_y_ind >= cell_y_num) {
-    std::cerr<<"HexagonalMapping::MapFromCell:Error:"<<std::endl;
-    std::cerr<<"\tWrong input mapping info, unknown THGEM cell. Returning default position."<<std::endl;
-    return out;
+  if (!isInCell(map_info)) {
+    return MoveFromCell(map_info);
   }
   G4ThreeVector rel_pos = map_info.position - g_cell_pos;
-  if (!ignore_z && (rel_pos.z() < -container_z_size / 2.0 - tolerance || rel_pos.z() > container_z_size / 2.0 + tolerance)) {
-    std::cout<<"HexagonalMapping::MapFromCell:Warning:"<<std::endl;
-      std::cout<<"\tZ coordinate lies outside cell bounds. ignore_z forced to true."<<std::endl;
-    ignore_z = true;
+  if (!ignore_z && (((rel_pos.z() + container_z_size / 2.0) < tolerance && G4ThreeVector(0, 0, -1) * map_info.momentum > 0.0)
+      || ((rel_pos.z() - container_z_size / 2.0) < tolerance && G4ThreeVector(0, 0, 1) * map_info.momentum > 0.0))) {
+    return MoveFromCell(map_info);
   }
-
-  // Exact inverse of HexagonalMapping::MapToCell
-  // rel_pos.x() here is rel_to_cell_pos_x in HexagonalMapping::MapToCell
-  // and rel_to_container_pos_x here is rel_pos.x() there.
-  double cell_center_x = x_min + map_info.cell_x_ind * cell_x_size + cell_x_size / 2.0;
-  double cell_center_y = y_min + map_info.cell_y_ind * cell_y_size + cell_y_size / 2.0;
-  double rel_to_container_pos_x = (rel_pos.x() * (map_info.cell_x_ind % 2 ? 1 : -1)) + cell_center_x;
-  double rel_to_container_pos_y = (rel_pos.y() * (map_info.cell_y_ind % 2 ? 1 : -1)) + cell_center_y;
-  rel_pos.setX(rel_to_container_pos_x);
-  rel_pos.setY(rel_to_container_pos_y);
-  out.position = rel_pos + g_container_pos;
-  out.momentum.setX(out.momentum.x() * (out.cell_x_ind % 2 ? 1 : -1));
-  out.momentum.setY(out.momentum.y() * (out.cell_y_ind % 2 ? 1 : -1));
-  out.polarization.setX(out.polarization.x() * (out.cell_x_ind % 2 ? 1 : -1));
-  out.polarization.setY(out.polarization.y() * (out.cell_y_ind % 2 ? 1 : -1));
-  return out;
+  return MoveToNeighbourCell(map_info);
 }
 
-HexagonalMappingData HexagonalMapping::MapToNeighbourCell(const HexagonalMappingData& map_info) const
+HexagonalMappingData HexagonalMapping::MoveToNeighbourCell(const HexagonalMappingData& map_info) const
 {
-  if (!map_info.isInCell() || map_info.cell_x_ind >= cell_x_num || map_info.cell_y_ind >= cell_y_num) {
-    std::cerr<<"HexagonalMapping::MapToNeighbourCell:Error:"<<std::endl;
-    std::cerr<<"\tWrong input mapping info, unknown THGEM cell. Returning default position."<<std::endl;
-    HexagonalMappingData out;
-    out.position = G4ThreeVector(- container_x_size / 2.0, - container_y_size / 2.0, - container_z_size / 2.0);
-    out.position += g_container_pos;
-    return out;
+  if (!isInCell(map_info)) {
+    return MoveFromCell(map_info);
   }
   HexagonalMappingData out = map_info;
   G4ThreeVector rel_pos = map_info.position - g_cell_pos;
@@ -136,11 +118,12 @@ HexagonalMappingData HexagonalMapping::MapToNeighbourCell(const HexagonalMapping
     index_y_delta = 1;
   if ((std::abs(rel_pos.y() + cell_y_size / 2.0) < tolerance) && (G4ThreeVector(0, -1, 0)*map_info.momentum > 0))
     index_y_delta = -1;
+  index_x_delta *= (map_info.cell_x_ind % 2 ? 1 : -1);
+  index_y_delta *= (map_info.cell_y_ind % 2 ? 1 : -1);
   out.cell_x_ind += index_x_delta;
   out.cell_y_ind += index_y_delta;
-  if (!out.isInCell() || out.cell_x_ind >= cell_x_num || out.cell_y_ind >= cell_y_num) { //leaving cell-filled area in the container
-    out = MapFromCell(map_info, true);
-    return out;
+  if (!isInCell(out)) { //leaving cell-filled area in the container
+    return MoveFromCell(map_info);
   }
   if (index_x_delta != 0) { // Coordinate in cell is not changed due to asymmetry
     out.momentum.setX(-out.momentum.x());
@@ -150,5 +133,35 @@ HexagonalMappingData HexagonalMapping::MapToNeighbourCell(const HexagonalMapping
     out.momentum.setY(-out.momentum.y());
     out.polarization.setY(-out.polarization.y());
   }
+  return out;
+}
+
+HexagonalMappingData HexagonalMapping::MoveFromCell(const HexagonalMappingData& map_info) const
+{
+  HexagonalMappingData out;
+  out.momentum = map_info.momentum;
+  out.polarization = map_info.polarization;
+  out.position = G4ThreeVector(- container_x_size / 2.0, - container_y_size / 2.0, - container_z_size / 2.0);
+  out.position += g_container_pos;
+  if (!isInCell(map_info)) {
+    std::cerr<<"HexagonalMapping::MoveFromCell:Error:"<<std::endl;
+    std::cerr<<"\tWrong input mapping info, unknown THGEM cell. Returning default position."<<std::endl;
+    return out;
+  }
+  G4ThreeVector rel_pos = map_info.position - g_cell_pos;
+  // Exact inverse of HexagonalMapping::MapToCell
+  // rel_pos.x() here is rel_to_cell_pos_x in HexagonalMapping::MapToCell
+  // and rel_to_container_pos_x here is rel_pos.x() there.
+  double cell_center_x = x_min + map_info.cell_x_ind * cell_x_size + cell_x_size / 2.0;
+  double cell_center_y = y_min + map_info.cell_y_ind * cell_y_size + cell_y_size / 2.0;
+  double rel_to_container_pos_x = (rel_pos.x() * (map_info.cell_x_ind % 2 ? 1 : -1)) + cell_center_x;
+  double rel_to_container_pos_y = (rel_pos.y() * (map_info.cell_y_ind % 2 ? 1 : -1)) + cell_center_y;
+  rel_pos.setX(rel_to_container_pos_x);
+  rel_pos.setY(rel_to_container_pos_y);
+  out.position = rel_pos + g_container_pos;
+  out.momentum.setX(out.momentum.x() * (map_info.cell_x_ind % 2 ? 1 : -1));
+  out.momentum.setY(out.momentum.y() * (map_info.cell_y_ind % 2 ? 1 : -1));
+  out.polarization.setX(out.polarization.x() * (map_info.cell_x_ind % 2 ? 1 : -1));
+  out.polarization.setY(out.polarization.y() * (map_info.cell_y_ind % 2 ? 1 : -1));
   return out;
 }

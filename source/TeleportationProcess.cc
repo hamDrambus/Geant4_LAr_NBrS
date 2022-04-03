@@ -91,11 +91,7 @@ G4VParticleChange* TeleportationProcess::PostStepDoIt(const G4Track& aTrack, con
   if (prevPVolume->GetName() == gPars::det_dims.THGEM1_cell_name
       && globalNormal*fOldState.momentum > 0.0
       && postPVolume->GetLogicalVolume()->IsAncestor(prevPVolume)) {
-    if (std::fabs(globalNormal * G4ThreeVector(0, 0, 1) - 1.0) < fTolerance
-        || std::fabs(globalNormal * G4ThreeVector(0, 0, -1) - 1.0) < fTolerance) //TODO: make condition not hard-coded. Maybe move this logic to HexagonalMapping?
-      fNewState = gPars::THGEM1_mapping->MapFromCell(fOldState, false);
-    else
-      fNewState = gPars::THGEM1_mapping->MapToNeighbourCell(fOldState);
+    fNewState = gPars::THGEM1_mapping->MapFromCell(fOldState, false);
   }
   if (postPVolume->GetName() == gPars::det_dims.THGEM1_cell_container_name
       && globalNormal*fOldState.momentum > 0.0

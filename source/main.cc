@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 	// Choose the Random engine
 	CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);
 	// Seed the random number generator manually
-	G4long myseed = 43;
+	G4long myseed = 42;
 	CLHEP::HepRandom::setTheSeed(myseed);
 
 	// Construct the default run manager

@@ -72,7 +72,7 @@ namespace gPars
 		double THGEM1_active_area_size;
 		double width_interface_grid_support; //effective width which lengthens whole inner structure
 		double width_interface_grid_frame; //real frame is much thicker, but has holes for support pillars
-		double xyz_position_SingleTHGEMHole;
+		G4ThreeVector THGEM1_single_cell_position;
 		double EL_gap_thickness;
 		double z_top_interface_grid;
 		double z_bottom_THGEM1;

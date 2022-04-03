@@ -66,7 +66,7 @@ namespace gPars
 				this_path.push_back('/');
 
 		data_path = "../../NBrS_THGEM_LAr_v0/data/";
-		doView = true;
+		doView = false;
 
 		std::cout<<"This path: \""<<this_path<<"\""<<std::endl;
 		std::cout<<"Data path: \""<<this_path+data_path<<"\""<<std::endl;
@@ -81,12 +81,12 @@ namespace gPars
 		source.energy_line = -1;
 		source.energy_spectrum_filename = "energy_spectrum/YAP_Ce_energies_eV_1.dat";
 		source.energy_spectrum.read(data_path+source.energy_spectrum_filename);
-		source.x_center = 0.0; //1 * 0.9;
+		source.x_center = 0.0;
 		source.y_center = 0.0;
 		source.z_center = 0.0;
-		source.xy_radius = 3;//*sqrt(2);
+		source.xy_radius = 0.24;//*sqrt(2);
 		source.z_width = 0;
-		source.N_events = 100;
+		source.N_events = 100000;
 
 		// THGEM CERN 28%, in [mm]
 		det_dims.THGEM1_copper_thickness = 0.03;
@@ -107,7 +107,7 @@ namespace gPars
 
 		det_dims.width_interface_grid_support = 1.4;
 		det_dims.width_interface_grid_frame = 5;
-		det_dims.xyz_position_SingleTHGEMHole = 150;
+		det_dims.THGEM1_single_cell_position = G4ThreeVector(150 * mm, 150 * mm, 150 * mm);
 		det_dims.external_collimator_diameter = 50; //No collimator if >= diameter_size_Al_window
 		//det_dims.EL_gap_thickness = 13;//double phase
 		det_dims.EL_gap_thickness = -4;//single phase. From THGEM1 real bottom.
@@ -154,6 +154,11 @@ namespace gPars
       det_opt.StainlessSteel_SigmaAlpha = 0.0;
       det_opt.Cu_SigmaAlpha = 0.0;
       det_opt.Wire_SigmaAlpha = 0.0;
+    }
+    if (source.N_events > 200 && doView) {
+      G4Exception("gPars::InitGlobals(): ",
+            "InvalidSetup", FatalException, "Viewing large number of events is disabled.");
+      return;
     }
 	}
 }

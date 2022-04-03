@@ -308,7 +308,6 @@ G4VPhysicalVolume * DetectorConstruction::Construct()
 	G4LogicalBorderSurface* LAr_inner2physiWorld = new G4LogicalBorderSurface("LAr_inner2physiWorld", phys_LAr_inner, physiWorld, LAr_OpticalSurface);
 	G4LogicalBorderSurface* tracker2SiPM = new G4LogicalBorderSurface("tracker2SiPM", phys_tracker, phys_SiPM, SiPM_OpticalSurface);
 	G4LogicalBorderSurface* trackerSiPM_SiPMFR4 = new G4LogicalBorderSurface("trackerSiPM_SiPMFR4", phys_tracker, phys_SiPMFR4, FR4_unified);
-	//G4LogicalSkinSurface* SiPM_sensor = new G4LogicalSkinSurface("SiPM_sensor", logic_SiPM, SiPM_OpticalSurface);
 
 	// PMT photocathode has same surface for LAr and gas.
 	G4LogicalSkinSurface* sur_PMT_cathode = new G4LogicalSkinSurface("PMT_cathode", logic_PMT, PMT_cathode);
@@ -339,6 +338,7 @@ G4VPhysicalVolume * DetectorConstruction::Construct()
 	G4LogicalSkinSurface* THGEM1_cell_cu = new G4LogicalSkinSurface("THGEM1_cell_cu_surface", logic_THGEM1_cell_copper, Cu_THGEM);
   G4LogicalSkinSurface* THGEM1_cell_FR4 = new G4LogicalSkinSurface("THGEM1_cell_FR4_surface", logic_THGEM1_cell_FR4, FR4_unified);
   G4LogicalBorderSurface* THGEM1_cell_isolation = new G4LogicalBorderSurface("THGEM1_cell_isolation_surface", physiWorld, phys_THGEM1_cell, AbsorberMaterial);
+  G4LogicalBorderSurface* THGEM1_cell_isolation1 = new G4LogicalBorderSurface("THGEM1_cell_isolation_surface1", phys_THGEM1_cell, physiWorld, AbsorberMaterial);
 
 	G4LogicalBorderSurface* World2THGEM1_without_hole = new G4LogicalBorderSurface("World2THGEM1_without_hole", physiWorld, phys_THGEM1_frame, FR4_unified);
 	G4LogicalBorderSurface* phys_LAr_inner_2_THGEM1_without_hole = new G4LogicalBorderSurface("phys_LAr_inner_2_THGEM1_without_hole", phys_LAr_inner, phys_THGEM1_frame, FR4_unified);
@@ -778,8 +778,7 @@ void DetectorConstruction::SetSizeAndPosition()
 	radiusTPB = 35;
 	z_size_TPB = 0.2;
 
-	position_SingleTHGEMCell = G4ThreeVector(gPars::det_dims.xyz_position_SingleTHGEMHole, gPars::det_dims.xyz_position_SingleTHGEMHole,
-		gPars::det_dims.xyz_position_SingleTHGEMHole);
+	position_SingleTHGEMCell = gPars::det_dims.THGEM1_single_cell_position;
 
 	position_anode_grid = G4ThreeVector(0, 0, z_anode_grid_center);
 	position_SiPM_container = G4ThreeVector(0, 0, z_SiPM_center);

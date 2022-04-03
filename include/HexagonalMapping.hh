@@ -53,12 +53,15 @@ public:
   // Returns global position and momentum according to cell indices and position inside cell
   HexagonalMappingData MapFromCell(const HexagonalMappingData& map_info, bool ignore_z = false) const;
   // Propagates particle to the next cell. Cell is changed when particle hit current cell sides only.
-  HexagonalMappingData MapToNeighbourCell(const HexagonalMappingData& map_info) const;
+  //HexagonalMappingData MapToNeighbourCell(const HexagonalMappingData& map_info) const;
 
   bool isValid(void) const;
 
 protected:
   HexagonalMappingData GetIndices(const G4ThreeVector &position) const;
+  HexagonalMappingData MoveToNeighbourCell(const HexagonalMappingData& map_info) const;
+  HexagonalMappingData MoveFromCell(const HexagonalMappingData& map_info) const;
+  bool isInCell(const HexagonalMappingData& map_info) const;
 
   G4ThreeVector g_container_pos;//center of cell container volume (THGEM) in global coordinates
   G4ThreeVector g_cell_pos;//center of cell volume in global coordinates
