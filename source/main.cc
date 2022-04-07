@@ -9,11 +9,15 @@
 #endif
 
 #include "GlobalParameters.hh"
+#include "GlobalData.hh"
 #include "Randomize.hh"
 #include "PhysicsList.hh"
 #include "DetectorConstruction.hh"
+#include "DetectorConstructionTHGEM1.hh"
 #include "RunAction.hh"
 #include "PrimaryGeneratorAction.hh"
+#include "GenElectronsPatterns.hh"
+#include "GenPhotonsDirectly.hh"
 #include "SteppingAction.hh"
 #include "TrackingAction.hh"
 
@@ -30,17 +34,20 @@ int main(int argc, char** argv)
 	// Construct the default run manager
 	G4RunManager * runManager = new G4RunManager;
 	// Set mandatory initialization classes
-	DetectorConstruction *detector = new DetectorConstruction();
-	runManager->SetUserInitialization(detector);
+	runManager->SetUserInitialization(new DetectorConstruction);
+	//runManager->SetUserInitialization(new DetectorConstructionTHGEM1);
 	runManager->SetUserInitialization(new PhysicsList);
 	// Set user action classes
 	runManager->SetUserAction(new RunAction);
-	runManager->SetUserAction(new PrimaryGeneratorAction(2.0)); //gPars::source.energy_spectrum
-	runManager->SetUserAction(new SteppingAction(detector));
+	//runManager->SetUserAction(new GenElectronsPatterns(GenElectronsPatterns::PatternElectron::UniformLineX));
+	runManager->SetUserAction(new GenPhotonsDirectly(3.1, GenPhotonsDirectly::PatternPhoton::Cathode_14mm_coll));
+	//runManager->SetUserAction(new PrimaryGeneratorAction(2.0));
+	runManager->SetUserAction(new SteppingAction);
 	runManager->SetUserAction(new TrackingAction);
 
 	// Initialize G4 kernel
 	runManager->Initialize();
+	gData.Initialize();
 	// Visualization manager
 #ifdef G4VIS_USE
 	G4VisManager* visManager = new G4VisExecutive;
@@ -54,12 +61,17 @@ int main(int argc, char** argv)
 	UI->ApplyCommand("/run/verbose 0");
 	UI->ApplyCommand("/event/verbose 0");
 	UI->ApplyCommand("/tracking/verbose 0");
-	if (gPars::doView)
+	UI->ApplyCommand("/tracking/storeTrajectory 1");
+	if (gPars::general.doView)
 		UI->ApplyCommand("/control/execute vis.mac");
 
+	double THGEM1_z = gPars::det_dims.z_bottom_THGEM1 + gPars::det_dims.THGEM1_width_total / 2.0;
+  //gData.PlotField("v00.01.01/center_axis_field.txt", G4ThreeVector(0, 0, THGEM1_z * mm - 3 * mm), G4ThreeVector(0, 0, THGEM1_z * mm + 3 * mm), 3000);
+  //gData.PlotField("v00.01.01/x_p0.05_axis_field.txt", G4ThreeVector(0.05 * mm, 0, THGEM1_z * mm - 3 * mm), G4ThreeVector(0.05 * mm, 0, THGEM1_z * mm + 3 * mm), 3000);
+  //gData.PlotField("v00.01.01/y_p0.05_axis_field.txt", G4ThreeVector(0, 0.05 * mm, THGEM1_z * mm - 3 * mm), G4ThreeVector(0, 0.05 * mm, THGEM1_z * mm + 3 * mm), 3000);
 	runManager->BeamOn(gPars::source.N_events);
 
-	if (gPars::doView)
+	if (gPars::general.doView)
 		UI->ApplyCommand("vis/viewer/update");
 
 	// Termination

@@ -1,8 +1,7 @@
 /*  Global parameters such as filenames, detector dimensions, etc., shared between all classes.
- *  Also stores results of simulation. All parameters except results must be read only during
- *  simulation after their initialization.
- *  TODO: Make results thread-safe.
- *  TODO?: move parameters which are not initialized in gPars::InitGlobals() elsewhere
+ *  The difference from GlobalData is that this class only stores simple parameters which all
+ *  may be easily changed without silent breaking of simulation.
+ *  All parameters must be read only during simulation after their initialization.
  */
 #ifndef GlobalParameters_h
 #define GlobalParameters_h
@@ -21,30 +20,24 @@
 
 //#define TEMP_CODE_
 
-struct DriftElectron {
-  int index;
-  G4ThreeVector position;
-  std::string seed_info;
-};
-
-struct GeneratedData {
-  DriftElectron electron;
-  std::deque<PhotonHit> photons;
-};
-
-void AddToFile (std::deque<GeneratedData> data, std::string filename);
-
 namespace gPars
 {
   struct ProgramSetups {
+    std::string this_path;
+    std::string data_path;
+    bool doView;
+    bool doViewElectronDrift;
     bool check_geometry_overlap;
     std::string track_mapping_info_class;
     int teleportation_verbosity; // 0 is quiet
     bool no_reflections;
     bool no_diffused_reflections;
     double photon_max_time; // to forcefully kill photons stuck in full internal reflections
+    double electron_max_time; // to forcefully kill stuck drifting electrons. For debugging only, must be DBL_MAX in real simulation!
+    bool enable_e_diffusion;
     G4ThreeVector THGEM1_hole_center; // For convenience and testing purposes
     G4ThreeVector EL_gap_center; // For convenience and testing purposes
+    double surface_tolerance;
   };
 
 	struct Source {
@@ -73,6 +66,7 @@ namespace gPars
 		double width_interface_grid_support; //effective width which lengthens whole inner structure
 		double width_interface_grid_frame; //real frame is much thicker, but has holes for support pillars
 		G4ThreeVector THGEM1_single_cell_position;
+
 		double EL_gap_thickness;
 		double z_top_interface_grid;
 		double z_bottom_THGEM1;
@@ -81,12 +75,25 @@ namespace gPars
 		double THGEM_cathode_width;
 		double Al_window_width;
 
-		unsigned int n_PMTs; // fixed to 4
+		double SiPM_size;
 		unsigned int n_SiPMs_rows; //total number = n_SiPMs_rows^2
 		std::string SiPM_device_name;
+
+		unsigned int n_PMTs; // fixed to 4
 		std::string PMT_device_name;
 		std::string THGEM1_cell_name;
 		std::string THGEM1_cell_container_name;
+	};
+
+	struct ElmerFieldMap {
+	  std::string elmer_mesh_folder;
+    std::string elmer_solution_filename;
+    G4ThreeVector elmer_mesh_center;
+    std::string LAr_drift_velocity;
+    std::string LAr_diffusion_longitudinal;
+    std::string LAr_diffusion_transversal;
+    double drift_step_size;
+    double mesh_tolerance; // relative, necessary to get field near mesh boundary
 	};
 
 	struct DetectorOptics {
@@ -101,33 +108,18 @@ namespace gPars
 
 	class Results {
 	public:
-		std::deque<unsigned int> SiPM_photon_n; //per each device
-		std::deque<unsigned int> PMT_photon_n;
-		std::deque<G4ThreeVector> SiPM_positions; //Set automatically in RunAction
-		std::deque<G4ThreeVector> PMT_positions;
-		std::deque<GeneratedData> generated_photons; //TODO:per thread. + Merge
-		std::deque<GeneratedData> recorded_photons;
-		unsigned int n_reflections; // TODO: can move to some user action and add n_reflection to hit info
-		unsigned int GetNGeneratedPhotons(void) const;
-		unsigned int GetNRecordedPhotons(void) const;
 		std::string generated_filename;
 		std::string recorded_filename;
 	};
 
 	void InitGlobals(void);
 
-	extern bool doView;
-
-	extern std::string this_path;
-	extern std::string data_path;
-
-	extern ProgramSetups debugging;
+	extern ProgramSetups general;
 	extern Source source;
 	extern DetectorDimensions det_dims;
+	extern ElmerFieldMap field_map;
 	extern DetectorOptics det_opt;
 	extern Results results;
-
-	extern HexagonalMapping* THGEM1_mapping; // Set after geometry construction in RunAction. Thread safe.
 }
 
 #endif //GlobalParameters_h

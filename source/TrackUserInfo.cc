@@ -2,7 +2,7 @@
 
 TrackUserInfo::TrackUserInfo()
 {
-  pType = new G4String(gPars::debugging.track_mapping_info_class);
+  pType = new G4String(gPars::general.track_mapping_info_class);
 }
 
 TrackUserInfo::TrackUserInfo(const G4String& infoType)
@@ -12,7 +12,7 @@ TrackUserInfo::TrackUserInfo(const G4String& infoType)
 
 TrackUserInfo::TrackUserInfo(const HexagonalMappingData& mapping_info)
 {
-  pType = new G4String(gPars::debugging.track_mapping_info_class);
+  pType = new G4String(gPars::general.track_mapping_info_class);
   mapping_data = mapping_info;
 }
 

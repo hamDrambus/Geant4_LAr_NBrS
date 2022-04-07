@@ -12,8 +12,9 @@
 #include "G4TransportationManager.hh"
 #include "G4PhysicalVolumesSearchScene.hh"
 
-#include "GlobalParameters.hh"
 #include "GlobalUtilities.hh"
+#include "GlobalParameters.hh"
+#include "GlobalData.hh"
 
 class RunAction : public G4UserRunAction
 {
@@ -26,8 +27,8 @@ class RunAction : public G4UserRunAction
     void EndOfRunAction(const G4Run* aRun);
     
   protected:
-    void FindSensorsCoordinates(); //Sets global positions of SiPMs and PMTs in gPars:: after geometry is constructed
-    void SetupTHGEM1Mapping();
+    //void FindSensorsCoordinates(); //Sets global positions of SiPMs and PMTs in gPars:: after geometry is constructed
+    //void SetupTHGEM1Mapping(); //Finds THGEM1 volumes which are mapped and initializes mapping class gPars::THGEM1_mapping
 };
 
 #endif

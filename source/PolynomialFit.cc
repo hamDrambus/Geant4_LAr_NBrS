@@ -180,44 +180,44 @@ void DataVector::read(std::ifstream& str)
 					throw std::runtime_error("Header line has wrong format (does not start with \"//\")");
 				invalid_header_is_data = false;
 				line.erase(line.begin(), line.begin() + 2);
-				word = strtoken(line, "\t ");
+				word = strtoken(line, "\t \r");
 				++word_n;
 				ival = boost::lexical_cast<std::size_t>(word);
 				setOrder(ival);
 
-				word = strtoken(line, "\t ");
+				word = strtoken(line, "\t \r");
 				++word_n;
 				ival = boost::lexical_cast<std::size_t>(word);
 				setNused(ival);
 
-				word = strtoken(line, "\t ");
+				word = strtoken(line, "\t \r");
 				++word_n;
 				ival = std::stoi(word);
 				use_leftmost(ival);
 
-				word = strtoken(line, "\t ");
+				word = strtoken(line, "\t \r");
 				++word_n;
 				ival = std::stoi(word);
 				use_rightmost(ival);
 
-				word = strtoken(line, "\t ");
+				word = strtoken(line, "\t \r");
 				++word_n;
 				ival = std::stoi(word);
 				is_set_left = ival;
 
-				word = strtoken(line, "\t ");
+				word = strtoken(line, "\t \r");
 				++word_n;
 				ival = std::stoi(word);
 				is_set_right = ival;
 
-				word = strtoken(line, "\t ");
+				word = strtoken(line, "\t \r");
 				++word_n;
 				dval = boost::lexical_cast<double>(word);
 				if (is_set_left)
 					left_value = dval;
 				else
 					left_value = boost::none;
-				word = strtoken(line, "\t ");
+				word = strtoken(line, "\t \r");
 				++word_n;
 				dval = boost::lexical_cast<double>(word);
 				if (is_set_right)
@@ -255,9 +255,9 @@ void DataVector::read(std::ifstream& str)
 			if ((line[0] == '/') && (line[1] == '/'))
 				continue;
 		try {
-			word = strtoken(line, "\t ");
+			word = strtoken(line, "\t \r");
 			double x = boost::lexical_cast<double>(word);
-			word = strtoken(line, "\t ");
+			word = strtoken(line, "\t \r");
 			double val = boost::lexical_cast<double>(word);
 			insert(x, val);
 		} catch (boost::bad_lexical_cast &e) {
@@ -601,9 +601,9 @@ void PDF_routine::read(std::ifstream& str)
 				continue;
 		try {
 			double val, x;
-			word = strtoken(line, "\t ");
+			word = strtoken(line, "\t \r");
 			x = boost::lexical_cast<double>(word);
-			word = strtoken(line, "\t ");
+			word = strtoken(line, "\t \r");
 			val = boost::lexical_cast<double>(word);
 			insert(x, val);
 		}  catch (boost::bad_lexical_cast &e) {

@@ -15,7 +15,7 @@ TeleportationProcess::~TeleportationProcess() {}
 
 void TeleportationProcess::Initialise()
 {
-  SetVerboseLevel(gPars::debugging.teleportation_verbosity);
+  SetVerboseLevel(gPars::general.teleportation_verbosity);
 }
 
 G4VParticleChange* TeleportationProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
@@ -47,7 +47,7 @@ G4VParticleChange* TeleportationProcess::PostStepDoIt(const G4Track& aTrack, con
       G4cout << " postPVolume: " << postPVolume->GetName() << G4endl;
   }
 
-  if (nullptr == gPars::THGEM1_mapping) {
+  if (nullptr == gData.THGEM1_mapping) {
      if(verboseLevel > 1) {
        G4cout << " No mapping class in global parameters, skipping process." << G4endl;
      }
@@ -91,12 +91,12 @@ G4VParticleChange* TeleportationProcess::PostStepDoIt(const G4Track& aTrack, con
   if (prevPVolume->GetName() == gPars::det_dims.THGEM1_cell_name
       && globalNormal*fOldState.momentum > 0.0
       && postPVolume->GetLogicalVolume()->IsAncestor(prevPVolume)) {
-    fNewState = gPars::THGEM1_mapping->MapFromCell(fOldState, false);
+    fNewState = gData.THGEM1_mapping->MapFromCell(fOldState, false);
   }
   if (postPVolume->GetName() == gPars::det_dims.THGEM1_cell_container_name
       && globalNormal*fOldState.momentum > 0.0
       && !postPVolume->GetLogicalVolume()->IsAncestor(prevPVolume)) {
-    fNewState = gPars::THGEM1_mapping->MapToCell(fOldState, true);
+    fNewState = gData.THGEM1_mapping->MapToCell(fOldState, true);
   }
 
   if (fNewState != fOldState) {

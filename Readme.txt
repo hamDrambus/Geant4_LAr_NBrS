@@ -1,16 +1,22 @@
 Dependencies:
-c++ BOOST
-Geant4 (only v10.4 was used and tested)
-CERN ROOT is required to analyze obtained data with root_scripts/* but it is optional.
+1) c++ Boost. Headers are enough, no need for compiling it.
+2) Geant4 (only v10.4 was used and tested). Do not forget to run '$source ../bin/geant4.sh' and to add Geant4's library path to LD_LIBRARY_PATH. Best to add 'source ../bin/geant4.sh' to startup script in /etc/profile.d/ and 
 
-Run cmake to create makefile:
+Required for the project overall but not used in compilation of C++ code:
+1) CERN ROOT is required to analyze obtained data with root_scripts/*.
+2) FreeCAD or something else is required to view VRML2FILE (g4.wrl) visualization output.
+3) Gmsh v3 is required to create THGEM cell mesh (.geo file->.msh)
+4) Elmer is required to calculate electric field in cell using Gmsh output (.msh + .sif -> .results, .header, .nodes, .elements, .boundary).
+5) gnuplot is recommended to quickly plot some simple files (such as electric fields).
+
+=================================================
+To compile Geant4 code run cmake to create makefile:
 
 mkdir Build
 cd Build
 cmake -DCMAKE_PREFIX_PATH=${HOME}/Software/Geant4/geant4.10.04.p01-install/lib/Geant4-11.0.0 ../
 make
 
-=================================================
 Or run script to create Eclipse project:
 
 bash GenEclipseProject.sh

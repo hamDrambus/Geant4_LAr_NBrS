@@ -143,12 +143,12 @@ void PrimaryGenerator::GeneratePrimaryVertex(G4Event* event)
   mapping_data.position = particle_position;
   mapping_data.momentum = particle_momentum_direction;
   mapping_data.polarization = particle_polarization;
-  if (gPars::THGEM1_mapping != nullptr && gPars::THGEM1_mapping->isValid()) {
+  if (gData.THGEM1_mapping != nullptr && gData.THGEM1_mapping->isValid()) {
     G4VPhysicalVolume* volume = navigator->LocateGlobalPointAndSetup(mapping_data.position);
     boost::optional<G4PhysicalVolumesSearchScene::Findings> thgem1_PV = FindSinglePV(gPars::det_dims.THGEM1_cell_container_name);
     if (thgem1_PV) {
       if (volume == thgem1_PV->fpFoundPV || thgem1_PV->fpFoundPV->GetLogicalVolume()->IsAncestor(volume)) {
-        mapping_data = gPars::THGEM1_mapping->MapToCell(mapping_data, false);
+        mapping_data = gData.THGEM1_mapping->MapToCell(mapping_data, false);
       }
     }
     boost::optional<G4PhysicalVolumesSearchScene::Findings> cell_PV = FindSinglePV(gPars::det_dims.THGEM1_cell_name);

@@ -10,7 +10,7 @@ G4VParticleChange* KillProcess::PostStepDoIt(const G4Track& aTrack, const G4Step
 {
   aParticleChange.Initialize(aTrack);
   if(aTrack.GetDynamicParticle()->GetDefinition() == G4OpticalPhoton::OpticalPhoton()) {
-    if(aTrack.GetLocalTime() > gPars::debugging.photon_max_time) {
+    if(aTrack.GetLocalTime() > gPars::general.photon_max_time) {
       aParticleChange.ProposeTrackStatus(fStopAndKill);
       aParticleChange.ProposeLocalEnergyDeposit(0.0);
       G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);

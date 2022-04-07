@@ -1,6 +1,6 @@
 #include "DetectorConstruction.hh"
 
-DetectorConstruction::DetectorConstruction() : fCheckOverlaps(gPars::debugging.check_geometry_overlap)
+DetectorConstruction::DetectorConstruction() : fCheckOverlaps(gPars::general.check_geometry_overlap)
 {
 	rotX_90 = new G4RotationMatrix();
 	rotX_90->rotateX(90 * deg);
@@ -122,18 +122,7 @@ G4VPhysicalVolume * DetectorConstruction::Construct()
 	G4VPhysicalVolume* phys_CryogenicChamberBottom = new G4PVPlacement(0, position_CryogenicChamberBottom, logic_CryogenicChamberBottom, "phys_CryogenicChamberBottom",
 		logicWorld, false, 0, fCheckOverlaps);
 
-	//-------------------------------------------------------------------------------
-	// Create external collimator. No effect on light collection.
-	if (diameter_inter_ExternalColl < diameter_ExternalColl) {
-		G4Tubs* solid_ExternalColl = new G4Tubs("solid_ExternalColl", diameter_inter_ExternalColl / 2.0,
-			diameter_ExternalColl / 2.0, z_size_ExternalColl / 2.0, 0. *deg, 360.*deg);
-		G4LogicalVolume* logic_ExternalColl	= new G4LogicalVolume(solid_ExternalColl, G4Material::GetMaterial("Fe"), "logic_ExternalColl", 0, 0, 0);
-		G4VPhysicalVolume* phys_ExternalColl = new G4PVPlacement(0, // no rotation
-			position_ExternalColl, logic_ExternalColl, "phys_ExternalColl", logicWorld, // its mother  volume
-			false, 0, fCheckOverlaps);
-	}
-
-	//-------------------------------------------------------------------------------
+		//-------------------------------------------------------------------------------
 	// Create interface grid. Parameterization is required.
 	G4Box* solid_tracker_Interface_grid = new G4Box("solid_tracker_Interface_grid", x_size_tracker_Interface_grid / 2.0, y_size_tracker_Interface_grid / 2.0, radius_Interface_wire);
 	G4LogicalVolume* logic_tracker_Interface_grid = new G4LogicalVolume(solid_tracker_Interface_grid, G4Material::GetMaterial("LAr"), "logic_tracker_Interface_grid", 0, 0, 0);
@@ -151,7 +140,7 @@ G4VPhysicalVolume * DetectorConstruction::Construct()
 	G4Box* solid_interface_grid_substrate = new G4Box("solid_interface_grid_substrate", x_size_Interface_grid_substrate / 2.0, y_size_Interface_grid_substrate / 2.0, z_size_Interface_grid_substrate / 2.0);
 	G4Box* solid_interface_grid_hole = new G4Box("solid_interface_grid_hole", x_size_tracker_Interface_grid / 2.0, y_size_tracker_Interface_grid / 2.0, z_size_Interface_grid_substrate / 2.0);
 	G4SubtractionSolid* solid_interface_grid_subtraction = new G4SubtractionSolid("solid_interface_grid_subtraction", solid_interface_grid_substrate, solid_interface_grid_hole);
-	G4LogicalVolume* logic_interface_grid = new G4LogicalVolume(solid_interface_grid_subtraction, matAl, "l_anode_grid", 0, 0, 0);
+	G4LogicalVolume* logic_interface_grid = new G4LogicalVolume(solid_interface_grid_subtraction, G4Material::GetMaterial("FR4"), "l_anode_grid", 0, 0, 0);
 	G4VPhysicalVolume* phys_interface_grid = new G4PVPlacement(0, position_interface_frame, logic_interface_grid, "p_interface_grid",
 		logic_LAr_inner, false, 0);
 
@@ -165,14 +154,14 @@ G4VPhysicalVolume * DetectorConstruction::Construct()
 	G4Box* solid_anode_grid_substrate = new G4Box("anode_grid_substrate", size_anode_grid / 2.0, size_anode_grid / 2.0, thickness_anode_grid / 2.0);
 	G4Box* solid_anode_grid_hole = new G4Box("anode_grid_hole", size_anode_grid_hole / 2.0, size_anode_grid_hole / 2.0, thickness_anode_grid / 2.0);
 	G4SubtractionSolid* solid_anode_grid_frame = new G4SubtractionSolid("anode_grid__frame", solid_anode_grid_substrate, solid_anode_grid_hole);
-	G4LogicalVolume* logic_anode_grid_frame = new G4LogicalVolume(solid_anode_grid_frame, matAl, "l_anode_grid", 0, 0, 0);
+	G4LogicalVolume* logic_anode_grid_frame = new G4LogicalVolume(solid_anode_grid_frame, G4Material::GetMaterial("FR4"), "l_anode_grid", 0, 0, 0);
 	G4VPhysicalVolume* phys_anode_grid_frame = new G4PVPlacement(0, position_anode_grid, logic_anode_grid_frame, "p_anode_grid",
 		logicWorld, false, 0);
 	// Create anode wire grid
 	G4Tubs* solid_wire = new G4Tubs("solid_wire", 0, radius_wire, length_wire / 2.0, 0.*deg, 360.*deg);
-	G4LogicalVolume* logic_wire = new G4LogicalVolume(solid_wire, matAl, "lwire", 0, 0, 0);
+	G4LogicalVolume* logic_anode_wire = new G4LogicalVolume(solid_wire, matAl, "lwire", 0, 0, 0);
 	G4VPVParameterisation* param_wire = new DetectorParameterisation(N_wire, 1, 1, rotX_90, G4ThreeVector(0,0,0), G4ThreeVector(step_wire, 0, 0));
-	G4VPhysicalVolume* phys_wire = new G4PVParameterised("phys_wire", logic_wire,	logic_tracker_anode_grid,
+	G4VPhysicalVolume* phys_wire = new G4PVParameterised("phys_wire", logic_anode_wire,	logic_tracker_anode_grid,
 		kXAxis, N_wire, param_wire, fCheckOverlaps);
 
 	//--------------------------------------------------------------------------------
@@ -306,26 +295,28 @@ G4VPhysicalVolume * DetectorConstruction::Construct()
 	//--------------------------------------------------------------------------------
 	// Setting surfaces //adsf
 	G4LogicalBorderSurface* LAr_inner2physiWorld = new G4LogicalBorderSurface("LAr_inner2physiWorld", phys_LAr_inner, physiWorld, LAr_OpticalSurface);
-	G4LogicalBorderSurface* tracker2SiPM = new G4LogicalBorderSurface("tracker2SiPM", phys_tracker, phys_SiPM, SiPM_OpticalSurface);
-	G4LogicalBorderSurface* trackerSiPM_SiPMFR4 = new G4LogicalBorderSurface("trackerSiPM_SiPMFR4", phys_tracker, phys_SiPMFR4, FR4_unified);
+	G4LogicalBorderSurface* LAr_physiWorld2inner = new G4LogicalBorderSurface("LAr_physiWorld2inner", physiWorld, phys_LAr_inner, LAr_OpticalSurface);
+	G4LogicalSkinSurface* SiPM = new G4LogicalSkinSurface("SiPM_surf", logic_SiPM, SiPM_OpticalSurface);
+	G4LogicalSkinSurface* SiPMFR4 = new G4LogicalSkinSurface("SiPMFR4", logic_SiPMFR4, FR4_unified);
 
 	// PMT photocathode has same surface for LAr and gas.
 	G4LogicalSkinSurface* sur_PMT_cathode = new G4LogicalSkinSurface("PMT_cathode", logic_PMT, PMT_cathode);
-	G4LogicalSkinSurface* sur_BottomCathode = new G4LogicalSkinSurface("BottomCathode", logic_bCathode, Cu_Cathode/*AbsorberMaterial*/);
+	G4LogicalSkinSurface* sur_BottomCathode = new G4LogicalSkinSurface("BottomCathode", logic_bCathode, Cu_Cathode);
 	G4LogicalSkinSurface* CuReflector_THGEM0_surface = new G4LogicalSkinSurface("CuReflector_THGEM_surface", logic_THGEM1_copper, Cu_THGEM);
 	G4LogicalSkinSurface* sur_SteelBox = new G4LogicalSkinSurface("SteelBox", logicSteelBox, stainlessSteel);
 
 	// PMT grid
 	G4LogicalBorderSurface* PMTAnodeGridTrackerLiquidGas = new G4LogicalBorderSurface("PMTAnodeGridTrackerLiquid-Gas", phys_PMTAnodeGridTrackerLiquid_1, phys_PMTAnodeGridTrackerGas_1, LAr_OpticalSurface);
+	G4LogicalBorderSurface* PMTAnodeGridTrackerLiquidGas1 = new G4LogicalBorderSurface("PMTAnodeGridTrackerLiquid-Gas1", phys_PMTAnodeGridTrackerGas_1, phys_PMTAnodeGridTrackerLiquid_1, LAr_OpticalSurface);
 	G4LogicalBorderSurface* PMTAnodeGridTrackerLiquidGasInner = new G4LogicalBorderSurface("PMTAnodeGridTrackerGas-Liquid", phys_PMTAnodeGridTrackerLiquidInner_1, phys_PMTAnodeGridTrackerGasInner_1, LAr_OpticalSurface);
+  G4LogicalBorderSurface* PMTAnodeGridTrackerLiquidGasInner1 = new G4LogicalBorderSurface("PMTAnodeGridTrackerGas-Liquid1", phys_PMTAnodeGridTrackerGasInner_1, phys_PMTAnodeGridTrackerLiquidInner_1, LAr_OpticalSurface);
 	G4LogicalSkinSurface* PMTGridWire0 = new G4LogicalSkinSurface("PMTGridWire_surface0", logic_PMTGridWire, stainlessSteel);
 	G4LogicalSkinSurface* PMTGridWire1 = new G4LogicalSkinSurface("PMTGridWire_surface1", logic_PMTGridWireGasInner, stainlessSteel);
 	G4LogicalSkinSurface* PMTGridWire2 = new G4LogicalSkinSurface("PMTGridWire_surface2", logic_PMTGridWireLiquidInner, stainlessSteel);
 
 	// SiPM (anode) grid
-	G4LogicalBorderSurface* physiWorld2anode_grid = new G4LogicalBorderSurface("physiWorld2anode_grid", physiWorld, phys_anode_grid_frame, /*AbsorberMaterial*/ FR4_unified);
-	G4LogicalBorderSurface* tracker_anode_grid2wire = new G4LogicalBorderSurface("tracker_anode_grid2wire", phys_tracker_anode_grid, phys_wire, /*AbsorberMaterial*/ Anode_wire_unified);
-	G4LogicalBorderSurface* tracker_anode_grid2anode_grid = new G4LogicalBorderSurface("tracker_anode_grid2anode_grid", phys_tracker_anode_grid, phys_anode_grid_frame, /*AbsorberMaterial*/ FR4_unified);
+	G4LogicalSkinSurface* anode_grid_frame = new G4LogicalSkinSurface("anode_grid_frame_sur", logic_anode_grid_frame, FR4_unified);
+	G4LogicalSkinSurface* anode_grid_wire = new G4LogicalSkinSurface("anode_grid_wire_sur", logic_anode_wire, Anode_wire_unified);
 
 	// Interface grid
 	G4LogicalBorderSurface* phys_LAr_inner2Interface_grid = new G4LogicalBorderSurface("phys_LAr_inner2Interface_grid", phys_LAr_inner, phys_interface_grid, /*AbsorberMaterial*/ FR4_unified);
@@ -348,21 +339,26 @@ G4VPhysicalVolume * DetectorConstruction::Construct()
 
 	//--------------------------------------------------------------------------------
 	// Setting visualization
-	G4VisAttributes* LAr_VisAtt = new G4VisAttributes(G4Colour(0.6, 0.6, 1.0, 0.0));
-	G4VisAttributes* gas_VisAtt = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0, 0.0));
-	G4VisAttributes* PMMA_VisAtt = new G4VisAttributes(G4Colour(0.2, 0.2, 0.8, 0.0));
-	G4VisAttributes* Wires_VisAtt = new G4VisAttributes(G4Colour(1.0, 0.1, 0.1, 0.4));
-	G4VisAttributes* FR4_VisAtt = new G4VisAttributes(G4Colour(1.0, 0.5, 0.2, 0.4));
-	G4VisAttributes* Sensor_VisAtt = new G4VisAttributes(G4Colour(0.8, 0.7, 0.2, 0.8));
-	G4VisAttributes* Cu_VisAtt = new G4VisAttributes(G4Colour(0.0, 1.0, 1.0, 0.4));
-	G4VisAttributes* Steel_VisAtt = new G4VisAttributes(G4Colour(0.2, 0.2, 0.2, 0.1));
+	G4VisAttributes LAr_VisAtt(G4Colour(0.6, 0.6, 1.0, 0.0));
+	G4VisAttributes gas_VisAtt(G4Colour(1.0, 1.0, 1.0, 0.0));
+	gas_VisAtt.SetVisibility(false);
+	G4VisAttributes PMMA_VisAtt(G4Colour(0.2, 0.2, 0.8, 0.1));
+	G4VisAttributes Wires_VisAtt(G4Colour(1.0, 0.1, 0.1, 0.4));
+	G4VisAttributes FR4_VisAtt(G4Colour(1.0, 0.5, 0.2, 0.4));
+	G4VisAttributes Sensor_VisAtt(G4Colour(0.8, 0.7, 0.2, 0.8));
+	G4VisAttributes Cu_VisAtt(G4Colour(0.0, 1.0, 1.0, 0.4));
+	G4VisAttributes Steel_VisAtt(G4Colour(0.2, 0.2, 0.2, 0.1));
+	G4VisAttributes Al_VisAtt(G4Colour(1.0, 1.0, 0.0, 0.0));
+	Al_VisAtt.SetVisibility(false);
 
 	// SiPMs
-	logic_wire->SetVisAttributes(Wires_VisAtt);
+	logic_anode_wire->SetVisAttributes(Wires_VisAtt);
 	logic_anode_grid_frame->SetVisAttributes(FR4_VisAtt);
 	logic_SiPM->SetVisAttributes(Sensor_VisAtt);
   trackerLV->SetVisAttributes(gas_VisAtt);
+  FR4_VisAtt.SetVisibility(false);
   logic_SiPMFR4->SetVisAttributes(FR4_VisAtt);
+  FR4_VisAtt.SetVisibility(true);
 
 	// Interface grid
 	logic_Interface_wire->SetVisAttributes(Wires_VisAtt);
@@ -372,8 +368,12 @@ G4VPhysicalVolume * DetectorConstruction::Construct()
 	logic_PMT->SetVisAttributes(Sensor_VisAtt);
 	logic_PMTGridWire->SetVisAttributes(Wires_VisAtt);
 	logic_PMTGridWireGasInner->SetVisAttributes(gas_VisAtt);
+	LAr_VisAtt.SetVisibility(false);
 	logic_PMTGridWireLiquidInner->SetVisAttributes(LAr_VisAtt);
+	LAr_VisAtt.SetVisibility(true);
+	Steel_VisAtt.SetVisibility(false);
 	logicSteelBox->SetVisAttributes(Steel_VisAtt);
+	Steel_VisAtt.SetVisibility(true);
 
 	// Separate THGEM hole
 	logic_THGEM1_cell_copper->SetVisAttributes(Cu_VisAtt);
@@ -394,15 +394,19 @@ G4VPhysicalVolume * DetectorConstruction::Construct()
 	logic_LArInactive->SetVisAttributes(LAr_VisAtt);
 
 	logic_bCathode->SetVisAttributes(FR4_VisAtt);
-	logic_Al_window->SetVisAttributes(new G4VisAttributes(G4Colour(1.0, 1.0, 0.0, 0.0)));
+	logic_Al_window->SetVisAttributes(Al_VisAtt);
+	Steel_VisAtt.SetVisibility(false);
 	logic_CryogenicChamberBottom->SetVisAttributes(Steel_VisAtt);
+	Steel_VisAtt.SetVisibility(true);
+	PMMA_VisAtt.SetVisibility(false);
 	logic_PMMA_bottom->SetVisAttributes(PMMA_VisAtt);
+	PMMA_VisAtt.SetVisibility(true);
 	logic_PMMA_plate->SetVisAttributes(PMMA_VisAtt);
 	logic_Insulator_box->SetVisAttributes(PMMA_VisAtt);
 
 	logic_FieldWire->SetVisAttributes(Wires_VisAtt);
 
-	logicWorld->SetVisAttributes(G4Colour(1.0, 1.0, 1.0, 0.0));
+	logicWorld->SetVisAttributes(gas_VisAtt);
 	return physiWorld;
 }
 
@@ -440,17 +444,19 @@ void DetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elme
       logic_THGEM1_cell, false, 0, fCheckOverlaps);
 
   G4Box* solid_THGEM1_diel_box = new G4Box("solid_THGEM1_diel_box", cell_size_x / 2.0, cell_size_y / 2.0, diel_size_z / 2.0);
-  G4Tubs* solid_THGEM1_diel_hole = new G4Tubs("solid_THGEM1_diel_hole", 0, radius, diel_size_z / 2.0, 0.*deg, 360.*deg);
-  G4SubtractionSolid* solid_THGEM1_diel_tmp = new G4SubtractionSolid("solid_THGEM1_diel_tmp", solid_THGEM1_diel_box, solid_THGEM1_diel_hole, 0, hole_1_pos);
-  G4SubtractionSolid* solid_THGEM1_diel = new G4SubtractionSolid("solid_THGEM1_diel", solid_THGEM1_diel_tmp, solid_THGEM1_diel_hole, 0, hole_2_pos);
+  G4Tubs* solid_THGEM1_diel_hole1 = new G4Tubs("solid_THGEM1_diel_hole", 0, radius, diel_size_z / 1.9, 179.*deg, 271.*deg);
+  G4Tubs* solid_THGEM1_diel_hole2 = new G4Tubs("solid_THGEM1_diel_hole", 0, radius, diel_size_z / 1.9, -1.*deg, 91.*deg);
+  G4SubtractionSolid* solid_THGEM1_diel_tmp = new G4SubtractionSolid("solid_THGEM1_diel_tmp", solid_THGEM1_diel_box, solid_THGEM1_diel_hole1, 0, hole_1_pos);
+  G4SubtractionSolid* solid_THGEM1_diel = new G4SubtractionSolid("solid_THGEM1_diel", solid_THGEM1_diel_tmp, solid_THGEM1_diel_hole2, 0, hole_2_pos);
   logic_THGEM1_cell_FR4 = new G4LogicalVolume(solid_THGEM1_diel, G4Material::GetMaterial("FR4"), "logic_THGEM1_cell_FR4", 0, 0, 0);
   G4VPhysicalVolume* phys_THGEM1_cell_FR4 = new G4PVPlacement(0, zero, logic_THGEM1_cell_FR4, "phys_THGEM1_cell_FR4",
       logic_THGEM1_cell_LAr, false, 0, fCheckOverlaps);
 
   G4Box* solid_THGEM1_cu_box = new G4Box("solid_THGEM1_cu_box", cell_size_x / 2.0, cell_size_y / 2.0, cu_size_z / 2.0);
-  G4Tubs* solid_THGEM1_cu_hole = new G4Tubs("solid_THGEM1_cu_hole", 0, radius_cu, cu_size_z / 2.0, 0.*deg, 360.*deg);
-  G4SubtractionSolid* solid_THGEM1_cu_tmp = new G4SubtractionSolid("solid_THGEM1_cu_tmp", solid_THGEM1_cu_box, solid_THGEM1_cu_hole, 0, hole_1_pos);
-  G4SubtractionSolid* solid_THGEM1_cu = new G4SubtractionSolid("solid_THGEM1_cu", solid_THGEM1_cu_tmp, solid_THGEM1_cu_hole, 0, hole_2_pos);
+  G4Tubs* solid_THGEM1_cu_hole1 = new G4Tubs("solid_THGEM1_cu_hole", 0, radius_cu, cu_size_z / 1.9, 179.*deg, 271.*deg);
+  G4Tubs* solid_THGEM1_cu_hole2 = new G4Tubs("solid_THGEM1_cu_hole", 0, radius_cu, cu_size_z / 1.9, -1.*deg, 91.*deg);
+  G4SubtractionSolid* solid_THGEM1_cu_tmp = new G4SubtractionSolid("solid_THGEM1_cu_tmp", solid_THGEM1_cu_box, solid_THGEM1_cu_hole1, 0, hole_1_pos);
+  G4SubtractionSolid* solid_THGEM1_cu = new G4SubtractionSolid("solid_THGEM1_cu", solid_THGEM1_cu_tmp, solid_THGEM1_cu_hole2, 0, hole_2_pos);
   logic_THGEM1_cell_copper = new G4LogicalVolume(solid_THGEM1_cu, G4Material::GetMaterial("FR4"), "logic_THGEM1_cell_copper", 0, 0, 0);
   G4VPhysicalVolume* phys_THGEM1_cell_copper_top = new G4PVPlacement(0, cu_top_pos, logic_THGEM1_cell_copper, "phys_THGEM1_cell_copper_top",
       logic_THGEM1_cell_LAr, false, 0, fCheckOverlaps);
@@ -485,7 +491,7 @@ void DetectorConstruction::defineSurfaces()
 	G4double FR4_Materialrefl[2] = {0.2, 0.2};//model_25b
 	//G4double FR4_Materialrefl[2] = { 0.05, 0.05 };//https://www.cetem.gov.br/images/congressos/2008/CAC00560008.pdf
 	G4double FR4_Materialeff[2] = { 0, 0 };
-	FR4_MaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::debugging.no_reflections ? zero : FR4_Materialrefl, 2);
+	FR4_MaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::general.no_reflections ? zero : FR4_Materialrefl, 2);
 	FR4_MaterialProperty->AddProperty("EFFICIENCY", ener, FR4_Materialeff, 2);
 	FR4_unified->SetMaterialPropertiesTable(FR4_MaterialProperty);
 	//-------------------------------------------------------------------------------
@@ -498,7 +504,7 @@ void DetectorConstruction::defineSurfaces()
 	G4MaterialPropertiesTable *Anode_wire_MaterialProperty = new G4MaterialPropertiesTable();
 	G4double Anode_wire_Materialrefl[2] = { 0.5, 0.5 };//approximately https://nvlpubs.nist.gov/nistpubs/bulletin/07/nbsbulletinv7n2p197_A2b.pdf
 	G4double Anode_wire_Materialeff[2] = { 0, 0 };
-	Anode_wire_MaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::debugging.no_reflections ? zero : Anode_wire_Materialrefl, 2);
+	Anode_wire_MaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::general.no_reflections ? zero : Anode_wire_Materialrefl, 2);
 	Anode_wire_MaterialProperty->AddProperty("EFFICIENCY", ener, Anode_wire_Materialeff, 2);
 	Anode_wire_unified->SetMaterialPropertiesTable(Anode_wire_MaterialProperty);
 	//-------------------------------------------------------------------------------
@@ -511,7 +517,7 @@ void DetectorConstruction::defineSurfaces()
 	G4MaterialPropertiesTable *Cu_THGEM_MaterialProperty = new G4MaterialPropertiesTable();
 	G4double Cu_THGEM_Materialrefl[2] = {0.36, 0.36}; // Bass M. Handbook of optics, Vol.4 Edition3
 	G4double Cu_THGEM_Materialeff[2] = {0, 0};
-	Cu_THGEM_MaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::debugging.no_reflections ? zero : Cu_THGEM_Materialrefl, 2);
+	Cu_THGEM_MaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::general.no_reflections ? zero : Cu_THGEM_Materialrefl, 2);
 	Cu_THGEM_MaterialProperty->AddProperty("EFFICIENCY", ener, Cu_THGEM_Materialeff, 2);
 	Cu_THGEM->SetMaterialPropertiesTable(Cu_THGEM_MaterialProperty);
 	//-------------------------------------------------------------------------------
@@ -524,7 +530,7 @@ void DetectorConstruction::defineSurfaces()
 	G4MaterialPropertiesTable *Cu_Cathode_MaterialProperty = new G4MaterialPropertiesTable();
 	G4double Cu_Cathode_Materialrefl[2] = {0.36, 0.36}; // Bass M. Handbook of optics, Vol.4 Edition3
 	G4double Cu_Cathode_Materialeff[2] = {0, 0};
-	Cu_Cathode_MaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::debugging.no_reflections ? zero : Cu_Cathode_Materialrefl, 2);
+	Cu_Cathode_MaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::general.no_reflections ? zero : Cu_Cathode_Materialrefl, 2);
 	Cu_Cathode_MaterialProperty->AddProperty("EFFICIENCY", ener, Cu_Cathode_Materialeff, 2);
 	Cu_Cathode->SetMaterialPropertiesTable(Cu_Cathode_MaterialProperty);
 	//-------------------------------------------------------------------------------
@@ -537,7 +543,7 @@ void DetectorConstruction::defineSurfaces()
 	G4MaterialPropertiesTable *stainlessSteelMaterialProperty = new G4MaterialPropertiesTable();
 	G4double stainlessSteelMaterialrefl[2] = {0.5, 0.5}; // doi:10.1063/1.2202915
 	G4double stainlessSteelMaterialeff[2] = {0, 0};
-	stainlessSteelMaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::debugging.no_reflections ? zero : stainlessSteelMaterialrefl, 2);
+	stainlessSteelMaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::general.no_reflections ? zero : stainlessSteelMaterialrefl, 2);
 	stainlessSteelMaterialProperty->AddProperty("EFFICIENCY", ener, stainlessSteelMaterialeff, 2);
 	stainlessSteel->SetMaterialPropertiesTable(stainlessSteelMaterialProperty);
 	//-----------------------------------------------------------------------------
@@ -587,7 +593,7 @@ void DetectorConstruction::SetSizeAndPosition()
 
 	//PMTs
 	radius_PMT = 45 * mm / 2.0;
-	z_size_PMT = 2 * mm; //1 * um;
+	z_size_PMT = 2 * mm;
 	x_pos_PMT = 152 * mm / 2.0 + z_size_PMT / 2;
 	y_pos_PMT = x_pos_PMT;
 	z_pos_PMT = 27.2 * mm + 63 * mm / 2.0;
@@ -608,7 +614,7 @@ void DetectorConstruction::SetSizeAndPosition()
 	thickness_anode_grid = 0.5 * mm;
 	size_anode_grid = 127*mm ;//see Download:\DetectorPhotos\2021\THGEM_Electroconnect
 	size_anode_grid_hole = length_wire;
-	z_anode_grid_bottom = 78.2 * mm; //78.2 in case of one THGEM, 82.7*mm in case of two THGEMs;
+	z_anode_grid_bottom = gPars::det_dims.z_bottom_THGEM1 * mm + gPars::det_dims.THGEM1_width_total * mm + 5 * mm;
 	double z_anode_grid_center = z_anode_grid_bottom + thickness_anode_grid / 2.0;
 
 	//PMMA plate
@@ -621,9 +627,9 @@ void DetectorConstruction::SetSizeAndPosition()
 	Nx_SiPMs = gPars::det_dims.n_SiPMs_rows;
 	Ny_SiPMs = gPars::det_dims.n_SiPMs_rows;
 	thickness_SiPM = 1 * nm;
-	size_SiPM = 6.0 * mm;
+	size_SiPM = gPars::det_dims.SiPM_size * mm;
 	chamberSpacing = 10 * mm;
-	double z_SiPM_bottom = z_anode_grid_bottom + thickness_anode_grid + z_size_PMMA_plate + (0.1*mm /*small gap between PMMA and SiPM*/);// 85.7*mm in case of two THGEMs
+	double z_SiPM_bottom = z_anode_grid_bottom + thickness_anode_grid + z_size_PMMA_plate + (0.1*mm /*small gap between PMMA and SiPM*/);
 	double z_SiPM_center = z_SiPM_bottom + thickness_SiPM / 2.0;
 	z_size_SiPMFR4 = 2*mm;
 
@@ -789,9 +795,9 @@ void DetectorConstruction::SetSizeAndPosition()
   position_THGEM1_container = G4ThreeVector(0, 0, gPars::det_dims.z_bottom_THGEM1 * mm + z_size_THGEM1 / 2.0 - z_size_LAr_inner / 2.0);
   position_THGEM1_copper_plate = G4ThreeVector(0, 0, 0); //is inside THGEM1_container
 
-  gPars::debugging.THGEM1_hole_center = //x!=0 because x=0 is just across anode wire before SiPM.
+  gPars::general.THGEM1_hole_center = //x!=0 because x=0 is just across anode wire before SiPM.
       G4ThreeVector(gPars::det_dims.THGEM1_hole_pitch * mm, 0, gPars::det_dims.z_bottom_THGEM1 * mm + gPars::det_dims.THGEM1_width_total / 2.0 * mm);
-  gPars::debugging.EL_gap_center =
+  gPars::general.EL_gap_center =
       G4ThreeVector(gPars::det_dims.THGEM1_hole_pitch * mm, 0, (gPars::det_dims.z_top_interface_grid + gPars::det_dims.z_bottom_THGEM1) / 2.0 * mm);
 
 	position_interface_wire_container = G4ThreeVector(0, 0, gPars::det_dims.z_top_interface_grid * mm - radius_Interface_wire - z_size_LAr_inner / 2.0);
@@ -885,6 +891,14 @@ void DetectorConstruction::defineMaterials()
 	matAl = new G4Material("Al", z = 13., a = 26.98*g / mole, density = 2.7*g / cm3);
 	matFe = new G4Material("Fe", z = 26., a = 55.85*g / mole, density = 7.874 *g / cm3);
 
+	const G4int numentries_metals = 2;
+	G4double energies_metals[numentries_metals] = { 0.1*eV, 10.0*eV };
+  G4double absorpti_metals[numentries_metals] = { 0.01 * um, 0.01 * um };
+  G4MaterialPropertiesTable* prop_metals = new G4MaterialPropertiesTable();
+  prop_metals->AddProperty("ABSLENGTH", energies_metals, absorpti_metals, numentries_metals);
+  matAl->SetMaterialPropertiesTable(prop_metals);
+  matFe->SetMaterialPropertiesTable(prop_metals);
+
 	// Air
 	G4Material* Air = man->FindOrBuildMaterial("G4_AIR");
 	Air->SetName("Air");
@@ -936,19 +950,19 @@ void DetectorConstruction::defineMaterials()
 	//prop_PMMA->DumpTable();
 	//------------------------------
 	// TPB
-	G4Material* materialTPB = new G4Material("TPB", 1.18*g / cm3, 3);
-	materialTPB->AddElement(C, 5); materialTPB->AddElement(O, 2); materialTPB->AddElement(H, 8);
-	const int numentries_TPB = 6;
-	G4double photonEnergyTPB[] = { 0.1*eV, 1240.0 / 411.0 *eV, 1240.0 / 409.0 *eV, 1240.0 / 401.0 *eV, 1240.0 / 399.0 *eV, 10.0*eV };
-	G4double RIndexTPB[] = { 1.23, 1.23, 1.23, 1.23, 1.23, 1.23 };
-	G4double AbsTPB[] = { 10 * m, 10.0 * m, 10.0 * m, 0.001 * mm, 0.001 * mm, 10 * m };
-	G4double EmissionTPB[] = { 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 };
-	G4MaterialPropertiesTable* tableTPB = new G4MaterialPropertiesTable();
-	tableTPB->AddProperty("RINDEX", photonEnergyTPB, RIndexTPB, numentries_TPB);
-	tableTPB->AddProperty("WLSABSLENGTH", photonEnergyTPB, AbsTPB, numentries_TPB);
-	tableTPB->AddProperty("WLSCOMPONENT", photonEnergyTPB, EmissionTPB, numentries_TPB);
-	tableTPB->AddConstProperty("WLSTIMECONSTANT", 0.5*ns);
-	materialTPB->SetMaterialPropertiesTable(tableTPB);
+//	G4Material* materialTPB = new G4Material("TPB", 1.18*g / cm3, 3);
+//	materialTPB->AddElement(C, 5); materialTPB->AddElement(O, 2); materialTPB->AddElement(H, 8);
+//	const int numentries_TPB = 6;
+//	G4double photonEnergyTPB[] = { 0.1*eV, 1240.0 / 411.0 *eV, 1240.0 / 409.0 *eV, 1240.0 / 401.0 *eV, 1240.0 / 399.0 *eV, 10.0*eV };
+//	G4double RIndexTPB[] = { 1.23, 1.23, 1.23, 1.23, 1.23, 1.23 };
+//	G4double AbsTPB[] = { 10 * m, 10.0 * m, 10.0 * m, 0.001 * mm, 0.001 * mm, 10 * m };
+//	G4double EmissionTPB[] = { 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 };
+//	G4MaterialPropertiesTable* tableTPB = new G4MaterialPropertiesTable();
+//	tableTPB->AddProperty("RINDEX", photonEnergyTPB, RIndexTPB, numentries_TPB);
+//	tableTPB->AddProperty("WLSABSLENGTH", photonEnergyTPB, AbsTPB, numentries_TPB);
+//	tableTPB->AddProperty("WLSCOMPONENT", photonEnergyTPB, EmissionTPB, numentries_TPB);
+//	tableTPB->AddConstProperty("WLSTIMECONSTANT", 0.5*ns);
+//	materialTPB->SetMaterialPropertiesTable(tableTPB);
 	//------------------------------
 	// PMMA_UV
 	G4Material* PMMA_UV = new G4Material("PMMA_UV", 1.18*g / cm3, 3);

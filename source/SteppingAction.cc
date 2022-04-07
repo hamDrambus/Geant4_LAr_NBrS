@@ -1,6 +1,6 @@
 #include "SteppingAction.hh"
 
-SteppingAction::SteppingAction(DetectorConstruction* myDC)
+SteppingAction::SteppingAction()
 {}
 
 void SteppingAction::UserSteppingAction(const G4Step* theStep)

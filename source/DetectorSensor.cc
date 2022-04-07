@@ -42,7 +42,7 @@ G4bool DetectorSensor::ProcessHits_Optical(const G4Step* aStep, G4TouchableHisto
 		hit->_isPMT = true;
 		hit->_channel = PMT_no;
 		hitCollection->insert(hit);
-		gPars::results.recorded_photons.back().photons.push_back(*hit);
+		gData.results.recorded_photons.back().photons.push_back(*hit);
 	}
 	if (NULL != vol && vol->GetName() == gPars::det_dims.SiPM_device_name) {
 		std::size_t SiPM_no = vol->GetCopyNo();
@@ -53,7 +53,7 @@ G4bool DetectorSensor::ProcessHits_Optical(const G4Step* aStep, G4TouchableHisto
 		hit->_isPMT = false;
 		hit->_channel = SiPM_no;
 		hitCollection->insert(hit);
-		gPars::results.recorded_photons.back().photons.push_back(*hit);
+		gData.results.recorded_photons.back().photons.push_back(*hit);
 	}
 	return true;
 }
@@ -63,11 +63,11 @@ void DetectorSensor::EndOfEvent(G4HCofThisEvent* HCE)
 	for (std::size_t i = 0, i_end_ = hitCollection->GetSize(); i!=i_end_; ++i) {
 		PhotonHit *hit = (PhotonHit*)hitCollection->GetHit(i);
 		if (hit->_isPMT) {
-			if (hit->_channel < gPars::results.PMT_photon_n.size())
-				++gPars::results.PMT_photon_n[hit->_channel];
+			if (hit->_channel < gData.results.PMT_photon_n.size())
+				++gData.results.PMT_photon_n[hit->_channel];
 		} else {
-			if (hit->_channel < gPars::results.SiPM_photon_n.size())
-				++gPars::results.SiPM_photon_n[hit->_channel];
+			if (hit->_channel < gData.results.SiPM_photon_n.size())
+				++gData.results.SiPM_photon_n[hit->_channel];
 		}
 	}
 }

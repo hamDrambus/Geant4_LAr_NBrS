@@ -17,6 +17,7 @@
 
 #include "GlobalParameters.hh"
 #include "PhotonHit.hh"
+#include "GlobalData.hh"
 
 class DetectorSensor : public G4VSensitiveDetector
 {

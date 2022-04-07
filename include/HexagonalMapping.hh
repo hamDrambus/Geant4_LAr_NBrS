@@ -2,7 +2,11 @@
 #define HEXAGONAL_MAPPING_H_
 
 #include "G4ThreeVector.hh"
+#include "G4RotationMatrix.hh"
 #include "G4GeometryTolerance.hh"
+#include "G4Transform3D.hh"
+#include "G4Point3D.hh"
+#include "G4Vector3D.hh"
 
 // Particle(G4Track)-specific data used by global mapping class
 // HexagonalMapping.
@@ -12,9 +16,9 @@ public:
   {}
   int cell_x_ind;
   int cell_y_ind;
-  G4ThreeVector position;
-  G4ThreeVector momentum;
-  G4ThreeVector polarization;
+  G4Point3D position;
+  G4Vector3D momentum;
+  G4Vector3D polarization;
   inline bool isInCell() const {
     return (cell_x_ind >=0 && cell_y_ind >=0);
   }
@@ -51,14 +55,19 @@ public:
   // Returns cell indices and position inside cell according to global position
   HexagonalMappingData MapToCell(const HexagonalMappingData& map_info, bool ignore_z = false) const;
   // Returns global position and momentum according to cell indices and position inside cell
-  HexagonalMappingData MapFromCell(const HexagonalMappingData& map_info, bool ignore_z = false) const;
+  HexagonalMappingData MapFromCell(const HexagonalMappingData& map_info, bool forced = false) const;
   // Propagates particle to the next cell. Cell is changed when particle hit current cell sides only.
   //HexagonalMappingData MapToNeighbourCell(const HexagonalMappingData& map_info) const;
 
   bool isValid(void) const;
-
+  int GetNcells(void) const;
+  G4ThreeVector GetCellRelPosition(int x_ind, int y_ind) const;
+  G4Transform3D GetCellGlobalPointTransform(int x_ind, int y_ind) const; // transformation of global position to global position in cell
+  G4Transform3D GetCellRelativePointTransform(int x_ind, int y_ind) const; // transformation of relative to container position to relative position in cell
+  std::pair<int, int> GetIndices(const G4ThreeVector &position) const;
+  std::pair<int, int> GetIndices(int index) const;
 protected:
-  HexagonalMappingData GetIndices(const G4ThreeVector &position) const;
+  G4Transform3D GetCellVectorTransform(int x_ind, int y_ind) const; // transformation of global vector to cell local frame
   HexagonalMappingData MoveToNeighbourCell(const HexagonalMappingData& map_info) const;
   HexagonalMappingData MoveFromCell(const HexagonalMappingData& map_info) const;
   bool isInCell(const HexagonalMappingData& map_info) const;
@@ -79,6 +88,10 @@ protected:
   double x_max;
   double y_min;
   double y_max;
+
+  static const G4Transform3D mirror_X;
+  static const G4Transform3D mirror_Y;
+  static const G4Transform3D mirror_XY;
 };
 
 #endif //HEXAGONAL_MAPPING_H_

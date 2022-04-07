@@ -19,3 +19,4 @@ void DetectorParameterisation::ComputeTransformation (const G4int copyNo, G4VPhy
 	physVol->SetTranslation(G4ThreeVector(Xposition, Yposition, Zposition) + fStartPos);
 	physVol->SetRotation(fRotation);
 }
+

@@ -84,14 +84,14 @@ void ensure_file(std::string fname)
 
 void ensure_folder(std::string folder)
 {
+  if (folder.empty())
+    return;
 #if defined(_WIN32)||defined(_WIN64)
-  if (!folder.empty()) {
-    DWORD ftyp = GetFileAttributesA(folder.c_str());
-    if (!(ftyp & FILE_ATTRIBUTE_DIRECTORY) || ftyp == INVALID_FILE_ATTRIBUTES) {
-      int code = system(("mkdir \"" + folder + "\"").c_str());
-      if (code)
-        std::cout << "mkdir error: " << GetLastError() << std::endl;
-    }
+  DWORD ftyp = GetFileAttributesA(folder.c_str());
+  if (!(ftyp & FILE_ATTRIBUTE_DIRECTORY) || ftyp == INVALID_FILE_ATTRIBUTES) {
+    int code = system(("mkdir \"" + folder + "\"").c_str());
+    if (code)
+      std::cout << "mkdir error: " << GetLastError() << std::endl;
   }
 #else //defined(_WIN32)||defined(_WIN64)
   struct stat st;

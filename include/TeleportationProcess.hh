@@ -8,6 +8,7 @@
 #include "HexagonalMapping.hh"
 #include "GlobalParameters.hh"
 #include "TrackUserInfo.hh"
+#include "GlobalData.hh"
 
 enum TeleportProcessSubType
 {

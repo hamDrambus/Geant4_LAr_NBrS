@@ -26,7 +26,7 @@
 class SteppingAction : public G4UserSteppingAction
 {
 public:
-  SteppingAction(DetectorConstruction* myDC);
+  SteppingAction();
   virtual void UserSteppingAction(const G4Step*);
 };
 

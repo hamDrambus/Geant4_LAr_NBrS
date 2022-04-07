@@ -20,7 +20,7 @@
 
 #include "GlobalParameters.hh"
 #include "GlobalUtilities.hh"
-#include "HexagonalMapping.hh"
+#include "GlobalData.hh"
 #include "PolynomialFit.hh"
 #include "PrimaryParticleUserInfo.hh"
 

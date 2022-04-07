@@ -109,6 +109,18 @@ public:
 	double getY(std::size_t n) const {
 		return xys[n].second;
 	}
+	void scaleX(double factor) {
+	  for (auto i : xys)
+	    i.first *= factor;
+	}
+	void scaleY(double factor) {
+	  for (auto i : xys)
+      i.second *= factor;
+	}
+	void scaleXY(double factorX, double factorY) {
+	  scaleX(factorX);
+	  scaleY(factorY);
+	}
 	std::vector<double> get_Xs(double scaling = 1.0) const;
 	std::vector<double> get_Ys(double scaling = 1.0) const;
 	std::pair<double, double> getXY(std::size_t n) const {
