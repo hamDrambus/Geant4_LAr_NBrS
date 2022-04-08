@@ -11,24 +11,23 @@
 #include "G4UserRunAction.hh"
 #include "G4TransportationManager.hh"
 #include "G4PhysicalVolumesSearchScene.hh"
+#include "G4Accumulable.hh"
 
 #include "GlobalUtilities.hh"
 #include "GlobalParameters.hh"
 #include "GlobalData.hh"
+#include "Run.hh"
 
 class RunAction : public G4UserRunAction
 {
   public:
     RunAction();
-    ~RunAction();
+    ~RunAction() override;
 
   public:
+    G4Run* GenerateRun() override;
     void BeginOfRunAction(const G4Run* aRun);
     void EndOfRunAction(const G4Run* aRun);
-    
-  protected:
-    //void FindSensorsCoordinates(); //Sets global positions of SiPMs and PMTs in gPars:: after geometry is constructed
-    //void SetupTHGEM1Mapping(); //Finds THGEM1 volumes which are mapped and initializes mapping class gPars::THGEM1_mapping
 };
 
 #endif

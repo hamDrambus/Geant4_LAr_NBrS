@@ -23,6 +23,9 @@ class PhotonHit : public G4VHit
     void Draw();
     void Print(std::ostream &stream = G4cout, bool printtime = true, bool printposition = false, bool printenergy = false);
 
+    void* operator new(size_t);
+    void operator delete(void *hit);
+
   public:
     G4double _time;
     G4double _energy;
@@ -34,5 +37,18 @@ class PhotonHit : public G4VHit
 };
 
 typedef G4THitsCollection<PhotonHit> PhotonHitCollection;
+extern G4ThreadLocal G4Allocator<PhotonHit>* PhotonHitAllocator;
+
+inline void* PhotonHit::operator new(size_t)
+{
+  if(!PhotonHitAllocator)
+    PhotonHitAllocator = new G4Allocator<PhotonHit>;
+  return (void *) PhotonHitAllocator->MallocSingle();
+}
+
+inline void PhotonHit::operator delete(void *hit)
+{
+  PhotonHitAllocator->FreeSingle((PhotonHit*) hit);
+}
 
 #endif

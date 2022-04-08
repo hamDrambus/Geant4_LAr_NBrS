@@ -51,7 +51,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 public:
 
 	DetectorConstruction();
-	~DetectorConstruction();
+	~DetectorConstruction() override;
 
 public:
 	G4VPhysicalVolume* Construct() override;
@@ -89,8 +89,6 @@ private:
   G4LogicalVolume*    logic_THGEM1_cell_LAr;
   G4LogicalVolume*    logic_THGEM1_cell_copper;
   G4LogicalVolume*    logic_THGEM1_cell_FR4;
-
-	DetectorSensor *thePhotoDetector;
 
 	// surfaces
 	G4OpticalSurface *world_scintillator;

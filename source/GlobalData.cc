@@ -20,47 +20,8 @@ GlobalData::~GlobalData()
 
 void GlobalData::Initialize(void)
 {
-  results.FindSensorsCoordinates();
   SetupTHGEM1Mapping();
   SetupFieldMap();
-}
-
-unsigned int GlobalData::Results::GetNGeneratedPhotons(void) const
-{
-  unsigned int out = 0;
-  for (std::size_t e = 0, e_end_ = generated_photons.size(); e!=e_end_; ++e) {
-    out += generated_photons[e].photons.size();
-  }
-  return out;
-}
-
-unsigned int GlobalData::Results::GetNRecordedPhotons(void) const
-{
-  unsigned int out = 0;
-  for (std::size_t e = 0, e_end_ = recorded_photons.size(); e!=e_end_; ++e) {
-    out += recorded_photons[e].photons.size();
-  }
-  return out;
-}
-
-void GlobalData::Results::FindSensorsCoordinates(void)
-{
-  SiPM_positions.clear();
-  PMT_positions.clear();
-  std::vector<G4PhysicalVolumesSearchScene::Findings> findingsVectorSiPM = FindAllPVs(gPars::det_dims.SiPM_device_name);
-  std::vector<G4PhysicalVolumesSearchScene::Findings> findingsVectorPMT = FindAllPVs(gPars::det_dims.PMT_device_name);
-  G4int max_number = -1;
-  for (const auto& findings: findingsVectorSiPM)
-    max_number = std::max(findings.fFoundPVCopyNo, max_number);
-  SiPM_positions = std::deque<G4ThreeVector>(max_number+1);
-  for (const auto& findings: findingsVectorSiPM)
-    SiPM_positions[findings.fFoundPVCopyNo] = findings.fFoundObjectTransformation.getTranslation()/mm;
-  max_number = -1;
-  for (const auto& findings: findingsVectorPMT)
-    max_number = std::max(findings.fFoundPVCopyNo, max_number);
-  PMT_positions = std::deque<G4ThreeVector>(max_number+1);
-  for (const auto& findings: findingsVectorPMT)
-    PMT_positions[findings.fFoundPVCopyNo] = findings.fFoundObjectTransformation.getTranslation()/mm;
 }
 
 void GlobalData::SetupTHGEM1Mapping(void)
@@ -257,28 +218,6 @@ void GlobalData::PlotField(std::string filename, G4ThreeVector line_start, G4Thr
   if (name.size())
       std::cout<<"Int{E(r)*dr} [V] on "<<name<<" = "<<dphi / volt<<std::endl;
   flll.close();
-}
-
-void GlobalData::AddToFile(std::deque<GeneratedData> data, std::string filename)
-{
-  std::ofstream str;
-  open_output_file(filename, str, std::ios_base::ate|std::ios_base::out);
-  if (!str.is_open()) {
-    std::cerr<<"AddToFile:Error: Failed to open file"<<std::endl;
-    std::cerr<<"\t\""<<filename<<"\""<<std::endl;
-    return;
-  }
-  for (std::size_t e = 0, e_end_ = data.size(); e!=e_end_; ++e) {
-    str<<data[e].electron.index<<"\t"<<data[e].photons.size()<<"\t"<<data[e].electron.position.x() / mm<<"\t"
-        <<data[e].electron.position.y() / mm<<"\t"<<data[e].electron.position.z() / mm<<"\t"
-        <<data[e].electron.seed_info<<std::endl;
-    for (std::size_t p = 0, p_end_ = data[e].photons.size(); p!=p_end_; ++p) {
-      str<<data[e].photons[p]._energy / eV<<"\t"<<data[e].photons[p]._pos.x() / mm<<"\t"
-          <<data[e].photons[p]._pos.y() / mm<<"\t"<<data[e].photons[p]._pos.z() / mm<<"\t"
-          <<data[e].photons[p]._time / us<<"\t"<<data[e].photons[p]._momentum.x()<<"\t"
-          <<data[e].photons[p]._momentum.y()<<"\t"<<data[e].photons[p]._momentum.z()<<std::endl;
-    }
-  }
 }
 
 void GlobalData::RecalculateDiffusion(DataVector& diffusion, DataVector& velocity)

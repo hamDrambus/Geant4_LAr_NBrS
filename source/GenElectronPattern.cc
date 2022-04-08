@@ -1,55 +1,26 @@
 #include "GenElectronsPatterns.hh"
 
 GenElectronsPatterns::GenElectronsPatterns(PatternElectron pattern) :
-  mPattern(pattern), electron_drift(nullptr)
+  VGeneratePrimaries(0), mPattern(pattern)
 {}
 
 GenElectronsPatterns::~GenElectronsPatterns()
-{
-  if (electron_drift)
-    delete electron_drift;
-}
-
-void GenElectronsPatterns::SetupElectronDrift(void)
-{
-  if (nullptr == gData.LAr_medium || !gData.LAr_medium->GetVelocityData().isValid()) {
-    G4Exception("GenElectronsPatterns::SetupElectronDrift: ",
-      "InvalidSetup", FatalException, "Invalid drift medium");
-    return;
-  }
-  if (nullptr != electron_drift)
-      delete electron_drift;
-  electron_drift = new DriftElectron();
-  electron_drift->SetDistanceSteps(gPars::field_map.drift_step_size);
-  if ((!gData.LAr_medium->GetLongDiffutionData().isValid() && !gData.LAr_medium->GetTransDiffutionData().isValid())
-      || !gPars::general.enable_e_diffusion)
-    electron_drift->DisableDiffusion();
-  else
-    electron_drift->EnableDiffusion();
-  if (gPars::general.electron_max_time != DBL_MAX)
-    electron_drift->SetTimeWindow(0.0, gPars::general.electron_max_time);
-}
+{}
 
 void GenElectronsPatterns::GeneratePrimaries(G4Event* anEvent)
 {
   SetupElectronDrift();
+  ClearRecords();
   int ID = anEvent->GetEventID();
   do {
-    // Setup output data.
-    gData.results.generated_photons.push_back(GlobalData::GeneratedData());
-    gData.results.generated_photons.back().electron.index = anEvent->GetEventID();
-    G4long seed = CLHEP::HepRandom::getTheEngine()->operator unsigned int();
-    CLHEP::HepRandom::setTheSeed(seed);
-    gData.results.generated_photons.back().electron.seed_info = "\"" + std::to_string(seed) + "\"";
-
-    // Set electron position
+    G4long seed = GetAndFixSeed(); // Results may be reproduced by fixating seed to this value and copying the rest of parameters.
     G4ThreeVector e_pos = GenPosition(ID);
-    gData.results.generated_photons.back().electron.position = e_pos;
-    gData.results.recorded_photons.push_back(gData.results.generated_photons.back());
-
-    electron_drift->DoDriftElectron(e_pos.x(), e_pos.y(), e_pos.z(), 0);
-    if (gPars::general.doViewElectronDrift)
-      electron_drift->Draw();
+    bool ok = mElectronDrift->DoDriftElectron(e_pos.x(), e_pos.y(), e_pos.z(), 0);
+    if (ok) {
+      RecordElectron(e_pos, ID, seed);
+      if (gPars::general.doViewElectronDrift)
+        mElectronDrift->Draw();
+    }
     ++ID;
   } while ((anEvent->GetEventID() == gPars::source.N_events - 1) && ID != (gPars::source.N_events + ExtraEventsN()));
   // Loop triggers only at the end of beamOn and when extra events are required.

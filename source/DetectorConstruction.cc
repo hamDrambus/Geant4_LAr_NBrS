@@ -412,11 +412,10 @@ G4VPhysicalVolume * DetectorConstruction::Construct()
 
 void DetectorConstruction::ConstructSDandField()
 {
-  thePhotoDetector = new DetectorSensor("/detector/sensitiveDetector");
+  DetectorSensor *thePhotoDetector = new DetectorSensor("/detector/sensitiveDetector");
   G4SDManager::GetSDMpointer()->AddNewDetector(thePhotoDetector);
-  SetSensitiveDetector(logic_SiPM, thePhotoDetector);
+  SetSensitiveDetector(logic_SiPM, thePhotoDetector); // takes ownership of DetectorSensor*
   SetSensitiveDetector(logic_PMT, thePhotoDetector);
-  //G4SDManager::GetSDMpointer()->Activate("/detector/sensitiveDetector", true);
 }
 
 void DetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elmer simulation

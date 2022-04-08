@@ -31,12 +31,9 @@
 #include "G4VUserPrimaryGeneratorAction.hh"
 
 #include "GlobalParameters.hh"
-#include "PolynomialFit.hh"
-#include "PrimaryGenerator.hh"
-#include "GlobalData.hh"
-#include "DriftElectron.hh"
+#include "VGeneratePrimaries.hh"
 
-class GenElectronsPatterns : public G4VUserPrimaryGeneratorAction
+class GenElectronsPatterns : public VGeneratePrimaries
 {
 public:
   enum PatternElectron {
@@ -55,7 +52,6 @@ public:
 public:
   void GeneratePrimaries(G4Event* anEvent);
   void SetPattern(PatternElectron pattern) { mPattern = pattern; }
-  void SetupElectronDrift(void);
 
 protected:
   int ExtraEventsN() const;
@@ -69,7 +65,6 @@ protected:
   G4ThreeVector GenPosition_Uniform2Rings(int event_number) const;
   G4ThreeVector GenPosition_Uniform3Rings(int event_number) const;
   PatternElectron mPattern;
-  DriftElectron* electron_drift;
 };
 
 #endif // GenElectronPatterns_h

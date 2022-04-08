@@ -1,51 +1,20 @@
 #include "GenPhotonsDirectly.hh"
 
 GenPhotonsDirectly::GenPhotonsDirectly(double energy, PatternPhoton pattern) :
-  mPattern(pattern)
-{
-  photon_spectrum = PDF_routine();
-  photon_spectrum.insert(energy, 1.0);
-  photon_spectrum.pdf_to_cdf();
-  SetParticleEnergySpectrum(photon_spectrum);
-  navigator = nullptr;
-}
+  VGeneratePrimaries(energy), mPattern(pattern)
+{}
 
-GenPhotonsDirectly::GenPhotonsDirectly(PDF_routine& pdf, PatternPhoton pattern) :
-  mPattern(pattern)
-{
-  SetParticleEnergySpectrum(pdf);
-  navigator = nullptr;
-}
-
+GenPhotonsDirectly::GenPhotonsDirectly(PDF_routine& energy_spectrum, PatternPhoton pattern) :
+  VGeneratePrimaries(energy_spectrum), mPattern(pattern)
+{}
 
 GenPhotonsDirectly::~GenPhotonsDirectly()
-{
-  if (nullptr!=navigator)
-    delete navigator;
-}
-
-void GenPhotonsDirectly::SetParticleEnergySpectrum(PDF_routine energySpectrum)
-{
-  photon_spectrum = energySpectrum;
-  if (!photon_spectrum.isValid()) {
-    G4Exception("PrimaryGeneratorAction::SetParticleEnergySpectrum()", "Event0101",
-      FatalException, "Invalid energy spectrum is given.");
-  }
-}
-
-void GenPhotonsDirectly::SetupNavigator(void)
-{
-  G4Navigator* theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-  G4VPhysicalVolume* world = theNavigator->GetWorldVolume();
-  if (nullptr != navigator)
-    delete navigator;
-  navigator = new G4Navigator();
-  navigator->SetWorldVolume(world);
-}
+{}
 
 void GenPhotonsDirectly::GeneratePrimaries(G4Event* anEvent)
 {
   SetupNavigator();
+  ClearRecords();
 	G4ParticleDefinition* particleDef;
 	G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
 	G4String particleName = "opticalphoton";
@@ -56,24 +25,19 @@ void GenPhotonsDirectly::GeneratePrimaries(G4Event* anEvent)
 		return;
 	}
 
-	if (gData.results.generated_photons.empty()) { // Set only 1 dummy electron
-	  gData.results.generated_photons.push_back(GlobalData::GeneratedData());
-    gData.results.generated_photons.back().electron.index = 0;
-    gData.results.generated_photons.back().electron.position = G4ThreeVector(0, 0, 0);
-    G4long seed = CLHEP::HepRandom::getTheEngine()->operator unsigned int();
-    CLHEP::HepRandom::setTheSeed(seed);
-    gData.results.generated_photons.back().electron.seed_info = "\"" + std::to_string(seed) + "\"";
-    gData.results.recorded_photons.push_back(gData.results.generated_photons.back());
+	if (mGeneratedInfo.empty()) {
+	  G4long seed = GetAndFixSeed();
+	  RecordElectron(G4ThreeVector(0, 0, 0), 0, seed);
 	}
 
   // Set particle energy
   PhotonHit photon;
-  PrimaryGenerator single_particle(navigator);
+  PrimaryGenerator single_particle(mNavigator);
   single_particle.SetParticleDefinition(particleDef);
   double energy = 0;
-  if (photon_spectrum.isValid()) {
+  if (mEnergySpectrum.isValid()) {
     double rnd = G4UniformRand();
-    energy = photon_spectrum(rnd);
+    energy = mEnergySpectrum(rnd);
   } else {
     G4Exception("GenPhotonsDirectly::GeneratePrimaries: ",
       "InvalidParticle", FatalException, "Invalid energy spectrum is given.");
@@ -144,5 +108,5 @@ void GenPhotonsDirectly::GeneratePrimaries(G4Event* anEvent)
   photon._time = time;
 
   single_particle.GeneratePrimaryVertex(anEvent);
-  gData.results.generated_photons.back().photons.push_back(photon);
+  RecordPhoton(photon);
 }

@@ -26,7 +26,7 @@ class TeleportationProcess : public G4VDiscreteProcess
  public:
   explicit TeleportationProcess(const G4String& processName = "TeleportBoundary",
                                G4ProcessType type = fUserDefined);
-  virtual ~TeleportationProcess();
+  virtual ~TeleportationProcess() override;
 
   virtual G4bool IsApplicable(const G4ParticleDefinition& aParticleType) override;
 

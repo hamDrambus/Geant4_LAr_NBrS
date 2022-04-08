@@ -23,12 +23,14 @@ class DetectorSensor : public G4VSensitiveDetector
 {
   public:
     DetectorSensor(G4String name);
-    ~DetectorSensor();
+    ~DetectorSensor() override;
 
     void Initialize(G4HCofThisEvent*);
     G4bool ProcessHits(G4Step*, G4TouchableHistory*);
     G4bool ProcessHits_Optical(const G4Step* aStep, G4TouchableHistory* );
     void EndOfEvent(G4HCofThisEvent*);
+
+    static const std::string PhotonCollectionName;
   protected:
     PhotonHitCollection *hitCollection;
 };

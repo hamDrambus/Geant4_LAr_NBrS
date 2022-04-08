@@ -25,6 +25,7 @@ namespace gPars
   struct ProgramSetups {
     std::string this_path;
     std::string data_path;
+    int thread_number;
     bool doView;
     bool doViewElectronDrift;
     bool check_geometry_overlap;
@@ -38,6 +39,8 @@ namespace gPars
     G4ThreeVector THGEM1_hole_center; // For convenience and testing purposes
     G4ThreeVector EL_gap_center; // For convenience and testing purposes
     double surface_tolerance;
+    bool record_electrons; // if false, only photons are recorded to files and kept in memory
+    bool record_detailed; // if false, only number of hits per channel is kept track of
   };
 
 	struct Source {

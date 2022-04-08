@@ -3,7 +3,6 @@
 FieldElmerMap::FieldElmerMap() :
     nElements(-1),
     lastElement(-1),
-    cacheElemBoundingBoxes(false),
     nNodes(0),
     nMaterials(0),
     hasBoundingBox(false),
@@ -27,7 +26,6 @@ FieldElmerMap::FieldElmerMap(std::string header, std::string elist,
                                std::string volt, std::string unit) :
     nElements(-1),
     lastElement(-1),
-    cacheElemBoundingBoxes(false),
     nNodes(-1),
     nMaterials(0),
     hasBoundingBox(false),
@@ -432,11 +430,15 @@ bool FieldElmerMap::Initialise(std::string header, std::string elist,
     return false;
   }
 
-  std::cout << "ComponentElmer::Initialise:\n";
-  std::cout << "    Finished.\n";
-
   // Establish the ranges.
   SetRange();
+  std::cerr << m_className << "::Initialise:\n";
+  std::cerr << "    Caching the bounding box calculations of all elements.\n";
+  CalculateElementBoundingBoxes();
+
+  std::cout << m_className << "::Initialise:\n";
+  std::cout << "    Finished.\n";
+
   return true;
 }
 
@@ -480,14 +482,14 @@ void FieldElmerMap::SetRange()
   if (debug) PrintRange();
 }
 
-void FieldElmerMap::PrintRange()
+void FieldElmerMap::PrintRange() const
 {
   std::cout << m_className << "::PrintRange:\n";
   std::cout << "        Dimensions of the elementary block\n";
-  printf("            %15g < x < %-15g cm,\n", mapxmin, mapxmax);
-  printf("            %15g < y < %-15g cm,\n", mapymin, mapymax);
-  printf("            %15g < z < %-15g cm,\n", mapzmin, mapzmax);
-  printf("            %15g < V < %-15g V.\n", mapvmin, mapvmax);
+  printf("            %15g < x < %-15g mm,\n", mapxmin / mm, mapxmax / mm);
+  printf("            %15g < y < %-15g mm,\n", mapymin / mm, mapymax / mm);
+  printf("            %15g < z < %-15g mm,\n", mapzmin / mm, mapzmax / mm);
+  printf("            %15g < V < %-15g V.\n", mapvmin / volt, mapvmax / volt);
 }
 
 void FieldElmerMap::CalculateElementBoundingBoxes(void)
@@ -661,16 +663,8 @@ void FieldElmerMap::ElectricField(const double xin, const double yin,
 int FieldElmerMap::FindElement13(const double x, const double y,
                                  const double z, double& t1, double& t2,
                                  double& t3, double& t4, double jac[4][4],
-                                 double& det) {
-  // Check if bounding boxes of elements have been computed
-  if(!cacheElemBoundingBoxes) {
-    std::cerr << m_className << "::FindElement13:\n";
-    std::cerr << "    Caching the bounding box calculations of all elements.\n";
-
-    CalculateElementBoundingBoxes();
-    cacheElemBoundingBoxes = true;
-  }
-
+                                 double& det)
+{
   // Backup
   double jacbak[4][4];
   double detbak = 1.;
@@ -682,11 +676,11 @@ int FieldElmerMap::FindElement13(const double x, const double y,
 
   // Check previously used element
   int rc;
-  if (lastElement > -1 && !checkMultipleElement) {
-    rc = Coordinates13(x, y, z, t1, t2, t3, t4, jac, det, lastElement);
+  if (lastElement.Get() > -1 && !checkMultipleElement) {
+    rc = Coordinates13(x, y, z, t1, t2, t3, t4, jac, det, lastElement.Get());
     if (rc == 0 && t1 >= -fTolerance && t1 <= (1 + fTolerance) && t2 >= -fTolerance && t2 <= (1 + fTolerance) &&
         t3 >= -fTolerance && t3 <= (1 + fTolerance) && t4 >= -fTolerance && t4 <= (1 + fTolerance))
-      return lastElement;
+      return lastElement.Get();
   }
 
   // Verify the count of volumes that contain the point.
@@ -710,7 +704,7 @@ int FieldElmerMap::FindElement13(const double x, const double y,
         t3 <= (1 + fTolerance) && t4 >= -fTolerance && t4 <= (1 + fTolerance)) {
       ++nfound;
       imap = i;
-      lastElement = i;
+      lastElement.Put(i);
       if (debug) {
         std::cout << m_className << "::FindElement13:\n";
         std::cout << "    Found matching element " << i << ".\n";
@@ -752,7 +746,7 @@ int FieldElmerMap::FindElement13(const double x, const double y,
         std::cout << "    No element matching point (" << x << ", " << y << ", "
                   << z << ") found.\n";
       }
-      lastElement = -1;
+      lastElement.Put(-1);
       return -1;
     }
     if (nfound > 1) {
@@ -770,7 +764,7 @@ int FieldElmerMap::FindElement13(const double x, const double y,
       t3 = t3bak;
       t4 = t4bak;
       imap = imapbak;
-      lastElement = imap;
+      lastElement.Put(imap);
       return imap;
     }
   }
@@ -785,8 +779,8 @@ int FieldElmerMap::FindElement13(const double x, const double y,
 
 int FieldElmerMap::Coordinates13(double x, double y, double z, double& t1,
                                  double& t2, double& t3, double& t4,
-                                 double jac[4][4], double& det, int imap) {
-
+                                 double jac[4][4], double& det, int imap) const
+{
   if (debug) {
     std::cout << m_className << "::Coordinates13:\n";
     std::cout << "   Point (" << x << ", " << y << ", " << z << ")\n";
@@ -1056,7 +1050,7 @@ int FieldElmerMap::Coordinates13(double x, double y, double z, double& t1,
 
 int FieldElmerMap::Coordinates12(double x, double y, double z, double& t1,
                                      double& t2, double& t3, double& t4,
-                                     int imap) {
+                                     int imap) const {
 
   if (debug) {
     std::cout << m_className << "::Coordinates12:\n";
@@ -1307,7 +1301,7 @@ int FieldElmerMap::Coordinates12(double x, double y, double z, double& t1,
 }
 
 void FieldElmerMap::Jacobian13(int i, double t, double u, double v,
-                               double w, double& det, double jac[4][4]) {
+                               double w, double& det, double jac[4][4]) const {
 
   // Initial values
   det = 0;

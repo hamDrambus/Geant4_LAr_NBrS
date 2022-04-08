@@ -24,11 +24,9 @@
 #include "G4VUserPrimaryGeneratorAction.hh"
 
 #include "GlobalParameters.hh"
-#include "PolynomialFit.hh"
-#include "PrimaryGenerator.hh"
-#include "GlobalData.hh"
+#include "VGeneratePrimaries.hh"
 
-class GenPhotonsDirectly : public G4VUserPrimaryGeneratorAction
+class GenPhotonsDirectly : public VGeneratePrimaries
 {
 public:
   enum PatternPhoton {
@@ -41,17 +39,13 @@ public:
   };
 
   GenPhotonsDirectly(double energy, PatternPhoton pattern); //monoenergetic case
-  GenPhotonsDirectly(PDF_routine& pdf, PatternPhoton pattern); //continious spectrum case
+  GenPhotonsDirectly(PDF_routine& energy_spectrum, PatternPhoton pattern); //continious spectrum case
   ~GenPhotonsDirectly();
 
   void SetPattern(PatternPhoton pattern) { mPattern = pattern; }
   void GeneratePrimaries(G4Event* anEvent);
-  void SetParticleEnergySpectrum(PDF_routine energySpectrum);
 
 protected:
-  void SetupNavigator(void);
-  PDF_routine photon_spectrum;
-  G4Navigator* navigator; // Separate from tracking navigator is used to locate points before particle generation.
   PatternPhoton mPattern;
 };
 

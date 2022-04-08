@@ -1,5 +1,7 @@
 #include "PhotonHit.hh"
 
+G4ThreadLocal G4Allocator<PhotonHit>* PhotonHitAllocator=0;
+
 PhotonHit::PhotonHit()
   : _time(0), _energy(0), _pos(G4ThreeVector(0,0,0)), _channel(0), _isPMT(true)
 {}

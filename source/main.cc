@@ -1,11 +1,12 @@
 #include <time.h>
 #include <iostream>
-#include "G4RunManager.hh"
-#include "G4UImanager.hh"
-#include "G4UIterminal.hh"
+#include <G4RunManager.hh>
+#include <G4MTRunManager.hh>
+#include <G4UImanager.hh>
+#include <G4UIterminal.hh>
 
 #ifdef G4VIS_USE
-#include "G4VisExecutive.hh"
+#include <G4VisExecutive.hh>
 #endif
 
 #include "GlobalParameters.hh"
@@ -14,36 +15,28 @@
 #include "PhysicsList.hh"
 #include "DetectorConstruction.hh"
 #include "DetectorConstructionTHGEM1.hh"
-#include "RunAction.hh"
-#include "PrimaryGeneratorAction.hh"
-#include "GenElectronsPatterns.hh"
-#include "GenPhotonsDirectly.hh"
-#include "SteppingAction.hh"
-#include "TrackingAction.hh"
+#include "UserInitialization.hh"
 
 int main(int argc, char** argv)
 {
 	// Initialize detector and run parameters
 	gPars::InitGlobals();
 	// Choose the Random engine
-	CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);
+	G4Random::setTheEngine(new CLHEP::RanecuEngine);
 	// Seed the random number generator manually
 	G4long myseed = 42;
-	CLHEP::HepRandom::setTheSeed(myseed);
+	G4Random::setTheSeed(myseed);
 
 	// Construct the default run manager
-	G4RunManager * runManager = new G4RunManager;
+	G4MTRunManager *runManager = new G4MTRunManager;
+	runManager->SetNumberOfEventsToBeStored(0);
+	runManager->SetNumberOfThreads(std::max(gPars::general.thread_number, 1));
 	// Set mandatory initialization classes
 	runManager->SetUserInitialization(new DetectorConstruction);
 	//runManager->SetUserInitialization(new DetectorConstructionTHGEM1);
 	runManager->SetUserInitialization(new PhysicsList);
-	// Set user action classes
-	runManager->SetUserAction(new RunAction);
-	//runManager->SetUserAction(new GenElectronsPatterns(GenElectronsPatterns::PatternElectron::UniformLineX));
-	runManager->SetUserAction(new GenPhotonsDirectly(3.1, GenPhotonsDirectly::PatternPhoton::Cathode_14mm_coll));
-	//runManager->SetUserAction(new PrimaryGeneratorAction(2.0));
-	runManager->SetUserAction(new SteppingAction);
-	runManager->SetUserAction(new TrackingAction);
+	runManager->SetUserInitialization(new UserWorkerThread); // Only responsible for clearing merged runs.
+	runManager->SetUserInitialization(new UserInitialization); // Primary generator, stepping, tracking, event and run actions
 
 	// Initialize G4 kernel
 	runManager->Initialize();

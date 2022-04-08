@@ -19,6 +19,7 @@
 
 #include "G4SystemOfUnits.hh"
 #include "G4ThreeVector.hh"
+#include "G4Cache.hh"
 
 #include "DriftMedium.hh"
 
@@ -33,6 +34,7 @@ public:
                    std::string nlist = "mesh.nodes",
                    std::string volt = "out.result", std::string unit = "mm");
 
+  // Thread-safe event though it is not const
   void ElectricField(const double x, const double y, const double z, double& ex,
                     double& ey, double& ez, DriftMedium* &medium, int& status);
   void ElectricField(const double x, const double y, const double z, double& ex,
@@ -42,10 +44,10 @@ public:
   // Calculates x, y, z, V and angular ranges
   void SetRange();
   // Shows x, y, z, V and angular ranges
-  void PrintRange();
+  void PrintRange() const;
 
   bool GetBoundingBox(double& xmin, double& ymin, double& zmin,
-      double& xmax, double& ymax, double& zmax)
+      double& xmax, double& ymax, double& zmax) const
   {
     if (!ready) return false;
     xmin = mapxmin;
@@ -57,20 +59,19 @@ public:
     return true;
   }
 
-  bool GetVoltageRange(double& vmin, double& vmax) {
+  bool GetVoltageRange(double& vmin, double& vmax) const {
     vmin = mapvmin;
     vmax = mapvmax;
     return true;
   }
 
-  bool IsInBoundingBox(const G4ThreeVector &pos) {
+  bool IsInBoundingBox(const G4ThreeVector &pos) const {
     return pos.x() >= mapxmin && pos.x() <= mapxmax &&
         pos.y() >= mapymin && pos.y() <= mapymax &&
         pos.z() >= mapzmin && pos.z() <= mapzmax;
   }
 
   int GetNumberOfElements() const { return nElements; }
-  bool GetElement(const int i, double& vol, double& dmin, double& dmax);
   int GetNumberOfMaterials() const { return nMaterials; }
   // Associate a material with a Medium class
   void SetMedium(const int imat, DriftMedium* medium);
@@ -81,7 +82,8 @@ public:
   bool IsReady() const { return ready; }
 
   // Options
-  void EnableCheckMapIndices() {
+  void EnableCheckMapIndices()
+  {
    checkMultipleElement = true;
    lastElement = -1;
   }
@@ -92,8 +94,6 @@ public:
   void DisableDebugging() { debug = false; }
 
 protected:
-  double GetElementVolume(const int i);
-  void GetAspectRatio(const int i, double& dmin, double& dmax);
   std::string m_className;
   bool ready;
   double fTolerance;
@@ -108,9 +108,8 @@ protected:
    double xmin, ymin, zmin, xmax, ymax, zmax;
   };
   std::vector<element> elements;
-  int lastElement;
-  // Flag to check if bounding boxes of elements are cached
-  bool cacheElemBoundingBoxes;
+
+  G4Cache<int> lastElement;
 
   // Nodes
   int nNodes;
@@ -132,7 +131,7 @@ protected:
   // Bounding box
   bool hasBoundingBox;
 
-  // Ranges and periodicities
+  // Ranges
   double mapxmin, mapymin, mapzmin;
   double mapxmax, mapymax, mapzmax;
   double mapvmin, mapvmax;
@@ -145,22 +144,22 @@ protected:
   // Local coordinates
   // Calculate coordinates in linear tetrahedra
   int Coordinates12(double x, double y, double z, double& t1, double& t2,
-                   double& t3, double& t4, int imap);
+                   double& t3, double& t4, int imap) const;
   // Calculate coordinates for curved quadratic tetrahedra
   int Coordinates13(double x, double y, double z, double& t1, double& t2,
                    double& t3, double& t4, double jac[4][4], double& det,
-                   int imap);
+                   int imap) const;
 
   // Calculate Jacobian for curved quadratic tetrahedra
   void Jacobian13(int i, double t, double u, double v, double w, double& det,
-                 double jac[4][4]);
+                 double jac[4][4]) const;
   // Find the element for a point in curved quadratic tetrahedra
   int FindElement13(const double x, const double y, const double z, double& t1,
                    double& t2, double& t3, double& t4, double jac[4][4],
                    double& det);
 
-  int ReadInteger(char* token, int def, bool& error);
-  double ReadDouble(char* token, double def, bool& error);
+  static int ReadInteger(char* token, int def, bool& error);
+  static double ReadDouble(char* token, double def, bool& error);
 
   // Calculate the bounding boxes of all elements after initialization
   void CalculateElementBoundingBoxes(void);
