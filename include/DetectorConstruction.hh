@@ -46,6 +46,9 @@
 #include "DetectorSensor.hh"
 #include "DetectorParameterisation.hh"
 
+
+//TODO: all detector constructions have same methods. Create virtual class with
+//common parts (THGEM1 cell, materials, optical surfaces)
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:

@@ -1,11 +1,11 @@
 #include "GenPhotonsDirectly.hh"
 
-GenPhotonsDirectly::GenPhotonsDirectly(double energy, PatternPhoton pattern) :
-  VGeneratePrimaries(energy), mPattern(pattern)
+GenPhotonsDirectly::GenPhotonsDirectly(double energy, PatternPhoton pattern, double parameter) :
+  VGeneratePrimaries(energy), mPattern(pattern), mParameter(parameter)
 {}
 
-GenPhotonsDirectly::GenPhotonsDirectly(PDF_routine& energy_spectrum, PatternPhoton pattern) :
-  VGeneratePrimaries(energy_spectrum), mPattern(pattern)
+GenPhotonsDirectly::GenPhotonsDirectly(PDF_routine& energy_spectrum, PatternPhoton pattern, double parameter) :
+  VGeneratePrimaries(energy_spectrum), mPattern(pattern), mParameter(parameter)
 {}
 
 GenPhotonsDirectly::~GenPhotonsDirectly()
@@ -49,9 +49,10 @@ void GenPhotonsDirectly::GeneratePrimaries(G4Event* anEvent)
 
   // Set particle direction
   G4ThreeVector direction;
-  if (mPattern == PatternPhoton::SiPM_shading)
-    direction = G4ThreeVector(0, 0, 1);
-  else {
+  if (mPattern == PatternPhoton::SiPM_shading) {
+    double angle = mParameter * degree;
+    direction = G4ThreeVector(std::sin(angle), 0, std::cos(angle));
+  } else {
     double phi = 2 * pi * G4UniformRand();
     double cosTheta = (G4UniformRand() - 0.5) * 2;
     double sinTheta = sqrt(1 - cosTheta*cosTheta);

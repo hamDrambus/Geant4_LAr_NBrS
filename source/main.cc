@@ -15,6 +15,7 @@
 #include "PhysicsList.hh"
 #include "DetectorConstruction.hh"
 #include "DetectorConstructionTHGEM1.hh"
+#include "DetectorConstructionTHGEM1Shading.hh"
 #include "UserInitialization.hh"
 
 int main(int argc, char** argv)
@@ -24,7 +25,8 @@ int main(int argc, char** argv)
 	// Choose the Random engine
 	G4Random::setTheEngine(new CLHEP::RanecuEngine);
 	// Seed the random number generator manually
-	G4long myseed = 42;
+	//G4long myseed = 43;
+	G4long myseed = time(NULL);
 	G4Random::setTheSeed(myseed);
 
 	// Construct the default run manager
@@ -34,6 +36,7 @@ int main(int argc, char** argv)
 	// Set mandatory initialization classes
 	runManager->SetUserInitialization(new DetectorConstruction);
 	//runManager->SetUserInitialization(new DetectorConstructionTHGEM1);
+	//runManager->SetUserInitialization(new DetectorConstructionTHGEM1Shading);
 	runManager->SetUserInitialization(new PhysicsList);
 	runManager->SetUserInitialization(new UserWorkerThread); // Only responsible for clearing merged runs.
 	runManager->SetUserInitialization(new UserInitialization); // Primary generator, stepping, tracking, event and run actions

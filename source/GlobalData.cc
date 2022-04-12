@@ -7,9 +7,10 @@ GlobalData::ProgressBarHelper::ProgressBarHelper() :
         indicators::option::Fill{"█"},
         indicators::option::Lead{"█"},
         indicators::option::Remainder{"-"},
+        indicators::option::ShowPercentage(true),
         indicators::option::ShowElapsedTime(true),
         indicators::option::ShowRemainingTime(true),
-        indicators::option::PrefixText{"Completion:"}),
+        indicators::option::PrefixText{" Completion:"}),
     max_N(0), current_N(0), has_started(false), has_finished(false)
 {}
 
@@ -25,7 +26,8 @@ void GlobalData::ProgressBarHelper::tick(void)
   double fraction = (double) current_N / max_N;
   std::size_t new_rate = (std::size_t)(100 * fraction);
   while (new_rate > current_rate) {
-    progress_bar.tick();
+    if (!progress_bar.is_completed())
+      progress_bar.tick();
     current_rate = progress_bar.current();
   }
   if (current_N == max_N)

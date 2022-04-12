@@ -27,7 +27,7 @@ namespace gPars
 		general.data_path = "../../NBrS_THGEM_LAr_v0/data/";
 		general.check_geometry_overlap = false;
 		general.no_reflections = false;
-		general.no_diffused_reflections = true;
+		general.no_diffused_reflections = false;
 		general.enable_e_diffusion = false;
 		general.track_mapping_info_class = "TrackMappingInfo";
 		general.teleportation_verbosity = 0;

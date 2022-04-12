@@ -115,8 +115,8 @@ HexagonalMappingData HexagonalMapping::MapFromCell(const HexagonalMappingData& m
     return MoveFromCell(map_info);
   G4Transform3D transform = GetCellGlobalPointTransform(map_info.cell_x_ind, map_info.cell_y_ind);
   G4Point3D rel_pos = map_info.position - g_cell_pos;
-  if (!forced && (((rel_pos.z() + container_z_size / 2.0) < tolerance && G4ThreeVector(0, 0, -1) * map_info.momentum > 0.0)
-      || ((rel_pos.z() - container_z_size / 2.0) < tolerance && G4ThreeVector(0, 0, 1) * map_info.momentum > 0.0))) {
+  if (!forced && ((std::fabs(rel_pos.z() + container_z_size / 2.0) < tolerance && G4ThreeVector(0, 0, -1) * map_info.momentum > 0.0)
+      || (std::fabs(rel_pos.z() - container_z_size / 2.0) < tolerance && G4ThreeVector(0, 0, 1) * map_info.momentum > 0.0))) {
     return MoveFromCell(map_info);
   }
   return MoveToNeighbourCell(map_info);

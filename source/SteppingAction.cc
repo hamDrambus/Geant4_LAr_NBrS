@@ -27,8 +27,8 @@ void SteppingAction::UserSteppingAction(const G4Step* theStep)
 	if (thePrePV != nullptr)
 	  prevVolName = thePrePV->GetName();
 
-	//std::cout<<"************"<<std::endl;
-	//std::cout<<"PrevVolume: \""<<prevVolName<<"\""<<std::endl;
-	//std::cout<<"PostVolume: \""<<postVolName<<"\""<<std::endl;
+//	std::cout<<"************"<<std::endl;
+//	std::cout<<"PrevVolume: \""<<prevVolName<<"\""<<std::endl;
+//	std::cout<<"PostVolume: \""<<postVolName<<"\""<<std::endl;
 	return G4UserSteppingAction::UserSteppingAction(theStep);
 }

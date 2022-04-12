@@ -35,11 +35,13 @@ public:
       Cathode_center,
       Cathode_14mm_coll,
       SiPM_shading,
+      SiPM_shading_test,
       By_source
   };
 
-  GenPhotonsDirectly(double energy, PatternPhoton pattern); //monoenergetic case
-  GenPhotonsDirectly(PDF_routine& energy_spectrum, PatternPhoton pattern); //continious spectrum case
+  // parameter meaning depends on pattern selected.
+  GenPhotonsDirectly(double energy, PatternPhoton pattern, double parameter = 0.0); //monoenergetic case
+  GenPhotonsDirectly(PDF_routine& energy_spectrum, PatternPhoton pattern, double parameter = 0.0); //continious spectrum case
   ~GenPhotonsDirectly();
 
   void SetPattern(PatternPhoton pattern) { mPattern = pattern; }
@@ -47,6 +49,7 @@ public:
 
 protected:
   PatternPhoton mPattern;
+  double mParameter;
 };
 
 #endif // GenPhotonsDirectly_h

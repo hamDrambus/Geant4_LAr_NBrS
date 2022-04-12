@@ -22,8 +22,8 @@ void plot_results(void)
   std::pair<double, double> Y_axis_zoom(0, 0);
   int X_n_bins = 1000, Y_n_bins = 1000;
 
-  std::string input_file = "../tests/test_00_SiPM_THGEM1_shading/generated.dat";
-  //std::string input_file = "../tests/test_00_SiPM_THGEM1_shading/recorded.dat";
+  //std::string input_file = "../tests/test_06_SiPM_THGEM1_shading/35deg_generated.dat";
+  std::string input_file = "../tests/test_06_SiPM_THGEM1_shading/35deg_recorded.dat";
   PlotInfo plot_info;
   plot_info.selection = SelectSiPMs;
   plot_info.histogram = NULL;
