@@ -6,8 +6,8 @@
  *  that they are valid for this non-standard geometry
  */
 
-#ifndef DetectorConstructionTHGEM1Shading_h
-#define DetectorConstructionTHGEM1Shading_h
+#ifndef DetectorTHGEM1SiPMshading_h
+#define DetectorTHGEM1SiPMshading_h
 
 #include <string>
 #include <sstream>
@@ -16,7 +16,6 @@
 
 #include <G4SystemOfUnits.hh>
 #include <G4ThreeVector.hh>
-#include <G4VUserDetectorConstruction.hh>
 
 #include <G4Material.hh>
 #include <G4Box.hh>
@@ -53,55 +52,21 @@
 
 #include "DetectorSensor.hh"
 #include "DetectorParameterisation.hh"
+#include "VDetectorConstruction.hh"
 
-class DetectorConstructionTHGEM1Shading : public G4VUserDetectorConstruction
+class DetectorTHGEM1SiPMshading : public VDetectorConstruction
 {
 public:
+  DetectorTHGEM1SiPMshading();
+	~DetectorTHGEM1SiPMshading() override;
 
-  DetectorConstructionTHGEM1Shading();
-	~DetectorConstructionTHGEM1Shading() override;
-
-public:
-	G4VPhysicalVolume* Construct() override;
-	void ConstructSDandField() override;
+	virtual G4VPhysicalVolume* Construct() override;
+	virtual void ConstructSDandField() override;
 
 private:
-	void defineMaterials();
-	void defineSurfaces();
-	void SetSizeAndPosition();
-	void CreateTHGEM1Cell();
+	virtual void SetSizeAndPosition() override;
 
-	G4Material* matFR4;
-  G4Material* matLAr;
-
-  G4Box*             solidWorld;
-  G4LogicalVolume*   logicWorld;
-  G4VPhysicalVolume* physiWorld;
-  G4LogicalVolume*   logic_THGEM1_cell;
-  G4LogicalVolume*   logic_THGEM1_cell_LAr;
-  G4LogicalVolume*   logic_THGEM1_cell_FR4;
-  G4LogicalVolume*   logic_THGEM1_cell_copper;
-  G4LogicalVolume*   logic_sensor;
-
-  // surfaces
-  G4OpticalSurface *AbsorberMaterial;
-  G4OpticalSurface *FR4_unified;
-  G4OpticalSurface *Cu_THGEM;
-  G4OpticalSurface *LAr_OpticalSurface;
-  G4OpticalSurface *SensorSurface;
-
-  G4bool  fCheckOverlaps; // option to activate checking of volumes overlaps
-
-  //consts
-  G4double HalfWorldLength;
-
-  //THGEM1
-  double x_size_THGEM1_container; // area with electric field, Cu and holes
-  double y_size_THGEM1_container;
-  double z_size_THGEM1_container;
-
-  G4ThreeVector position_SingleTHGEMCell;
-  G4ThreeVector position_THGEM1_container;
+	G4LogicalVolume*   logic_sensor;
 
   //Sensor (SiPM)
   double x_size_sensor;
@@ -110,4 +75,4 @@ private:
   G4ThreeVector position_sensor;
 };
 
-#endif // DetectorConstructionTHGEM1Shading_h
+#endif // DetectorTHGEM1SiPMshading_h

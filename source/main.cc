@@ -13,9 +13,9 @@
 #include "GlobalData.hh"
 #include "Randomize.hh"
 #include "PhysicsList.hh"
-#include "DetectorConstruction.hh"
-#include "DetectorConstructionTHGEM1.hh"
-#include "DetectorConstructionTHGEM1Shading.hh"
+#include "DetectorFull.hh"
+#include "DetectorTHGEM1detailed.hh"
+#include "DetectorTHGEM1SiPMshading.hh"
 #include "UserInitialization.hh"
 
 int main(int argc, char** argv)
@@ -34,9 +34,9 @@ int main(int argc, char** argv)
 	runManager->SetNumberOfEventsToBeStored(0);
 	runManager->SetNumberOfThreads(std::max(gPars::general.thread_number, 1));
 	// Set mandatory initialization classes
-	runManager->SetUserInitialization(new DetectorConstruction);
-	//runManager->SetUserInitialization(new DetectorConstructionTHGEM1);
-	//runManager->SetUserInitialization(new DetectorConstructionTHGEM1Shading);
+	runManager->SetUserInitialization(new DetectorFull);
+	//runManager->SetUserInitialization(new DetectorTHGEM1detailed);
+	//runManager->SetUserInitialization(new DetectorTHGEM1SiPMshading);
 	runManager->SetUserInitialization(new PhysicsList);
 	runManager->SetUserInitialization(new UserWorkerThread); // Only responsible for clearing merged runs.
 	runManager->SetUserInitialization(new UserInitialization); // Primary generator, stepping, tracking, event and run actions

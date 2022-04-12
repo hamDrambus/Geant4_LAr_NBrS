@@ -3,8 +3,8 @@
  *  some of global parameters are overridden so that they are valid for this non-standard geometry
  */
 
-#ifndef DetectorConstructionTHGEM1_h
-#define DetectorConstructionTHGEM1_h
+#ifndef DetectorTHGEM1detailed_h
+#define DetectorTHGEM1detailed_h
 
 #include <string>
 #include <sstream>
@@ -13,7 +13,6 @@
 
 #include <G4SystemOfUnits.hh>
 #include <G4ThreeVector.hh>
-#include <G4VUserDetectorConstruction.hh>
 
 #include <G4Material.hh>
 #include <G4Box.hh>
@@ -52,51 +51,18 @@
 #include "DetectorParameterisation.hh"
 #include "GlobalParameters.hh"
 #include "HexagonalMapping.hh"
+#include "VDetectorConstruction.hh"
 
-class DetectorConstructionTHGEM1 : public G4VUserDetectorConstruction
+class DetectorTHGEM1detailed : public VDetectorConstruction
 {
 public:
-  DetectorConstructionTHGEM1();
-	~DetectorConstructionTHGEM1();
+  DetectorTHGEM1detailed();
+	~DetectorTHGEM1detailed();
 public:
-	G4VPhysicalVolume* Construct() override;
+	virtual G4VPhysicalVolume* Construct() override;
 
 private:
-	void defineMaterials();
-	void defineSurfaces();
-	void SetSizeAndPosition();
-	void CreateTHGEM1Cell();
-
-	G4Material* matFr4;
-	G4Material* matLAr;
-
-	G4Box*             solidWorld;
-	G4LogicalVolume*   logicWorld;
-	G4VPhysicalVolume* physiWorld;
-	G4LogicalVolume*   logic_THGEM1_cell;
-	G4LogicalVolume*   logic_THGEM1_cell_LAr;
-	G4LogicalVolume*   logic_THGEM1_cell_FR4;
-	G4LogicalVolume*   logic_THGEM1_cell_copper;
-
-	// surfaces
-	G4OpticalSurface *AbsorberMaterial;
-	G4OpticalSurface *FR4_unified;
-	G4OpticalSurface *Cu_THGEM;
-	G4OpticalSurface *LAr_OpticalSurface;
-
-	G4bool  fCheckOverlaps; // option to activate checking of volumes overlaps
-
-	//consts
-	G4double HalfWorldLength;
-
-	//THGEM1
-	double x_size_THGEM1_container; // area with electric field, Cu and holes
-	double y_size_THGEM1_container;
-	double z_size_THGEM1_container;
-
-	G4ThreeVector position_SingleTHGEMCell;
-
-	G4ThreeVector position_THGEM1_container;
+	virtual void SetSizeAndPosition() override;
 };
 
-#endif // DetectorConstructionTHGEM1_h
+#endif // DetectorTHGEM1detailed_h

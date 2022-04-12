@@ -83,7 +83,7 @@ namespace gPars
     source.z_center = det_dims.z_bottom_THGEM1 - 2.9;
     source.xy_radius = 1.50;
     source.z_width = 0;
-    source.N_events = 10000000;
+    source.N_events = 1000000;
 
 		field_map.elmer_mesh_folder = general.data_path + "../singleTHGEM28_LAr/v00.01_THGEM1/";
 		field_map.elmer_solution_filename = general.data_path + "../singleTHGEM28_LAr/Elmer_v00.01/case_v01.result";

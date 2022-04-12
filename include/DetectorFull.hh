@@ -8,7 +8,6 @@
 
 #include <G4SystemOfUnits.hh>
 #include <G4ThreeVector.hh>
-#include <G4VUserDetectorConstruction.hh>
 
 #include <G4Material.hh>
 #include <G4Box.hh>
@@ -32,7 +31,6 @@
 #include <G4LogicalSkinSurface.hh>
 #include <G4LogicalBorderSurface.hh>
 #include <G4SurfaceProperty.hh>
-#include <G4UImanager.hh>
 #include <G4OpticalSurface.hh>
 #include <G4UserLimits.hh>
 #include <G4VisAttributes.hh>
@@ -43,86 +41,29 @@
 #include <G4Trd.hh>
 #include <G4PhysicalVolumesSearchScene.hh>
 
+#include "GlobalParameters.hh"
 #include "DetectorSensor.hh"
 #include "DetectorParameterisation.hh"
+#include "VDetectorConstruction.hh"
 
-
-//TODO: all detector constructions have same methods. Create virtual class with
-//common parts (THGEM1 cell, materials, optical surfaces)
-class DetectorConstruction : public G4VUserDetectorConstruction
+class DetectorFull : public VDetectorConstruction
 {
 public:
 
-	DetectorConstruction();
-	~DetectorConstruction() override;
+  DetectorFull();
+	~DetectorFull() override;
 
 public:
-	G4VPhysicalVolume* Construct() override;
-	void ConstructSDandField() override;
+	virtual G4VPhysicalVolume* Construct() override;
+	virtual void ConstructSDandField() override;
 
 private:
-	void defineMaterials();
-	void defineSurfaces();
-	void SetSizeAndPosition();
-	void CreateTHGEM1Cell();
+	virtual void SetSizeAndPosition() override;
 
-	G4RotationMatrix *rotX_90;
-	G4RotationMatrix *rotY_90;
-	G4RotationMatrix *rotZ_90;
-	G4RotationMatrix *rotZ_180;
-	G4RotationMatrix *rotZ_270;
-
-	G4Material* matAl;
-	G4Material* matFe;
-
-	G4Box*             solidWorld;    // solid envelope
-	G4LogicalVolume*   logicWorld;    // logical envelope
-	G4VPhysicalVolume* physiWorld;    // physical envelope
-
-	G4Box*              solid_SiPM;
 	G4LogicalVolume*    logic_SiPM;
-	G4VPhysicalVolume*  physi_SiPM;
 	G4LogicalVolume*    logic_PMT;
 
-	G4Box*              solid_anode_grid;
 	G4LogicalVolume*    logic_anode_grid;
-	G4VPhysicalVolume*  phys_anode_grid;
-
-	G4LogicalVolume*    logic_THGEM1_cell;
-  G4LogicalVolume*    logic_THGEM1_cell_LAr;
-  G4LogicalVolume*    logic_THGEM1_cell_copper;
-  G4LogicalVolume*    logic_THGEM1_cell_FR4;
-
-	// surfaces
-	G4OpticalSurface *world_scintillator;
-	G4OpticalSurface *scintillator_grease;
-	G4OpticalSurface *grease_glass;
-	G4OpticalSurface *glass_cathode;
-
-	G4OpticalSurface *BGOPolishedAirTeflon; // polished BGO surface wrapped with teflon
-	G4OpticalSurface *BGOGroundAirTeflon;   // ground BGO surface wrapped with teflon
-	G4OpticalSurface *groundAir;            // ground crystal surface, not wrapped
-	G4OpticalSurface *groundWhitePainted;   // ground crystal surface painted white
-	G4OpticalSurface *polishedBlackPainted; // polished crystal surface painted black
-	G4OpticalSurface *groundBlackPainted;   // ground crystal surface painted black
-	G4OpticalSurface *Polished_Air_TiO2;
-	G4OpticalSurface *Ground_Air_TiO2;
-	G4OpticalSurface *airGroundAluminum; // ground aluminm surface
-	//G4OpticalSurface *silicaCathodeMaterial; // surface between window and cathode
-	G4OpticalSurface *PMT_cathode;
-	G4OpticalSurface *SiPM_OpticalSurface;
-	G4OpticalSurface *AbsorberMaterial;
-	G4OpticalSurface *FR4_unified;
-	G4OpticalSurface *Anode_wire_unified;
-	G4OpticalSurface *Cu_THGEM;
-	G4OpticalSurface *LAr_OpticalSurface;
-	G4OpticalSurface *Cu_Cathode;
-	G4OpticalSurface *stainlessSteel;
-
-	G4bool  fCheckOverlaps; // option to activate checking of volumes overlaps
-
-	//consts
-	G4double HalfWorldLength;
 
 	//anode wire
 	double radius_wire;
@@ -163,7 +104,6 @@ private:
 	double y_size_PMMA_plate;
 	double z_size_PMMA_plate;
 
-
 	//SiPMs
 	int Nx_SiPMs;
 	int Ny_SiPMs;
@@ -200,9 +140,6 @@ private:
 	double x_size_THGEM1; //full real size, including dielectric
 	double y_size_THGEM1;
 	double z_size_THGEM1;
-	double x_size_THGEM1_container; // area with electric field, Cu and holes
-	double y_size_THGEM1_container;
-	double z_size_THGEM1_container;
 
 	//SteelBox
 	double xSizeSteelBox;
@@ -300,9 +237,6 @@ private:
 	double radiusAlphaFull;
 	double z_size_Alpha;
 
-
-	G4ThreeVector position_SingleTHGEMCell;
-
 	G4ThreeVector position_SiPM_container;
 	G4ThreeVector position_SiPMFR4;
 	G4ThreeVector position_PMMA_plate;
@@ -312,7 +246,6 @@ private:
 	G4ThreeVector position_LAr_inner;
 	G4ThreeVector position_LAr_outer;
 	G4ThreeVector position_THGEM1_frame;
-	G4ThreeVector position_THGEM1_container;
 	G4ThreeVector position_THGEM1_copper_plate;  // inside container
 
 	//

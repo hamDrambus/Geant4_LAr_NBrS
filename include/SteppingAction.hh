@@ -1,6 +1,7 @@
 #ifndef SteppingAction_h
 #define SteppingAction_h
 
+#include <DetectorFull.hh>
 #include "G4Material.hh"
 #include "G4LogicalVolume.hh"
 #include "G4ThreeVector.hh"
@@ -21,7 +22,6 @@
 #include "GlobalParameters.hh"
 #include "PhotonHit.hh"
 #include "DetectorSensor.hh"
-#include "DetectorConstruction.hh"
 
 class SteppingAction : public G4UserSteppingAction
 {
