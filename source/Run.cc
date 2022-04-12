@@ -8,21 +8,63 @@ Run::Run() : hit_collection_ID(-1)
 Run::~Run()
 {}
 
-unsigned int Run::Results::GetNGeneratedPhotons(void) const
+std::size_t Run::Results::GetNGeneratedPhotons(void) const
 {
-  unsigned int out = 0;
+  std::size_t out = 0;
   for (std::size_t e = 0, e_end_ = generated_photons.size(); e!=e_end_; ++e) {
     out += generated_photons[e].photons.size();
   }
   return out;
 }
 
-unsigned int Run::Results::GetNRecordedPhotons(void) const
+std::size_t Run::Results::GetNRecordedPhotons(void) const
 {
-  unsigned int out = 0;
+  std::size_t out = 0;
   for (std::size_t e = 0, e_end_ = recorded_photons.size(); e!=e_end_; ++e) {
     out += recorded_photons[e].photons.size();
   }
+  return out;
+}
+
+std::size_t Run::Results::GetNRecoredPMTsRAW(void) const
+{
+  std::size_t out = 0;
+  for (std::size_t e = 0, e_end_ = PMT_photon_n.size(); e!=e_end_; ++e) {
+    out += PMT_photon_n[e];
+  }
+  return out;
+}
+
+std::size_t Run::Results::GetNRecoredSiPMsRAW(void) const
+{
+  std::size_t out = 0;
+  for (std::size_t e = 0, e_end_ = SiPM_photon_n.size(); e!=e_end_; ++e) {
+    out += SiPM_photon_n[e];
+  }
+  return out;
+}
+
+std::size_t Run::Results::GetNRecoredPMTavg(void) const
+{
+  if (PMT_photon_n.size() != 4)
+    return 0;
+  std::size_t PMT3 = PMT_photon_n[0] + PMT_photon_n[2] + PMT_photon_n[3];
+  double grid_fraction = (double) PMT_photon_n[1] * 3 / PMT3;
+  std::size_t out = std::round((PMT3 * grid_fraction + PMT_photon_n[1]) / 4.0);
+  return out;
+}
+
+std::size_t Run::Results::GetNRecoredSiPMs23(void) const
+{
+  if (SiPM_photon_n.size() != 25)
+    return 0;
+  std::size_t SiPM43_avg = SiPM_photon_n[1] + SiPM_photon_n[3] + SiPM_photon_n[5] +
+      SiPM_photon_n[9] + SiPM_photon_n[15] + SiPM_photon_n[19] + SiPM_photon_n[21] +
+      SiPM_photon_n[23];
+  std::size_t SiPM44_avg = SiPM_photon_n[0] + SiPM_photon_n[4] + SiPM_photon_n[20] +
+        SiPM_photon_n[24];
+  std::size_t out = GetNRecoredSiPMsRAW();
+  out -= std::round(SiPM43_avg/8.0 + SiPM44_avg/4.0);
   return out;
 }
 
@@ -76,8 +118,8 @@ void Run::Results::Print(std::ostream &str) const
   str<<"************************************************"<<std::endl;
   str<<"Photons generated:"<<GetNGeneratedPhotons()<<std::endl;
   str<<"Total photons detected:"<<GetNRecordedPhotons()<<std::endl;
-  str<<"Total number of reflections:"<<n_reflections<<std::endl;
-  str<<"Total number of photons:"<<n_generated<<std::endl;
+  //str<<"Total number of reflections:"<<n_reflections<<std::endl;
+  str<<"Total number of events:"<<n_generated<<std::endl;
 
   str<<std::endl<<"PMT detected photons:"<<std::endl;
   str<<"PMT#0: "<<PMT_photon_n[0]<<"\t"<<"PMT#1: "<<PMT_photon_n[1] \
@@ -101,6 +143,9 @@ void Run::Results::Print(std::ostream &str) const
   for (std::size_t i = 0, i_end_ = SiPM_photon_n.size(); i!=i_end_; ++i)
     str<<SiPM_positions[i].getY()/mm<<"\t";
   str<<std::endl;
+
+  std::cout<<std::endl<<"Average Npe per 1 PMT (grid is accounted for) : "<<GetNRecoredPMTavg()<<std::endl;
+  std::cout<<"Npe for 23 SiPMs (no #43 and #44) : "<<GetNRecoredSiPMs23()<<std::endl;
 }
 
 void Run::Results::Merge(const Results &with)
@@ -128,7 +173,7 @@ void Run::Results::Merge(const Results &with)
     PMT_photon_n[i] += with.PMT_photon_n[i];
   }
   n_reflections += with.n_reflections;
-  n_generated += with.n_reflections;
+  n_generated += with.n_generated;
 }
 
 void Run::RecordEvent(const G4Event* event)
@@ -136,6 +181,14 @@ void Run::RecordEvent(const G4Event* event)
   if (hit_collection_ID < 0 ) {
     hit_collection_ID = G4SDManager::GetSDMpointer()->GetCollectionID(DetectorSensor::PhotonCollectionName);
   }
+
+  ++results.n_generated;
+  G4int n = GetNumberOfEvent();
+  if (0 == n) {
+    G4int N = GetNumberOfEventToBeProcessed();
+    gData.progress_bar.set_N_events(N);
+  }
+  gData.progress_bar.tick();
 
   const VGeneratePrimaries* generator =
       static_cast<const VGeneratePrimaries*>(G4RunManager::GetRunManager()->GetUserPrimaryGeneratorAction());

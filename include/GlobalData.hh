@@ -12,6 +12,9 @@
 #include <vector>
 #include <deque>
 
+#include <indicators/dynamic_progress.hpp>
+#include <indicators/progress_bar.hpp>
+
 #include <G4SystemOfUnits.hh>
 #include "G4ThreeVector.hh"
 
@@ -37,6 +40,24 @@ struct GeneratedData {
 
 class GlobalData {
 public:
+  class ProgressBarHelper {
+  public:
+    ProgressBarHelper();
+    void tick(void); // Reduces update rate of progress_bar
+    void set_N_events(std::size_t N_events);
+    void reset(void);
+    indicators::ProgressBar progress_bar;
+    bool is_finished(void);
+    void set_as_finished(void);
+  protected:
+    void start(void);
+    void finish(void);
+    bool has_started;
+    bool has_finished;
+    std::size_t max_N;
+    std::size_t current_N;
+    std::mutex mutex_;
+  } progress_bar;
 
   GlobalData();
   ~GlobalData();
@@ -50,6 +71,7 @@ public:
   HexagonalMapping* THGEM1_mapping; // Set after geometry construction in G4RunManager::Initialize(). Thread safe.
   FieldElmerMap* field_map; // Depends only on gPars::
   DriftMedium* LAr_medium;
+
 
 protected:
   // Experimental diffusion is in cm^2/sec which needs to be in mm^(1/2) in ElectronDrift

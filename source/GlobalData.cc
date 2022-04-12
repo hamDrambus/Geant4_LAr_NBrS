@@ -2,10 +2,96 @@
 
 GlobalData gData;
 
+GlobalData::ProgressBarHelper::ProgressBarHelper() :
+    progress_bar(indicators::option::BarWidth{50},
+        indicators::option::Fill{"█"},
+        indicators::option::Lead{"█"},
+        indicators::option::Remainder{"-"},
+        indicators::option::ShowElapsedTime(true),
+        indicators::option::ShowRemainingTime(true),
+        indicators::option::PrefixText{"Completion:"}),
+    max_N(0), current_N(0), has_started(false), has_finished(false)
+{}
+
+void GlobalData::ProgressBarHelper::tick(void)
+{
+  std::lock_guard<std::mutex> guard(mutex_);
+  if (has_finished)
+    return;
+  if (!has_started)
+    start();
+  ++current_N;
+  std::size_t current_rate = progress_bar.current();
+  double fraction = (double) current_N / max_N;
+  std::size_t new_rate = (std::size_t)(100 * fraction);
+  while (new_rate > current_rate) {
+    progress_bar.tick();
+    current_rate = progress_bar.current();
+  }
+  if (current_N == max_N)
+    finish();
+}
+
+void GlobalData::ProgressBarHelper::set_N_events(std::size_t N_events)
+{
+  std::lock_guard<std::mutex> guard(mutex_);
+  if (!has_started) {
+    max_N = N_events;
+    current_N = 0;
+  }
+}
+
+bool GlobalData::ProgressBarHelper::is_finished(void)
+{
+  std::lock_guard<std::mutex> guard(mutex_);
+  return has_finished;
+}
+
+void GlobalData::ProgressBarHelper::set_as_finished(void)
+{
+  std::lock_guard<std::mutex> guard(mutex_);
+  has_started = true;
+  has_finished = true;
+  if (!progress_bar.is_completed())
+    progress_bar.mark_as_completed();
+  current_N = max_N;
+}
+
+void GlobalData::ProgressBarHelper::reset(void)
+{
+  std::lock_guard<std::mutex> guard(mutex_);
+  if (has_started && has_finished) {
+    has_started = false;
+    has_finished = false;
+    current_N = 0;
+    progress_bar.set_progress(0);
+  }
+}
+
+void GlobalData::ProgressBarHelper::start(void)
+{
+  if (!has_started && !has_finished) {
+    has_started = true;
+    current_N = 0;
+    progress_bar.set_progress(0);
+  }
+}
+
+void GlobalData::ProgressBarHelper::finish(void)
+{
+  if (has_started && !has_finished) {
+    has_finished = true;
+    current_N = max_N;
+    if (!progress_bar.is_completed())
+      progress_bar.mark_as_completed();
+  }
+}
+
 GlobalData::GlobalData() :
     THGEM1_mapping(nullptr),
     field_map(nullptr),
-    LAr_medium(nullptr)
+    LAr_medium(nullptr),
+    progress_bar()
 {}
 
 GlobalData::~GlobalData()

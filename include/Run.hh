@@ -31,10 +31,14 @@ public:
     std::deque<G4ThreeVector> PMT_positions;
     std::deque<GeneratedData> generated_photons;
     std::deque<GeneratedData> recorded_photons;
-    unsigned int n_generated;
-    unsigned int n_reflections; // TODO: can move to some user action (stepping?) and add n_reflection to PhotonHit
-    unsigned int GetNGeneratedPhotons(void) const;
-    unsigned int GetNRecordedPhotons(void) const;
+    std::size_t n_generated;
+    std::size_t n_reflections; // TODO: can move to some user action (stepping?) and add n_reflection to PhotonHit
+    std::size_t GetNGeneratedPhotons(void) const;
+    std::size_t GetNRecordedPhotons(void) const;
+    std::size_t GetNRecoredPMTsRAW(void) const;
+    std::size_t GetNRecoredSiPMsRAW(void) const;
+    std::size_t GetNRecoredPMTavg(void) const; // Takes grids into account
+    std::size_t GetNRecoredSiPMs23(void) const; // Removes SiPM #43 and #44 (to compare with experiment)
     void FindSensorsCoordinates(void); //Sets global positions of SiPMs and PMTs after geometry is constructed in G4RunManager::Initialize()
     void Clear(void);
     void Init(void);

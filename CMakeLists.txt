@@ -27,7 +27,7 @@ endif()
 #
 #include(${Boost_USE_FILE}) does not work
 #include(${Geant4_USE_FILE})
-include_directories(${Boost_INCLUDE_DIR} ${Geant4_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include)
+include_directories(${Boost_INCLUDE_DIR} ${Geant4_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/externals/indicators/include ${PROJECT_SOURCE_DIR}/include)
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
