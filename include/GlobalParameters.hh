@@ -25,6 +25,7 @@ namespace gPars
   struct ProgramSetups {
     std::string this_path;
     std::string data_path;
+    std::string output_folder;
     int thread_number;
     bool doView;
     bool doViewElectronDrift;
@@ -41,6 +42,7 @@ namespace gPars
     double surface_tolerance;
     bool record_electrons; // if false, only photons are recorded to files and kept in memory
     bool record_detailed; // if false, only number of hits per channel is kept track of
+    bool print_drift_track; // works only for Detector_THGEM1_detailed and GenElectronsPatterns testing classes
   };
 
 	struct Source {
@@ -109,6 +111,15 @@ namespace gPars
 		std::string pmma_uv_absorption_length_filename;
 	};
 
+	struct ArgonProperties {
+	  std::string XS_energy_transfer_filename;
+	  std::string XS_momentum_transfer_filename;
+	  double energy_max; // Maximal energy until which LAr properties are known and to be calculated to.
+	  double field_max; // Maximal electric field for which argon properties should be calculated.
+	  double atomic_density; // in Geant4 units [mm^-3]
+	  double m_to_M; // m_electron / M_Ar_atom ratio
+	};
+
 	class Results {
 	public:
 		std::string generated_filename;
@@ -122,6 +133,7 @@ namespace gPars
 	extern DetectorDimensions det_dims;
 	extern ElmerFieldMap field_map;
 	extern DetectorOptics det_opt;
+	extern ArgonProperties Ar_props;
 	extern Results results;
 }
 

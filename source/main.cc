@@ -35,11 +35,13 @@ int main(int argc, char** argv)
 	runManager->Initialize();
 	gData.Initialize();
 	// Visualization manager
-#ifdef G4VIS_USE
-	G4VisManager* visManager = new G4VisExecutive;
-	visManager->SetVerboseLevel(0);
-	visManager->Initialize();
-#endif
+
+  G4VisManager* visManager = nullptr;
+	if (gPars::general.doView) {
+    visManager = new G4VisExecutive;
+    visManager->SetVerboseLevel(0);
+    visManager->Initialize();
+	}
 
 	// Get the pointer to the User Interface manager
 	G4UImanager* UI = G4UImanager::GetUIpointer();
@@ -47,7 +49,7 @@ int main(int argc, char** argv)
 	UI->ApplyCommand("/run/verbose 0");
 	UI->ApplyCommand("/event/verbose 0");
 	UI->ApplyCommand("/tracking/verbose 0");
-	UI->ApplyCommand("/tracking/storeTrajectory 1");
+	UI->ApplyCommand("/tracking/storeTrajectory 2");
 	if (gPars::general.doView)
 		UI->ApplyCommand("/control/execute vis.mac");
 
@@ -60,10 +62,8 @@ int main(int argc, char** argv)
 	if (gPars::general.doView)
 		UI->ApplyCommand("vis/viewer/update");
 
-	// Termination
-#ifdef G4VIS_USE
-	delete visManager;
-#endif
+	if (visManager)
+	  delete visManager;
 	delete runManager;
 	return 0;
 }

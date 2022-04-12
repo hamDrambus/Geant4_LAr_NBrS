@@ -179,7 +179,9 @@ void Run::Results::Merge(const Results &with)
 void Run::RecordEvent(const G4Event* event)
 {
   if (hit_collection_ID < 0 ) {
-    hit_collection_ID = G4SDManager::GetSDMpointer()->GetCollectionID(DetectorSensor::PhotonCollectionName);
+    G4HCtable* HCtable = G4SDManager::GetSDMpointer()->GetHCtable();
+    if (HCtable) // Not calling G4SDManager::GetCollectionID because this approach is quiet when there is no collection
+      hit_collection_ID = HCtable->GetCollectionID(DetectorSensor::PhotonCollectionName);
   }
 
   ++results.n_generated;
@@ -218,13 +220,21 @@ void Run::RecordEvent(const G4Event* event)
         }
       }
     }
+  } else if (gPars::general.record_electrons) { // record electron only
+    for (std::size_t e = 0, e_end_ = generator->GetGeneratedData().size(); e!=e_end_; ++e) {
+      GeneratedData electron_data;
+      electron_data.electron = generator->GetGeneratedData()[e].electron;
+      results.generated_photons.push_back(electron_data);
+    }
   }
 
   G4HCofThisEvent* HCE = event->GetHCofThisEvent();
-  if(!HCE)
+  if(!HCE || hit_collection_ID < 0)
      return G4Run::RecordEvent(event);
-  PhotonHitCollection* hit_collection =
-    static_cast<PhotonHitCollection*>(HCE->GetHC(hit_collection_ID));
+  G4VHitsCollection* coll = HCE->GetHC(hit_collection_ID);
+  if (!coll)
+    return G4Run::RecordEvent(event);
+  PhotonHitCollection* hit_collection = static_cast<PhotonHitCollection*>(coll);
   if (!hit_collection)
     return G4Run::RecordEvent(event);
   for (std::size_t i = 0, i_end_ = hit_collection->GetSize(); i!=i_end_; ++i) {

@@ -7,6 +7,7 @@ namespace gPars
 	DetectorDimensions det_dims;
 	ElmerFieldMap field_map;
 	DetectorOptics det_opt;
+	ArgonProperties Ar_props;
 	Results results;
 
 	void InitGlobals(void)
@@ -21,10 +22,11 @@ namespace gPars
 			if (general.this_path.back()!='/')
 			  general.this_path.push_back('/');
 
-		general.doView = false;
+		general.doView = true;
 		general.doViewElectronDrift = true;
-		general.thread_number = 8;
+		general.thread_number = 1;
 		general.data_path = "../../NBrS_THGEM_LAr_v0/data/";
+		general.output_folder = "";
 		general.check_geometry_overlap = false;
 		general.no_reflections = false;
 		general.no_diffused_reflections = false;
@@ -34,8 +36,9 @@ namespace gPars
 		general.photon_max_time = 3.0 * ns; // about 1 meter full path.
 		general.electron_max_time = DBL_MAX;//3 * 3.5e-4 * ns; // 3 times normal drift time
 		general.surface_tolerance = 1e-8 * mm;
-		general.record_electrons = false; // if false, only photons are recorded to files and kept in memory
-		general.record_detailed = false; // if false, only number of hits per channel is kept track of
+		general.record_electrons = true; // if false, only photons are recorded to files and kept in memory
+		general.record_detailed = true; // if false, only number of hits per channel is kept track of
+		general.print_drift_track = true; // works only for Detector_THGEM1_detailed and GenElectronsPatterns testing classes
 
 		// THGEM CERN 28%, in [mm]
 		det_dims.THGEM1_copper_thickness = 0.03;
@@ -83,7 +86,7 @@ namespace gPars
     source.z_center = det_dims.z_bottom_THGEM1 - 2.9;
     source.xy_radius = 1.50;
     source.z_width = 0;
-    source.N_events = 1000000;
+    source.N_events = 20;
 
 		field_map.elmer_mesh_folder = general.data_path + "../singleTHGEM28_LAr/v00.01_THGEM1/";
 		field_map.elmer_solution_filename = general.data_path + "../singleTHGEM28_LAr/Elmer_v00.01/case_v01.result";
@@ -118,6 +121,12 @@ namespace gPars
 
     if (!general.doView)
       general.doViewElectronDrift = false;
+
+    if (general.doViewElectronDrift && !general.record_electrons) {
+      G4Exception("gPars::InitGlobals(): ",
+            "InvalidSetup", FatalException, "To view electron drift electrons must be recorded");
+      return;
+    }
 
 		if ((-det_dims.EL_gap_thickness < (det_dims.THGEM1_width_total + (det_dims.THGEM1_container_width - det_dims.THGEM1_width_total)*0.5)) &&
         (-det_dims.EL_gap_thickness > (-(det_dims.THGEM1_container_width - det_dims.THGEM1_width_total)*0.5))) {

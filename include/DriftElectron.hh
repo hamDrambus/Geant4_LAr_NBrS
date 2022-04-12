@@ -34,11 +34,6 @@ static const int StatusOutsideTimeWindow = -17;
 static const double BoundaryDistance = 1.e-8;
 
 class DriftElectron {
-public:
-  struct driftPoint {
-    // Position
-    double x, y, z, t;
-  };
 
  public:
   DriftElectron();
@@ -68,7 +63,7 @@ public:
   // Add limitation on field change along step |(E1 - E2)/E1| < relative_delta
   void SetFieldChangeLimit(const double relative_delta = 0.01);
 
-  const std::vector<driftPoint>& GetDriftTrack(void) const { return m_drift; }
+  const DriftTrack& GetDriftTrack(void) const { return m_drift; }
 
   void GetElectronEndpoint(double& x1, double& y1, double& z1,
                            double& t1, int& status) const;
@@ -78,6 +73,7 @@ public:
   void DisableDebugging() { m_debug = false; }
 
   void Draw(void) const;
+  void WriteDriftTrack(std::string filename) const;
 
  protected:
   std::string m_className;
@@ -85,7 +81,7 @@ public:
   bool m_useDiffusion;
 
   unsigned int m_nDrift;
-  std::vector<driftPoint> m_drift;
+  DriftTrack m_drift;
 
   // Step size model
   int m_stepModel;

@@ -71,7 +71,7 @@ void VDetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elm
   // Setting visualization
   G4VisAttributes Invisible(G4Colour(1, 1, 1, 0.0));
   Invisible.SetVisibility(false);
-  G4VisAttributes AlmostInvisible(G4Colour(1, 1, 1, 0.05));
+  G4VisAttributes AlmostInvisible(G4Colour(0.6, 0.6, 1.0, 0.05));
   G4VisAttributes LAr_VisAtt(G4Colour(0.6, 0.6, 1.0, 0.0));
   G4VisAttributes FR4_VisAtt(G4Colour(0.8, 0.85, 0.11, 0.8));
   G4VisAttributes Cu_VisAtt(G4Colour(0.8, 0.45, 0.2, 0.9));

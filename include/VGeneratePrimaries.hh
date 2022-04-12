@@ -41,7 +41,7 @@ protected:
   void SetupNavigator(void);
   virtual void SetupElectronDrift(void);
   G4long GetAndFixSeed(void);
-  void RecordElectron(G4ThreeVector position, int index, G4long seed);
+  void RecordElectron(G4ThreeVector position, int index, G4long seed, const DriftTrack &track = DriftTrack());
   void RecordPhoton(PhotonHit photon);
   void ClearRecords(void);
 

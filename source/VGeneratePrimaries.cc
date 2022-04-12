@@ -75,12 +75,13 @@ G4long VGeneratePrimaries::GetAndFixSeed(void)
   return seed;
 }
 
-void VGeneratePrimaries::RecordElectron(G4ThreeVector position, int index, G4long seed)
+void VGeneratePrimaries::RecordElectron(G4ThreeVector position, int index, G4long seed, const DriftTrack &track)
 {
   mGeneratedInfo.push_back(GeneratedData());
   mGeneratedInfo.back().electron.index = index;
   mGeneratedInfo.back().electron.position = position;
   mGeneratedInfo.back().electron.seed_info = "\"" + std::to_string(seed) + "\"";
+  mGeneratedInfo.back().electron.track = track;
 }
 
 void VGeneratePrimaries::RecordPhoton(PhotonHit photon)

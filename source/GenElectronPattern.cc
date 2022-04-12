@@ -17,9 +17,20 @@ void GenElectronsPatterns::GeneratePrimaries(G4Event* anEvent)
     G4ThreeVector e_pos = GenPosition(ID);
     bool ok = mElectronDrift->DoDriftElectron(e_pos.x(), e_pos.y(), e_pos.z(), 0);
     if (ok) {
-      RecordElectron(e_pos, ID, seed);
+      // Turns out, as of v10 Geant4, G4VVisManager::Draw only works after worker threads have finished
+      // (doi:10.1088/1742-6596/513/2/022005 page 7). So electron track has to be saved in Run results.
+      //if (gPars::general.doViewElectronDrift)
+      //  mElectronDrift->Draw();
       if (gPars::general.doViewElectronDrift)
-        mElectronDrift->Draw();
+        RecordElectron(e_pos, ID, seed, mElectronDrift->GetDriftTrack());
+      else
+        RecordElectron(e_pos, ID, seed);
+      if (gPars::general.print_drift_track) {
+        std::string filename = gPars::general.output_folder + "e_track_T";
+        filename += std::to_string(G4Threading::G4GetThreadId());
+        filename += "_E" + std::to_string(ID) + ".txt";
+        mElectronDrift->WriteDriftTrack(filename);
+      }
     }
     ++ID;
   } while ((anEvent->GetEventID() == gPars::source.N_events - 1) && ID != (gPars::source.N_events + ExtraEventsN()));

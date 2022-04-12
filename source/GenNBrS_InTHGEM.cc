@@ -43,7 +43,7 @@ void GenNBrS_InTHGEM::GeneratePrimaries(G4Event* anEvent)
 	if (gPars::general.doViewElectronDrift)
 	  mElectronDrift->Draw();
 
-	for (std::size_t i=1, i_end_ = mElectronDrift->GetDriftTrack().size(); i!=i_end_ && i_end_!=0; ++i) {
+	for (std::size_t i=1, i_end_ = mElectronDrift->GetDriftTrack().track.size(); i!=i_end_ && i_end_!=0; ++i) {
 	  //TODO: NBrS calculations are here
 	  if (false) {
       // Set particle energy

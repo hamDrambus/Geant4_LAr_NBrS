@@ -15,7 +15,8 @@
 #include <indicators/progress_bar.hpp>
 
 #include <G4SystemOfUnits.hh>
-#include "G4ThreeVector.hh"
+#include <G4ThreeVector.hh>
+#include <G4Polyline.hh>
 
 #include "GlobalParameters.hh"
 #include "PolynomialFit.hh"
@@ -23,13 +24,29 @@
 #include "PhotonHit.hh"
 #include "FieldElmerMap.hh"
 
+class DriftTrack {
+public:
+  struct driftPoint {
+    G4Point3D pos;
+    G4ThreeVector field;
+    double time;
+  };
+  std::vector<driftPoint> track;
+  DriftTrack() {}
+  // Turns out, as of v10 Geant4, G4VVisManager::Draw only works after worker threads have finished
+  // (doi:10.1088/1742-6596/513/2/022005 page 7). So electron track has to be saved in Run results.
+  void Draw(void) const;
+  void Write(std::string filename) const;
+};
+
 class DriftElectronInfo {
 public:
   DriftElectronInfo() :
-    index(-1), position(0, 0, 0), seed_info("?") {}
+    index(-1), position(0, 0, 0), seed_info("?"), track() {}
   int index;
-  G4ThreeVector position;
+  G4ThreeVector position; // starting position
   std::string seed_info;
+  DriftTrack track; // saved only for drawing if enabled
 };
 
 struct GeneratedData {

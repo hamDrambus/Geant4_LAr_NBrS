@@ -2,6 +2,47 @@
 
 GlobalData gData;
 
+// Turns out, as of v10 Geant4, G4VVisManager::Draw only works after worker threads have finished
+// (doi:10.1088/1742-6596/513/2/022005 page 7). So electron track has to be saved in Run results.
+void DriftTrack::Draw(void) const
+{
+  G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
+  if(pVVisManager && !track.empty()) {
+    G4Polyline track_obj;
+    track_obj.reserve(track.size());
+    for (std::size_t i = 0, i_end_ = track.size(); i!=i_end_; ++i)
+      track_obj.push_back(track[i].pos);
+    G4VisAttributes attribs;
+    attribs.SetColour(1.0, 0.55, 0.0, 0.8);
+    attribs.SetLineStyle(G4VisAttributes::unbroken);
+    attribs.SetLineWidth(0.4);
+    track_obj.SetVisAttributes(attribs);
+    pVVisManager->Draw(track_obj);
+  }
+}
+
+void DriftTrack::Write(std::string filename) const
+{
+  std::ofstream str;
+  open_output_file(filename, str, std::ios_base::trunc);
+  if (!str.is_open()) {
+    std::cerr << "DriftTrack::WriteDriftTrack:Error: Failed to open file." << std::endl;
+    return;
+  }
+  double ee = 0.0;
+  double l = 0.0; // Full path
+  str << "//L[mm]\tx[mm]\ty[mm]\tz[mm]\tex[kV/cm]\tey[kV/cm]\tez[kV/cm]\tE[kV/cm]\tt[us]" << std::endl;
+  for (std::size_t i = 0, i_end_ = track.size(); i!=i_end_; ++i) {
+    ee = sqrt(pow(track[i].field.x(), 2) + pow(track[i].field.y(), 2) + pow(track[i].field.z(), 2));
+    str << l / mm << "\t" << track[i].pos.x() / mm << "\t"<< track[i].pos.y() / mm << "\t"
+        << track[i].pos.z() / mm << "\t" << track[i].field.x() * cm / kilovolt << "\t"
+        << track[i].field.y() * cm / kilovolt << "\t" << track[i].field.z() * cm / kilovolt << "\t"
+        << ee * cm / kilovolt << "\t" << track[i].time / us << std::endl;
+    G4ThreeVector dx = (i == i_end_ - 1) ? G4ThreeVector(0,0,0) : track[i+1].pos - track[i].pos;
+    l += sqrt(dx*dx);
+  }
+}
+
 GlobalData::ProgressBarHelper::ProgressBarHelper() :
     progress_bar(indicators::option::BarWidth{50},
         indicators::option::Fill{"█"},

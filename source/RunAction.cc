@@ -23,10 +23,15 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 {
   const Run* run = static_cast<const Run*>(aRun);
   if (IsMaster()) {
-    gData.progress_bar.progress_bar.mark_as_completed();
+    if (!gData.progress_bar.progress_bar.is_completed())
+      gData.progress_bar.progress_bar.mark_as_completed();
     run->results.Print(G4cout);
-    run->AddToFile(run->results.generated_photons, gPars::results.generated_filename);
-    run->AddToFile(run->results.recorded_photons, gPars::results.recorded_filename);
+    for (std::size_t e = 0, e_end_ = run->results.generated_photons.size(); e!=e_end_; ++e)
+      run->results.generated_photons[e].electron.track.Draw();
+    G4cout << G4endl
+        << "-----------------Writing results to files--------------------" << G4endl;
+    run->AddToFile(run->results.generated_photons, gPars::general.output_folder + gPars::results.generated_filename);
+    run->AddToFile(run->results.recorded_photons, gPars::general.output_folder + gPars::results.recorded_filename);
     G4cout << G4endl
     << "--------------------End of Global Run-----------------------"
     << "  #" << run->GetRunID() << " Event#: "<< run->GetNumberOfEvent() << G4endl;

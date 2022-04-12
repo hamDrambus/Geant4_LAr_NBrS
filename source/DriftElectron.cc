@@ -14,7 +14,7 @@ DriftElectron::DriftElectron()
       m_tMax(DBL_MAX)
 {
   m_className = "DriftElectron";
-  m_drift.reserve(10000);
+  m_drift.track.reserve(10000);
 }
 
 DriftElectron::~DriftElectron()
@@ -73,17 +73,17 @@ void DriftElectron::SetFieldChangeLimit(const double relative_delta)
 void DriftElectron::GetElectronEndpoint(double& x1, double& y1, double& z1,
                                         double& t1, int& status) const
 {
-  if (m_drift.empty()) {
+  if (m_drift.track.empty()) {
     std::cerr << m_className << "::GetElectronEndpoint:\n";
     std::cerr << "    Endpoint does not exist.\n";
     status = -1;
     return;
   }
   status = 0;
-  x1 = m_drift.back().x;
-  y1 = m_drift.back().y;
-  z1 = m_drift.back().z;
-  t1 = m_drift.back().t;
+  x1 = m_drift.track.back().pos.x();
+  y1 = m_drift.track.back().pos.y();
+  z1 = m_drift.track.back().pos.z();
+  t1 = m_drift.track.back().time;
 }
 
 bool DriftElectron::DoDriftElectron(const double x0, const double y0,
@@ -135,15 +135,11 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
   double tau = 0.;
 
   // Reset the drift line.
-  m_drift.clear();
+  m_drift.track.clear();
   // Add the starting point to the drift line.
-  driftPoint point;
-  point.x = x0;
-  point.y = y0;
-  point.z = z0;
-  point.t = t0;
-  m_drift.push_back(point);
-  m_nDrift = 1;
+  DriftTrack::driftPoint point;
+  point.pos = G4Point3D(x0, y0, z0);
+  point.time = t0;
 
   bool ok = true;
   bool trapped = false;
@@ -179,7 +175,9 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
     ok = false;
     abortReason = StatusCalculationAbandoned;
   }
-
+  point.field = G4ThreeVector(ex, ey, ez);
+  m_drift.track.push_back(point);
+  m_nDrift = 1;
   while (ok) {
     if (type ==-1) {
       if (!medium->ElectronVelocity(ex, ey, ez, vx, vy, vz) ||
@@ -305,9 +303,9 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
     if (status != 0) {
       // Try to terminate the drift line
       // close to the boundary.
-      dx = x - point.x;
-      dy = y - point.y;
-      dz = z - point.z;
+      dx = x - point.pos.x();
+      dy = y - point.pos.y();
+      dz = z - point.pos.z();
       d = sqrt(dx * dx + dy * dy + dz * dz);
       if (d > 0.) {
         dx /= d;
@@ -317,29 +315,26 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
       while (d > BoundaryDistance) {
         delta *= 0.5;
         d *= 0.5;
-        x = point.x + dx * d;
-        y = point.y + dy * d;
-        z = point.z + dz * d;
+        x = point.pos.x() + dx * d;
+        y = point.pos.y() + dy * d;
+        z = point.pos.z() + dz * d;
         // Check if the mid-point is inside the drift medium.
         E = gData.GetFieldAtGlobal(G4ThreeVector(x, y, z), medium, &status);
         if (status == 0) {
-          point.x = x;
-          point.y = y;
-          point.z = z;
-          point.t += delta;
+          point.pos = G4Point3D(x, y, z);
+          point.time += delta;
         }
       }
       // Place the particle OUTSIDE the drift medium.
-      point.x += dx * d;
-      point.y += dy * d;
-      point.z += dz * d;
-      m_drift.push_back(point);
+      point.pos = point.pos + G4Point3D(dx, dy, dz) * d;
+      point.field = G4ThreeVector(0, 0, 0);
+      m_drift.track.push_back(point);
       ++m_nDrift;
       abortReason = StatusLeftDriftMedium;
       if (m_debug) {
         std::cout << m_className << "::DriftLine:\n";
         std::cout << "    Particle left the drift medium.\n";
-        std::cout << "    At " << point.x / mm << ", " << point.y / mm << ", " << point.z / mm
+        std::cout << "    At " << point.pos.x() / mm << ", " << point.pos.y() / mm << ", " << point.pos.z() / mm
                   << "\n";
       }
       break;
@@ -358,15 +353,14 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
       break;
     }
     // Add the new point to drift line.
-    point.x = x;
-    point.y = y;
-    point.z = z;
-    point.t += delta;
-    m_drift.push_back(point);
+    point.pos = G4Point3D(x, y, z);
+    point.time += delta;
+    point.field = G4ThreeVector(ex, ey, ez);
+    m_drift.track.push_back(point);
     ++m_nDrift;
 
     // Check if the time is still within the specified interval.
-    if (m_hasTimeWindow && point.t > m_tMax) {
+    if (m_hasTimeWindow && point.time > m_tMax) {
       abortReason = StatusOutsideTimeWindow;
       break;
     }
@@ -375,10 +369,10 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
   if (m_debug) {
     std::cout << m_className << "::DriftLine:\n";
     std::cout << "    Finished drifting electron from\n"
-              << "      (" << m_drift.begin()->x / mm << ", " << m_drift.begin()->y / mm << ", "
-              << m_drift.begin()->z / mm << ") to \n"
-              << "      (" << m_drift.back().x / mm << ", " << m_drift.back().y / mm << ", "
-              << m_drift.back().z / mm << ").\n";
+              << "      (" << m_drift.track.begin()->pos.x() / mm << ", " << m_drift.track.begin()->pos.y() / mm << ", "
+              << m_drift.track.begin()->pos.z() / mm << ") to \n"
+              << "      (" << m_drift.track.back().pos.x() / mm << ", " << m_drift.track.back().pos.y() / mm << ", "
+              << m_drift.track.back().pos.z() / mm << ").\n";
   }
 
   if (!ok) return false;
@@ -387,17 +381,10 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
 
 void DriftElectron::Draw(void) const
 {
-  G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
-  if(pVVisManager) {
-    G4Polyline track;
-    track.reserve(m_drift.size());
-    for (std::size_t i = 0, i_end_ = m_drift.size(); i!=i_end_; ++i)
-      track.push_back(G4Point3D(m_drift[i].x, m_drift[i].y, m_drift[i].z));
-    G4VisAttributes attribs;
-    attribs.SetColour(1.0, 0.55, 0.0, 0.8);
-    attribs.SetLineStyle(G4VisAttributes::unbroken);
-    attribs.SetLineWidth(0.4);
-    track.SetVisAttributes(attribs);
-    pVVisManager->Draw(track);
-  }
+  m_drift.Draw();
+}
+
+void DriftElectron::WriteDriftTrack(std::string filename) const
+{
+  m_drift.Write(filename);
 }
