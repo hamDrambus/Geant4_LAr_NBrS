@@ -1,5 +1,5 @@
-#ifndef DetectorConstruction_h
-#define DetectorConstruction_h
+#ifndef Detector_full_h
+#define Detector_full_h
 
 #include <string>
 #include <sstream>
@@ -46,12 +46,12 @@
 #include "DetectorParameterisation.hh"
 #include "VDetectorConstruction.hh"
 
-class DetectorFull : public VDetectorConstruction
+class Detector_full : public VDetectorConstruction
 {
 public:
 
-  DetectorFull();
-	~DetectorFull() override;
+  Detector_full();
+	~Detector_full() override;
 
 public:
 	virtual G4VPhysicalVolume* Construct() override;

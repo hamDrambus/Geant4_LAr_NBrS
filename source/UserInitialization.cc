@@ -1,7 +1,20 @@
 #include "UserInitialization.hh"
 
-UserInitialization::UserInitialization()
-{}
+UserInitialization::UserInitialization(G4RunManager *run_manager) :
+  runManager(run_manager)
+{
+  if (nullptr != runManager) {
+    runManager->SetNumberOfEventsToBeStored(0);
+    runManager->SetNumberOfThreads(std::max(gPars::general.thread_number, 1));
+    // Set mandatory initialization classes
+    runManager->SetUserInitialization(new Detector_full);
+    //runManager->SetUserInitialization(new Detector_THGEM1_detailed);
+    //runManager->SetUserInitialization(new Detector_THGEM1_SiPM_shading);
+    runManager->SetUserInitialization(new PhysicsList);
+    runManager->SetUserInitialization(new UserWorkerThread); // Only responsible for clearing merged runs.
+    runManager->SetUserInitialization(this);
+  }
+}
 
 UserInitialization::~UserInitialization()
 {}

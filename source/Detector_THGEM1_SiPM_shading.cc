@@ -1,13 +1,13 @@
-#include "DetectorTHGEM1SiPMshading.hh"
+#include "Detector_THGEM1_SiPM_shading.hh"
 
-DetectorTHGEM1SiPMshading::DetectorTHGEM1SiPMshading() :
+Detector_THGEM1_SiPM_shading::Detector_THGEM1_SiPM_shading() :
   VDetectorConstruction()
 {}
 
-DetectorTHGEM1SiPMshading::~DetectorTHGEM1SiPMshading()
+Detector_THGEM1_SiPM_shading::~Detector_THGEM1_SiPM_shading()
 {}
 
-G4VPhysicalVolume * DetectorTHGEM1SiPMshading::Construct()
+G4VPhysicalVolume * Detector_THGEM1_SiPM_shading::Construct()
 {
   SetSizeAndPosition();
   defineMaterials();
@@ -78,14 +78,14 @@ G4VPhysicalVolume * DetectorTHGEM1SiPMshading::Construct()
 	return physiWorld;
 }
 
-void DetectorTHGEM1SiPMshading::ConstructSDandField()
+void Detector_THGEM1_SiPM_shading::ConstructSDandField()
 {
   DetectorSensor *thePhotoDetector = new DetectorSensor("/detector/sensitiveDetector");
   G4SDManager::GetSDMpointer()->AddNewDetector(thePhotoDetector);
   SetSensitiveDetector(logic_sensor, thePhotoDetector); // takes ownership of DetectorSensor*
 }
 
-void DetectorTHGEM1SiPMshading::SetSizeAndPosition()
+void Detector_THGEM1_SiPM_shading::SetSizeAndPosition()
 {
 	HalfWorldLength = 10 * cm / 2.0;
 

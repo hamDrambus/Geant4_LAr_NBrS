@@ -1,13 +1,13 @@
-#include "DetectorFull.hh"
+#include "Detector_full.hh"
 
-DetectorFull::DetectorFull() :
+Detector_full::Detector_full() :
   VDetectorConstruction()
 {}
 
-DetectorFull::~DetectorFull()
+Detector_full::~Detector_full()
 {}
 
-G4VPhysicalVolume * DetectorFull::Construct()
+G4VPhysicalVolume * Detector_full::Construct()
 {
   SetSizeAndPosition();
   defineMaterials();
@@ -386,7 +386,7 @@ G4VPhysicalVolume * DetectorFull::Construct()
 	return physiWorld;
 }
 
-void DetectorFull::ConstructSDandField()
+void Detector_full::ConstructSDandField()
 {
   DetectorSensor *thePhotoDetector = new DetectorSensor("/detector/sensitiveDetector");
   G4SDManager::GetSDMpointer()->AddNewDetector(thePhotoDetector);
@@ -394,7 +394,7 @@ void DetectorFull::ConstructSDandField()
   SetSensitiveDetector(logic_PMT, thePhotoDetector);
 }
 
-void DetectorFull::SetSizeAndPosition()
+void Detector_full::SetSizeAndPosition()
 {
 	HalfWorldLength = 17 * cm;
 

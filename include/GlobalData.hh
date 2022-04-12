@@ -1,8 +1,7 @@
-/*  Global data classes such as geometry mapping, field map, results, etc., shared between all classes.
+/*  Global data classes such as geometry mapping, field map, etc., shared between all classes.
  *  The difference from GlobalParameters is that this class has much more logic and dependent on other
  *  classes as well as Geant4 initialization
  *  Initialize these globals only after G4RunManager::Initialize()!
- *  TODO: Make all thread-safe.
  */
 #ifndef GlobalData_h
 #define GlobalData_h

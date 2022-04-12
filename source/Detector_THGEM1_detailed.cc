@@ -1,13 +1,13 @@
-#include "DetectorTHGEM1detailed.hh"
+#include "Detector_THGEM1_detailed.hh"
 
-DetectorTHGEM1detailed::DetectorTHGEM1detailed() :
+Detector_THGEM1_detailed::Detector_THGEM1_detailed() :
   VDetectorConstruction()
 {}
 
-DetectorTHGEM1detailed::~DetectorTHGEM1detailed()
+Detector_THGEM1_detailed::~Detector_THGEM1_detailed()
 {}
 
-G4VPhysicalVolume * DetectorTHGEM1detailed::Construct()
+G4VPhysicalVolume * Detector_THGEM1_detailed::Construct()
 {
   SetSizeAndPosition();
   defineMaterials();
@@ -78,7 +78,7 @@ G4VPhysicalVolume * DetectorTHGEM1detailed::Construct()
 	return physiWorld;
 }
 
-void DetectorTHGEM1detailed::SetSizeAndPosition()
+void Detector_THGEM1_detailed::SetSizeAndPosition()
 {
 	HalfWorldLength = 2 * cm / 2.0;
 

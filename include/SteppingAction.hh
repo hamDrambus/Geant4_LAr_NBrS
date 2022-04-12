@@ -1,7 +1,6 @@
 #ifndef SteppingAction_h
 #define SteppingAction_h
 
-#include <DetectorFull.hh>
 #include "G4Material.hh"
 #include "G4LogicalVolume.hh"
 #include "G4ThreeVector.hh"

@@ -12,10 +12,6 @@
 #include "GlobalParameters.hh"
 #include "GlobalData.hh"
 #include "Randomize.hh"
-#include "PhysicsList.hh"
-#include "DetectorFull.hh"
-#include "DetectorTHGEM1detailed.hh"
-#include "DetectorTHGEM1SiPMshading.hh"
 #include "UserInitialization.hh"
 
 int main(int argc, char** argv)
@@ -31,15 +27,9 @@ int main(int argc, char** argv)
 
 	// Construct the default run manager
 	G4MTRunManager *runManager = new G4MTRunManager;
-	runManager->SetNumberOfEventsToBeStored(0);
-	runManager->SetNumberOfThreads(std::max(gPars::general.thread_number, 1));
-	// Set mandatory initialization classes
-	runManager->SetUserInitialization(new DetectorFull);
-	//runManager->SetUserInitialization(new DetectorTHGEM1detailed);
-	//runManager->SetUserInitialization(new DetectorTHGEM1SiPMshading);
-	runManager->SetUserInitialization(new PhysicsList);
-	runManager->SetUserInitialization(new UserWorkerThread); // Only responsible for clearing merged runs.
-	runManager->SetUserInitialization(new UserInitialization); // Primary generator, stepping, tracking, event and run actions
+	// Changed standard approach a little so that everything for
+	// run manager is set up either in UserInitialization constructor or its overloaded methods.
+	UserInitialization* userInitialization = new UserInitialization(runManager);
 
 	// Initialize G4 kernel
 	runManager->Initialize();

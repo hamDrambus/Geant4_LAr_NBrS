@@ -1,13 +1,10 @@
-/*  Construct only part of THGEM1 active area with mapping and large sensor (SiPM) above
- *  in order to test that THGEM1 shading at different angles is consistent with theory.
- *  All surfaces are absorbers.
- *
- *  If this class used is G4RunManager some of global parameters are overridden so
- *  that they are valid for this non-standard geometry
+/*  Construct only part of THGEM1 active area with both cell parameterisation
+ *  and mapping in order to test and view electron drift. If this class used is G4RunManager
+ *  some of global parameters are overridden so that they are valid for this non-standard geometry
  */
 
-#ifndef DetectorTHGEM1SiPMshading_h
-#define DetectorTHGEM1SiPMshading_h
+#ifndef Detector_THGEM1_detailed_h
+#define Detector_THGEM1_detailed_h
 
 #include <string>
 #include <sstream>
@@ -49,30 +46,23 @@
 #include <G4RegionStore.hh>
 #include <G4Trd.hh>
 #include <G4PhysicalVolumesSearchScene.hh>
+#include <G4AssemblyVolume.hh>
 
-#include "DetectorSensor.hh"
 #include "DetectorParameterisation.hh"
+#include "GlobalParameters.hh"
+#include "HexagonalMapping.hh"
 #include "VDetectorConstruction.hh"
 
-class DetectorTHGEM1SiPMshading : public VDetectorConstruction
+class Detector_THGEM1_detailed : public VDetectorConstruction
 {
 public:
-  DetectorTHGEM1SiPMshading();
-	~DetectorTHGEM1SiPMshading() override;
-
+  Detector_THGEM1_detailed();
+	~Detector_THGEM1_detailed();
+public:
 	virtual G4VPhysicalVolume* Construct() override;
-	virtual void ConstructSDandField() override;
 
 private:
 	virtual void SetSizeAndPosition() override;
-
-	G4LogicalVolume*   logic_sensor;
-
-  //Sensor (SiPM)
-  double x_size_sensor;
-  double y_size_sensor;
-  double z_size_sensor;
-  G4ThreeVector position_sensor;
 };
 
-#endif // DetectorTHGEM1SiPMshading_h
+#endif // Detector_THGEM1_detailed_h

@@ -17,16 +17,21 @@
 #include "SteppingAction.hh"
 #include "TrackingAction.hh"
 #include "CleanerWorkerRunManager.hh"
-
+#include "Detector_full.hh"
+#include "Detector_THGEM1_detailed.hh"
+#include "Detector_THGEM1_SiPM_shading.hh"
+#include "PhysicsList.hh"
 
 class UserInitialization : public G4VUserActionInitialization
 {
 public:
-  UserInitialization();
+  UserInitialization(G4RunManager *run_manager);
   ~UserInitialization();
 
   void BuildForMaster() const override;
   void Build() const override;
+protected:
+  G4RunManager *runManager;
 };
 
 class UserWorkerThread : public G4UserWorkerThreadInitialization
