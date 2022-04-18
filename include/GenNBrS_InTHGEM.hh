@@ -10,6 +10,7 @@
 #include <G4SystemOfUnits.hh>
 #include <Randomize.hh>
 #include <G4RandomTools.hh>
+#include <G4Poisson.hh>
 #include <G4Navigator.hh>
 #include <G4TransportationManager.hh>
 #include <G4VUserPrimaryGeneratorAction.hh>
@@ -20,8 +21,7 @@
 class GenNBrS_InTHGEM : public VGeneratePrimaries
 {
 public:
-  GenNBrS_InTHGEM(double energy);
-  GenNBrS_InTHGEM(PDF_routine& pdf);
+  GenNBrS_InTHGEM();
   ~GenNBrS_InTHGEM();
 
 void GeneratePrimaries(G4Event* anEvent);

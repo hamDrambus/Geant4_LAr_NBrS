@@ -28,6 +28,7 @@ public:
 	IntegrationInterval(long double left, long double right, long double step);
 	IntegrationRange operator += (const IntegrationRange &r);
 	IntegrationRange operator += (const IntegrationInterval &r);
+	IntegrationInterval& operator*= (const long double& r);
 
 	friend class IntegrationRange;
 	friend IntegrationRange operator+ (const IntegrationRange &l, const IntegrationInterval& r);
@@ -43,10 +44,12 @@ public:
 	IntegrationRange(void);
 	IntegrationRange(const IntegrationInterval &inter);
 
-	long int NumOfIndices(void);
-	long double Value (long int index);
+	long int NumOfIndices(void) const;
+	long double Value (long int index) const;
 	void Trim (long double left, long double right);
 	void Print(std::ostream & str);
+	long double max(void) const;
+	long double min(void) const;
 
 	IntegrationRange& operator += (const IntegrationRange &r);
 	IntegrationRange& operator += (const IntegrationInterval &r);
@@ -55,11 +58,15 @@ public:
 	friend IntegrationRange operator+ (const IntegrationRange &l, const IntegrationInterval& r);
 	friend IntegrationRange operator+ (const IntegrationInterval &l, const IntegrationRange& r);
 	friend IntegrationRange operator+ (const IntegrationInterval &l, const IntegrationInterval& r);
+	friend IntegrationRange operator* (const IntegrationRange &l, const double & r);
+	friend IntegrationRange operator/ (const IntegrationRange &l, const double & r);
 };
 
 IntegrationRange operator+ (const IntegrationRange &l, const IntegrationRange& r);
 IntegrationRange operator+ (const IntegrationRange &l, const IntegrationInterval& r);
 IntegrationRange operator+ (const IntegrationInterval &l, const IntegrationRange& r);
 IntegrationRange operator+ (const IntegrationInterval &l, const IntegrationInterval& r);
+IntegrationRange operator* (const IntegrationRange &l, const long double & r);
+IntegrationRange operator/ (const IntegrationRange &l, const long double & r);
 
 #endif // INTEGRATION_INTERVAL_H

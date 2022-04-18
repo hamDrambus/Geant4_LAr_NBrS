@@ -4,4 +4,5 @@ singleTHGEM28_LAr/*.msh
 singleTHGEM28_LAr/v00.01_THGEM1/*
 singleTHGEM28_LAr/Garfield_PP_viewer/v00.01.01/*
 singleTHGEM28_LAr/Elmer_v00.01/*.result
+data_cache/*
 

@@ -12,7 +12,8 @@
 #include <deque>
 
 #include <G4SystemOfUnits.hh>
-#include "G4ThreeVector.hh"
+#include <G4PhysicalConstants.hh>
+#include <G4ThreeVector.hh>
 
 #include "PolynomialFit.hh"
 #include "HexagonalMapping.hh"
@@ -20,12 +21,17 @@
 
 //#define TEMP_CODE_
 
+static constexpr double Td = 1.e-17 * volt * cm * cm;
+static constexpr double e_mass_SI = 9.10938370e-31; // electron mass in kg
+static constexpr double hc = hbarc * twopi; // for recalculating photon energy to wavelength and back. E*lambda = h*c = const.
+
 namespace gPars
 {
   struct ProgramSetups {
     std::string this_path;
     std::string data_path;
     std::string output_folder;
+    std::string gnuplot_bin;
     int thread_number;
     bool doView;
     bool doViewElectronDrift;
@@ -55,6 +61,7 @@ namespace gPars
 		double xy_radius;
 		double z_width;
 		int N_events;
+		double NBrS_yield_factor; // To avoid drifting electrons w/o photon emission
 	};
 
 	struct DetectorDimensions {
@@ -94,9 +101,9 @@ namespace gPars
 	  std::string elmer_mesh_folder;
     std::string elmer_solution_filename;
     G4ThreeVector elmer_mesh_center;
-    std::string LAr_drift_velocity;
-    std::string LAr_diffusion_longitudinal;
-    std::string LAr_diffusion_transversal;
+    std::string LAr_drift_velocity; // Used only when there is no theoretically calculated one
+    std::string LAr_diffusion_longitudinal; // Used only when there is no theoretically calculated one
+    std::string LAr_diffusion_transversal; // Used only when there is no theoretically calculated one
     double drift_step_size;
     double mesh_tolerance; // relative, necessary to get field near mesh boundary
 	};
@@ -112,10 +119,14 @@ namespace gPars
 	};
 
 	struct ArgonProperties {
+	  bool print_calculations;
+	  bool pedantic_calculations; // if true then incorrect computations (such as division by 0,
+	  //infinities, DBL_MAX) throw error. Otherwise default values are used.
 	  std::string XS_energy_transfer_filename;
 	  std::string XS_momentum_transfer_filename;
-	  double energy_max; // Maximal energy until which LAr properties are known and to be calculated to.
-	  double field_max; // Maximal electric field for which argon properties should be calculated.
+	  std::string cache_folder;
+	  double energy_max; // In Geant4 units. Maximal energy until which LAr properties are known and to be calculated to.
+	  double field_max; // In Geant4 units. Maximal electric field for which argon properties should be calculated.
 	  double atomic_density; // in Geant4 units [mm^-3]
 	  double m_to_M; // m_electron / M_Ar_atom ratio
 	};

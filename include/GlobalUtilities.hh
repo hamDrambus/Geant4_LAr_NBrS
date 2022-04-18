@@ -24,6 +24,7 @@
 #endif
 
 #include <boost/optional.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "G4TransportationManager.hh"
 #include "G4PhysicalVolumesSearchScene.hh"
@@ -31,6 +32,11 @@
 boost::optional<G4PhysicalVolumesSearchScene::Findings> FindSinglePV(std::string name);
 std::vector<G4PhysicalVolumesSearchScene::Findings> FindAllPVs(std::string name);
 
+std::string int_to_str(int num);
+std::string int_to_str(std::size_t num);
+std::string int_to_str(int num, std::size_t decimals);
+std::string int_to_str(std::size_t num, std::size_t decimals);
+std::string dbl_to_str (double val, int precision=0);
 std::string strtoken(std::string &in, std::string break_symbs);
 void open_output_file(std::string name, std::ofstream &str, std::ios_base::openmode _mode);
 void ensure_file(std::string fname); //makes sure file can be created later on

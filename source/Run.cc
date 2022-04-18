@@ -8,6 +8,11 @@ Run::Run() : hit_collection_ID(-1)
 Run::~Run()
 {}
 
+std::size_t Run::Results::GetNGeneratedElectrons(void) const
+{
+  return generated_photons.size();
+}
+
 std::size_t Run::Results::GetNGeneratedPhotons(void) const
 {
   std::size_t out = 0;
@@ -97,7 +102,9 @@ void Run::Results::Clear(void)
   generated_photons.clear();
   recorded_photons.clear();
   n_reflections = 0;
-  n_generated = 0;
+  n_electrons = 0;
+  n_photons = 0;
+  n_events = 0;
 }
 
 void Run::Results::Init(void)
@@ -116,19 +123,30 @@ void Run::Results::ClearAndInit(void)
 void Run::Results::Print(std::ostream &str) const
 {
   str<<"************************************************"<<std::endl;
+  str<<"NBrS real yield was multiplied by: "<<gPars::source.NBrS_yield_factor<<std::endl;
+  str<<"Run information from detailed records:"<<std::endl;
+  str<<"Electrons generated:"<<GetNGeneratedElectrons()<<std::endl;
   str<<"Photons generated:"<<GetNGeneratedPhotons()<<std::endl;
   str<<"Total photons detected:"<<GetNRecordedPhotons()<<std::endl;
+  str<<std::endl;
+  str<<"Run information from counters:"<<std::endl;
+  str<<"Total number of events:"<<n_events<<std::endl;
+  str<<"Electrons generated:"<<n_electrons<<std::endl;
+  str<<"Photons generated:"<<n_photons<<std::endl;
+  str<<"Total photons detected: "<<GetNRecoredPMTsRAW()<<" (PMTs) + "<<GetNRecoredSiPMsRAW() <<"(SiPMs) = "<<GetNRecoredPMTsRAW()+GetNRecoredSiPMsRAW()<<std::endl;
   //str<<"Total number of reflections:"<<n_reflections<<std::endl;
-  str<<"Total number of events:"<<n_generated<<std::endl;
+  str<<std::endl;
 
-  str<<std::endl<<"PMT detected photons:"<<std::endl;
-  str<<"PMT#0: "<<PMT_photon_n[0]<<"\t"<<"PMT#1: "<<PMT_photon_n[1] \
-    <<"\t"<<"PMT#2: "<<PMT_photon_n[2]<<"\t"<<"PMT#3: "<<PMT_photon_n[3]<<std::endl;
-  str<<"PMT positions:"<<std::endl;
-  str<<"X: PMT#0: "<<PMT_positions[0].getX()/mm<<"\t"<<"PMT#1: "<<PMT_positions[1].getX()/mm \
-    <<"\t"<<"PMT#2: "<<PMT_positions[2].getX()/mm<<"\t"<<"PMT#3: "<<PMT_positions[3].getX()/mm<<std::endl;
-  str<<"Y: PMT#0: "<<PMT_positions[0].getY()/mm<<"\t"<<"PMT#1: "<<PMT_positions[1].getY()/mm \
+  if (!PMT_photon_n.empty()) {
+    str<<"PMT detected photons:"<<std::endl;
+    str<<"PMT#0: "<<PMT_photon_n[0]<<"\t"<<"PMT#1: "<<PMT_photon_n[1] \
+      <<"\t"<<"PMT#2: "<<PMT_photon_n[2]<<"\t"<<"PMT#3: "<<PMT_photon_n[3]<<std::endl;
+    str<<"PMT positions:"<<std::endl;
+    str<<"X: PMT#0: "<<PMT_positions[0].getX()/mm<<"\t"<<"PMT#1: "<<PMT_positions[1].getX()/mm \
+      <<"\t"<<"PMT#2: "<<PMT_positions[2].getX()/mm<<"\t"<<"PMT#3: "<<PMT_positions[3].getX()/mm<<std::endl;
+    str<<"Y: PMT#0: "<<PMT_positions[0].getY()/mm<<"\t"<<"PMT#1: "<<PMT_positions[1].getY()/mm \
       <<"\t"<<"PMT#2: "<<PMT_positions[2].getY()/mm<<"\t"<<"PMT#3: "<<PMT_positions[3].getY()/mm<<std::endl;
+  }
 
   str<<std::endl<<"SiPM results (ch, Nph, X[mm], Y[mm]):"<<std::endl;
   for (std::size_t i = 0, i_end_ = SiPM_photon_n.size(); i!=i_end_; ++i)
@@ -150,7 +168,7 @@ void Run::Results::Print(std::ostream &str) const
 
 void Run::Results::Merge(const Results &with)
 {
-  if(n_generated == 0) {
+  if(n_events == 0) {
     *this = with;
     return;
   }
@@ -173,7 +191,9 @@ void Run::Results::Merge(const Results &with)
     PMT_photon_n[i] += with.PMT_photon_n[i];
   }
   n_reflections += with.n_reflections;
-  n_generated += with.n_generated;
+  n_events += with.n_events;
+  n_electrons += with.n_electrons;
+  n_photons += with.n_photons;
 }
 
 void Run::RecordEvent(const G4Event* event)
@@ -184,7 +204,7 @@ void Run::RecordEvent(const G4Event* event)
       hit_collection_ID = HCtable->GetCollectionID(DetectorSensor::PhotonCollectionName);
   }
 
-  ++results.n_generated;
+  ++results.n_events;
   G4int n = GetNumberOfEvent();
   if (0 == n) {
     G4int N = GetNumberOfEventToBeProcessed();
@@ -202,6 +222,9 @@ void Run::RecordEvent(const G4Event* event)
   if (generator->GetGeneratedData().empty())
     return G4Run::RecordEvent(event);
 
+  results.n_electrons += generator->GetGeneratedData().size();
+  for (std::size_t e = 0, e_end_ = generator->GetGeneratedData().size(); e!=e_end_; ++e)
+    results.n_photons += generator->GetGeneratedData()[e].photons.size();
   if (gPars::general.record_detailed) {
     if (gPars::general.record_electrons) {
       results.generated_photons.insert(results.generated_photons.end(),

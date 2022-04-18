@@ -17,20 +17,26 @@ namespace gPars
 		general.this_path = _getcwd(path, FILENAME_MAX);
 #else
 		general.this_path = getcwd(path, FILENAME_MAX);
-#endif //__WIN32__
+#endif
 		if (!general.this_path.empty())
 			if (general.this_path.back()!='/')
 			  general.this_path.push_back('/');
 
-		general.doView = true;
-		general.doViewElectronDrift = true;
-		general.thread_number = 1;
+#if defined(_WIN32)||defined(_WIN64)
+		general.gnuplot_bin = "\"%GNUPLOT%\\gnuplot.exe\"";
+#else
+		general.gnuplot_bin = "gnuplot";
+#endif
+
+		general.doView = false;
+		general.doViewElectronDrift = false;
+		general.thread_number = 8;
 		general.data_path = "../../NBrS_THGEM_LAr_v0/data/";
-		general.output_folder = "";
+		general.output_folder = "../../NBrS_THGEM_LAr_v0/results/6180V/";
 		general.check_geometry_overlap = false;
 		general.no_reflections = false;
 		general.no_diffused_reflections = false;
-		general.enable_e_diffusion = false;
+		general.enable_e_diffusion = true;
 		general.track_mapping_info_class = "TrackMappingInfo";
 		general.teleportation_verbosity = 0;
 		general.photon_max_time = 3.0 * ns; // about 1 meter full path.
@@ -38,7 +44,7 @@ namespace gPars
 		general.surface_tolerance = 1e-8 * mm;
 		general.record_electrons = true; // if false, only photons are recorded to files and kept in memory
 		general.record_detailed = true; // if false, only number of hits per channel is kept track of
-		general.print_drift_track = true; // works only for Detector_THGEM1_detailed and GenElectronsPatterns testing classes
+		general.print_drift_track = false; // works only for Detector_THGEM1_detailed and GenElectronsPatterns testing classes
 
 		// THGEM CERN 28%, in [mm]
 		det_dims.THGEM1_copper_thickness = 0.03;
@@ -83,10 +89,11 @@ namespace gPars
     source.energy_spectrum.read(general.data_path+source.energy_spectrum_filename);
     source.x_center = 0.00;
     source.y_center = 0.00;
-    source.z_center = det_dims.z_bottom_THGEM1 - 2.9;
-    source.xy_radius = 1.50;
+    source.z_center = det_dims.z_bottom_THGEM1 - 1.5;
+    source.xy_radius = 7;
     source.z_width = 0;
-    source.N_events = 20;
+    source.N_events = 50000;
+    source.NBrS_yield_factor = 10;
 
 		field_map.elmer_mesh_folder = general.data_path + "../singleTHGEM28_LAr/v00.01_THGEM1/";
 		field_map.elmer_solution_filename = general.data_path + "../singleTHGEM28_LAr/Elmer_v00.01/case_v01.result";
@@ -105,8 +112,18 @@ namespace gPars
 		det_opt.pmma_rindex_filename = general.data_path+"refractive_index/PMMA_rindex_eV_1.dat";
 		det_opt.pmma_uv_absorption_length_filename = general.data_path+"absorption_length/PMMA_VU_absorption_length_eV_mm.dat";
 
+		Ar_props.print_calculations = true;
+		Ar_props.pedantic_calculations = false;
+		Ar_props.XS_energy_transfer_filename = general.data_path + "LAr_XS/XS_energy_transfer.txt";
+		Ar_props.XS_momentum_transfer_filename = general.data_path + "LAr_XS/XS_momentum_transfer.txt";
+		Ar_props.cache_folder = "../../NBrS_THGEM_LAr_v0/data_cache/";
+		Ar_props.energy_max = 6 * eV; //XSs are known up to 11.5 eV, but with field under 100kV/cm electron energy is < 4 eV.
+		Ar_props.field_max = 100 * kilovolt / cm; // Maximal electric field for which argon properties should be calculated.
+		Ar_props.atomic_density = 2.10e22 / (cm * cm * cm);
+		Ar_props.m_to_M = 5.109989461e5 / 3.726e10; // m_electron / M_Ar_atom ratio (eV to eV)
+
 		results.generated_filename = "generated.dat";
-		results.recorded_filename = "recorded.dat";;
+		results.recorded_filename = "recorded.dat";
 
 		//=====================================================================================================================
 		// Consistency checks below

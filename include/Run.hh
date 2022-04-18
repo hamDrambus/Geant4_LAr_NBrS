@@ -31,8 +31,11 @@ public:
     std::deque<G4ThreeVector> PMT_positions;
     std::deque<GeneratedData> generated_photons;
     std::deque<GeneratedData> recorded_photons;
-    std::size_t n_generated;
+    std::size_t n_events;
+    std::size_t n_electrons;
+    std::size_t n_photons;
     std::size_t n_reflections; // TODO: can move to some user action (stepping?) and add n_reflection to PhotonHit
+    std::size_t GetNGeneratedElectrons(void) const;
     std::size_t GetNGeneratedPhotons(void) const;
     std::size_t GetNRecordedPhotons(void) const;
     std::size_t GetNRecoredPMTsRAW(void) const;

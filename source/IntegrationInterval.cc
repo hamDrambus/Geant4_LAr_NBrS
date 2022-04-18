@@ -18,13 +18,22 @@ IntegrationRange IntegrationInterval::operator += (const IntegrationInterval &r)
 	return out;
 }
 
+IntegrationInterval& IntegrationInterval::operator*= (const long double& r)
+{
+  left_ *= r;
+  right_ *= r;
+  step_ *= r;
+  return *this;
+}
+
+
 IntegrationRange::IntegrationRange(void) {}
 IntegrationRange::IntegrationRange(const IntegrationInterval &inter)
 {
 	arr_.push_back(inter);
 }
 
-long int IntegrationRange::NumOfIndices(void)
+long int IntegrationRange::NumOfIndices(void) const
 {
 	long int N = 0;
 	for (int j=0, end_ = arr_.size(); j!=end_; ++j) {
@@ -39,7 +48,7 @@ long int IntegrationRange::NumOfIndices(void)
 	return N;
 }
 
-long double IntegrationRange::Value (long int index)
+long double IntegrationRange::Value (long int index) const
 {
 	long int Nsum = 0, Noff = 0, N = 0;
 	int j=0, end_ = arr_.size();
@@ -74,45 +83,48 @@ void IntegrationRange::Trim (long double left, long double right)
 		left = right;
 		right = temp;
 	}
-	while (true) {
-		int j=0, end_ = arr_.size();
-		for (; j!=end_; ++j) {
-			if ((left<=arr_[j].left_)&&(right>=arr_[j].right_))
-				continue;
-			if (arr_[j].right_<left) {
-				arr_.erase(arr_.begin()+j);
-				break;
-			}
-			if (arr_[j].right_ == left) {
-				if (j != (end_ - 1))
-					if (arr_[j+1].left_ <= left) {
-						arr_.erase(arr_.begin()+j);
-						break;
-					}
-				arr_[j].left_ = left; //leave one point intersection
-			}
-			if (arr_[j].left_>right) {
-				arr_.erase(arr_.begin()+j);
-				break;
-			}
-			if (arr_[j].left_ == right) {
-				if (j != (0))
-					if (arr_[j-1].right_ >= right) {
-						arr_.erase(arr_.begin()+j);
-						break;
-					}
-				arr_[j].right_ = right; //leave one point intersection
-			}
-			if (arr_[j].left_<left) {
-				arr_[j].left_ = left;
-			}
-			if (arr_[j].right_>right) {
-				arr_[j].right_ = right;
-			}
-		}
-		if (j==end_)
-			break;
-	}
+	std::vector<IntegrationInterval> new_arr;
+	new_arr.reserve(arr_.size());
+  for (int j=0, end_ = arr_.size(); j!=end_; ++j) {
+    if ((left<=arr_[j].left_)&&(right>=arr_[j].right_)) {
+      new_arr.push_back(arr_[j]);
+      continue;
+    }
+    if (arr_[j].right_<left || arr_[j].left_>right)
+      continue;
+    if (arr_[j].right_ == left) {
+      if (j != (end_ - 1))
+        if (arr_[j+1].left_ <= left)
+          continue; // Edge point is present in the next interval, not duplicating
+      new_arr.push_back(IntegrationInterval(left, left, 1.0)); //leave one point intersection
+      continue;
+    }
+    if (arr_[j].left_ == right) {
+      if (j != (0))
+        if (arr_[j-1].right_ >= right)
+          continue; // Edge point is present in the next interval, not duplicating
+      new_arr.push_back(IntegrationInterval(right, right, 1.0)); //leave one point intersection
+      continue;
+    }
+    new_arr.push_back(IntegrationInterval(std::max(arr_[j].left_, left), std::min(arr_[j].right_, right), arr_[j].step_));
+  }
+  arr_ = new_arr;
+}
+
+long double IntegrationRange::max(void) const
+{
+  long double out = -DBL_MAX;
+  for (int j=0, end_ = arr_.size(); j!=end_; ++j)
+    out = std::max(out, arr_[j].right_);
+  return out;
+}
+
+long double IntegrationRange::min(void) const
+{
+  long double out = DBL_MAX;
+  for (int j=0, end_ = arr_.size(); j!=end_; ++j)
+    out = std::min(out, arr_[j].left_);
+  return out;
 }
 
 void IntegrationRange::Print(std::ostream & str)
@@ -135,7 +147,6 @@ IntegrationRange& IntegrationRange::operator += (const IntegrationInterval &r)
 	*this = *this + r;
 	return *this;
 }
-
 
 IntegrationRange operator+ (const IntegrationRange &l, const IntegrationRange& r)
 {
@@ -238,4 +249,18 @@ IntegrationRange operator+ (const IntegrationInterval &l, const IntegrationInter
 {
   IntegrationRange left (l);
 	return left + r;
+}
+
+IntegrationRange operator* (const IntegrationRange &l, const double & r)
+{
+  IntegrationRange out = l;
+  for (int j=0, end_=out.arr_.size(); j!=end_; ++j) {
+    out.arr_[j] *= r;
+  }
+  return out;
+}
+
+IntegrationRange operator/ (const IntegrationRange &l, const double & r)
+{
+  return l * (1.0 / r);
 }

@@ -130,6 +130,7 @@ void GlobalData::ProgressBarHelper::finish(void)
   }
 }
 
+
 GlobalData::GlobalData() :
     THGEM1_mapping(nullptr),
     field_map(nullptr),
@@ -150,6 +151,7 @@ GlobalData::~GlobalData()
 void GlobalData::Initialize(void)
 {
   SetupTHGEM1Mapping();
+  Ar_props.Initialize();
   SetupFieldMap();
 }
 
@@ -203,46 +205,65 @@ void GlobalData::SetupFieldMap(void)
   }
   field_map->SetRelativeTolerance(gPars::field_map.mesh_tolerance);
 
-  DataVector LAr_drift;
-  std::ifstream str;
-  str.open(gPars::field_map.LAr_drift_velocity);
-  if (!str.is_open()) {
-    G4Exception("GlobalData::SetupFieldMap: ",
-      "InvalidSetup", FatalException, "Failed to open LAr drift velocity file");
-  }
-  LAr_drift.read(str);
-  LAr_drift.scaleXY(1e3*volt / cm, cm / second); // Check units in data files
-  LAr_drift.use_leftmost(true);
-  LAr_drift.use_rightmost(true);
-  str.close();
-
-  DataVector LAr_longitudinal;
-  str.open(gPars::field_map.LAr_diffusion_longitudinal);
-  if (!str.is_open()) {
-    G4Exception("GlobalData::SetupFieldMap: ",
-      "InvalidSetup", JustWarning, "Failed to open LAr longitudinal diffusion file");
+  DataVector* velocity = nullptr;
+  if (!Ar_props.drift_velocity.isValid()) {
+    velocity = new DataVector();
+    std::ifstream str;
+    str.open(gPars::field_map.LAr_drift_velocity);
+    if (!str.is_open()) {
+      G4Exception("GlobalData::SetupFieldMap: ",
+        "InvalidSetup", FatalException, "Failed to open LAr drift velocity file");
+    }
+    velocity->read(str);
+    velocity->scaleXY(1e3*volt / cm, cm / second); // Check units in data files
+    velocity->use_leftmost(true);
+    velocity->use_rightmost(true);
+    str.close();
   } else {
-    LAr_longitudinal.read(str);
-    LAr_longitudinal.scaleXY(1e3*volt / cm, cm * cm / second); // Check units in data files
-    RecalculateDiffusion(LAr_longitudinal, LAr_drift);
-    LAr_longitudinal.use_leftmost(true);
-    LAr_longitudinal.use_rightmost(true);
+    velocity = &Ar_props.drift_velocity;
   }
 
-  DataVector LAr_transversal;
-  str.open(gPars::field_map.LAr_diffusion_transversal);
-  if (!str.is_open()) {
-    G4Exception("GlobalData::SetupFieldMap: ",
-      "InvalidSetup", JustWarning, "Failed to open LAr transversal diffusion file");
+  DataVector* diff_longitudinal = nullptr;
+  DataVector* diff_transversal = nullptr;
+  if (!Ar_props.drift_diffusion_L.isValid() && !Ar_props.drift_diffusion_T.isValid()) {
+    diff_longitudinal = new DataVector();
+    diff_transversal = new DataVector();
+    std::ifstream str;
+    str.open(gPars::field_map.LAr_diffusion_longitudinal);
+    if (!str.is_open()) {
+      G4Exception("GlobalData::SetupFieldMap: ",
+        "InvalidSetup", JustWarning, "Failed to open LAr longitudinal diffusion file");
+    } else {
+      diff_longitudinal->read(str);
+      diff_longitudinal->scaleXY(1e3*volt / cm, cm * cm / second); // Check units in data files
+      diff_longitudinal->use_leftmost(true);
+      diff_longitudinal->use_rightmost(true);
+    }
+
+    str.open(gPars::field_map.LAr_diffusion_transversal);
+    if (!str.is_open()) {
+      G4Exception("GlobalData::SetupFieldMap: ",
+        "InvalidSetup", JustWarning, "Failed to open LAr transversal diffusion file");
+    } else {
+      diff_transversal->read(str);
+      diff_transversal->scaleXY(1e3*volt / cm, cm * cm / second); // Check units in data files
+      diff_transversal->use_leftmost(true);
+      diff_transversal->use_rightmost(true);
+    }
   } else {
-    LAr_transversal.read(str);
-    LAr_transversal.scaleXY(1e3*volt / cm, cm * cm / second); // Check units in data files
-    RecalculateDiffusion(LAr_transversal, LAr_drift);
-    LAr_transversal.use_leftmost(true);
-    LAr_transversal.use_rightmost(true);
+    if (Ar_props.drift_diffusion_L.isValid() && Ar_props.drift_diffusion_T.isValid()) {
+      diff_longitudinal = &Ar_props.drift_diffusion_L;
+      diff_transversal = &Ar_props.drift_diffusion_T;
+    } else { // In only one type of diffusion is not available then use the same for both.
+      if (Ar_props.drift_diffusion_L.isValid())
+        diff_transversal = new DataVector(*(diff_longitudinal = &Ar_props.drift_diffusion_L));
+      else
+        diff_longitudinal = new DataVector(*(diff_transversal= &Ar_props.drift_diffusion_T));
+    }
   }
-
-  LAr_medium = new DriftMedium("LAr", LAr_drift, LAr_longitudinal, LAr_transversal);
+  RecalculateDiffusion(*diff_longitudinal, *velocity);
+  RecalculateDiffusion(*diff_transversal, *velocity);
+  LAr_medium = new DriftMedium("LAr", *velocity, *diff_longitudinal, *diff_transversal);
   LAr_medium->SetDriftable(true);
   field_map->SetMedium(0, LAr_medium);
 }

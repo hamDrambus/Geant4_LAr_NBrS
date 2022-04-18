@@ -23,6 +23,8 @@
 #include "HexagonalMapping.hh"
 #include "PhotonHit.hh"
 #include "FieldElmerMap.hh"
+#include "IntegrationInterval.hh"
+#include "ArgonPropertiesTables.hh"
 
 class DriftTrack {
 public:
@@ -87,10 +89,10 @@ public:
   HexagonalMapping* THGEM1_mapping; // Set after geometry construction in G4RunManager::Initialize(). Thread safe.
   FieldElmerMap* field_map; // Depends only on gPars::
   DriftMedium* LAr_medium;
-
+  ArgonPropertiesTables Ar_props;
 
 protected:
-  // Experimental diffusion is in cm^2/sec which needs to be in mm^(1/2) in ElectronDrift
+  // Diffusion coefficients are in mm^2/ns but need to be in mm^(1/2) in ElectronDrift
   // Similar situation was in Garfield++
   static void RecalculateDiffusion(DataVector& diffusion, DataVector& velocity);
 };

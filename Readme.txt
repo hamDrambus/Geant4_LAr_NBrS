@@ -4,10 +4,10 @@ Dependencies:
 
 Required for the project overall but not used in compilation of C++ code:
 1) CERN ROOT is required to analyze obtained data with root_scripts/*.
-2) FreeCAD or something else is required to view VRML2FILE (g4.wrl) visualization output.
+2) FreeCAD or something else is recommended to view VRML2FILE (g4.wrl) visualization output. Otherwise refer to Geant4 visualization (configured from vis.mac)
 3) Gmsh v3 is required to create THGEM cell mesh (.geo file->.msh)
 4) Elmer is required to calculate electric field in cell using Gmsh output (.msh + .sif -> .results, .header, .nodes, .elements, .boundary).
-5) gnuplot is recommended to quickly plot some simple files (such as electric fields).
+5) gnuplot is recommended to quickly plot some simple files (such as electric fields). There are some funcitons which plot data bt connecting to gnuplot with pipe. Not required for running application.
 
 =================================================
 To compile Geant4 code run cmake to create makefile:
@@ -27,3 +27,18 @@ Open in eclipse as File->Improt->General->Existing project in folder->browse to 
 Note that Eclipse console is somewhat buggy. Because of that, progress bars behave incorrectly. To remedy this there are tow options:
 1) debug application as a remote, i.e. launch it in native terminal and attach debugger to it from eclipse after. This requires pause at the start of the program so it not optimal.
 2) Another option is to configure gbd (debugger) and and launcher to use native terminal instead. On ubuntu this is done using tty devices (emulated as text files). In Debug Configuration->Common set Input and Output files to open terminal's device file (e.g. /dev/pts/1), which can be obtained from open terminal by running 'tty'. In this case this terminal will be connected to and intercepted by Eclipse.
+=================================================
+How to run simulation
+
+Generally speaking simulation is configured from several places:
+1) GlobalParamters (gPars::) is responsible for straightforward program setups such as filenames, some detector dimesnsions (which can't fully arbitrary), number of events to simulate, and some debug/output options.
+2) UserInitialization is responsible for selection of detector geometry (there is main one and a few for testing) and how and what particles are generated.
+3) ArgonPropertiesTables is a hard-coded computation of several LAr paremters within certain boundaries. ArgonPropertiesTables::Initialize contains initialization of integration intervals and step sizes. These should be carefully changed if different input cross-sections are used (e.g. another gas) or paramters are needed for different electric fields or at different accuracy. Plotting of paramters also contains some hard-coded paramters (mainly axes ranges). Realistically, this class is the most challenging to configure correctly, but normally this should be done once and then forgotten about.
+4) Electric field maps are input data which are calculated by 3-rd party Gmsh v3 and Elmer programs. Their input files are present in the project, but output must be generated separately (it is quite heavy) before running simulation.
+5) Each VDetectorContruction inheritor has SetSizeAndPosition(), Construct() and other virtual methods which contain construction of specific geometry. This is usual Geant4 buiseness. Note that some GlobalParamters are changed there so that primary particle generators work correcly for any any geometry without any adjustments in them or GlobalParamters.
+6) VGeneratePrimaries inheritors are best configured by specifying Pattern from UserInitialization if possible. Otherwise, either add another pattern, create new class or change code inside existing ones.
+7) There is vis.mac which configures Geant4 visualization. Refer to docs.
+
+1) and 2) are easiest to change without breaking anything and are supposed to be chagned most often.
+3) is requried if physical properties must be chadged.
+4) is requried for field maps. Must be done for newly loaded project. 

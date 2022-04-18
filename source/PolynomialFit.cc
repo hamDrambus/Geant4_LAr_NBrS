@@ -139,6 +139,57 @@ void DataVector::push_back (double x, double y)//faster version not checking tha
 	xys.push_back(std::pair<double, double> (x, y));
 }
 
+double DataVector::integrate(const IntegrationRange &range)
+{
+  double out = 0.0;
+  if (range.NumOfIndices()<=0)
+    return out;
+  double X_prev = range.Value(0);
+  double Y_prev = 0;
+  for (long int i = 0, i_end_ = range.NumOfIndices(); i != i_end_; ++i) {
+    double X = range.Value(i);
+    double Y = operator ()(X);
+    if ((Y == DBL_MAX || Y == -DBL_MAX)&&(Y_prev == DBL_MAX || Y_prev == -DBL_MAX)) {
+      out = DBL_MAX;
+      return out;
+    }
+    if (Y == DBL_MAX || Y == -DBL_MAX) {
+      out += Y_prev*(X - X_prev);
+      X_prev = X;
+      Y_prev = Y;
+      continue;
+    }
+    if (Y_prev == DBL_MAX || Y_prev == -DBL_MAX) {
+      out += Y*(X - X_prev);
+      X_prev = X;
+      Y_prev = Y;
+      continue;
+    }
+    out += 0.5*(Y + Y_prev)*(X - X_prev);
+    X_prev = X;
+    Y_prev = Y;
+  }
+  return out;
+}
+
+void DataVector::integrate(void)
+{
+  if (xys.empty())
+    return;
+  double X_prev = xys.front().first;
+  double Y_prev = 0;
+  for (long int i = 0, i_end_ = xys.size(); i != i_end_; ++i) {
+    double X = xys[i].first;
+    double Y = xys[i].second;
+    if (i != 0)
+      xys[i].second = xys[i-1].second + 0.5*(Y + Y_prev)*(X - X_prev);//Integral
+    else
+      xys[i].second = 0;
+    X_prev = X;
+    Y_prev = Y;
+  }
+}
+
 std::vector<double> DataVector::get_Xs(double scaling) const
 {
 	std::vector<double> out(xys.size());

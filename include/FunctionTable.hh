@@ -7,12 +7,6 @@
 #include <deque>
 #include "PolynomialFit.hh"
 
-struct ftable_point {
-	double X;
-	double Y;
-	double VAL;
-};
-
 //find_E_indexes_by_value works only for monotone rising function!
 //F(E1,Ey)>F(E2,Ey) if E1>E2
 class FunctionTable {
@@ -43,8 +37,12 @@ public:
 	const DataVector& getY_data(std::size_t X_index) const {
 		return ys_[X_index];
 	}
+	double getX(std::size_t X_index) const {
+	  return xs_[X_index];
+	}
 
 	void push (double X, double Y, double val);
+	void push (double X, const DataVector& vals);
 
 	double operator()(double X, double Y) const;
 	double getY(double X, double val) const;
@@ -57,4 +55,4 @@ public:
 	}
 };
 
-#endif
+#endif // FUNCTION_TABLE_H

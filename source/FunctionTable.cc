@@ -224,7 +224,37 @@ double FunctionTable::getY(double X, double val) const
 	return -1;
 }
 
-void FunctionTable::push (double X, double Y, double val)
+void FunctionTable::push(double X, const DataVector& vals)
+{
+  std::size_t X_index = 0;
+  if (xs_.empty()) {
+    xs_.push_back(X);
+    ys_.push_back(vals);
+  } else {
+    if (X > xs_.back()) {
+      xs_.push_back(X);
+      ys_.push_back(vals);
+      return;
+    }
+    if (X < xs_.front()) {
+      X_index = 0;
+      xs_.insert(xs_.begin(), X);
+      ys_.insert(ys_.begin(), vals);
+      return;
+    }
+    boost::optional<std::pair<std::size_t, std::size_t>> x_inds = getX_indices(X);
+    if (x_inds->first == x_inds->second) {
+      X_index = x_inds->first; // Merging present data with new vals
+      for (std::size_t i = 0, i_end_ = vals.size(); i!=i_end_; ++i) {
+        ys_[X_index].insert(vals.getX(i), vals.getY(i));
+      }
+    }
+    xs_.insert(xs_.begin() + x_inds->second, X);
+    ys_.insert(ys_.begin() + x_inds->second, vals);
+  }
+}
+
+void FunctionTable::push(double X, double Y, double val)
 {
 	std::size_t X_index = 0;
 	if (xs_.empty()) {

@@ -1,5 +1,46 @@
 #include "GlobalUtilities.hh"
 
+std::string int_to_str(int num)
+{
+  return boost::lexical_cast<std::string>(num);
+}
+
+std::string int_to_str(std::size_t num)
+{
+  return boost::lexical_cast<std::string>(num);
+}
+
+std::string int_to_str(int num, std::size_t decimals)
+{
+  std::string out = boost::lexical_cast<std::string>(num);
+  if (num < 0) {
+    while ((out.size()-1)<decimals) {
+      out = "0" + out;
+    }
+  } else {
+    while (out.size()<decimals) {
+      out = "0" + out;
+    }
+  }
+  return out;
+}
+
+std::string int_to_str(std::size_t num, std::size_t decimals)
+{
+  std::string out = boost::lexical_cast<std::string>(num);
+  while (out.size()<decimals) {
+    out = "0" + out;
+  }
+  return out;
+}
+
+std::string dbl_to_str (double val, int precision)
+{
+  std::stringstream ss;
+  ss<<std::fixed<<std::setprecision(precision)<<val;
+  return ss.str();
+}
+
 boost::optional<G4PhysicalVolumesSearchScene::Findings> FindSinglePV(std::string name)
 {
   std::vector<G4PhysicalVolumesSearchScene::Findings> findingsVector = FindAllPVs(name);

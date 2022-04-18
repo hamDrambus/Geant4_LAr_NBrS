@@ -12,6 +12,23 @@
 #include <boost/lexical_cast.hpp>
 
 #include "GlobalUtilities.hh"
+#include "IntegrationInterval.hh"
+
+// A lot of code improvements and cleanup is required:
+//TODO:  1) Consistent function names (use std:: scheme)
+//TODO:  2) Add virtual classes implementing parts of DataVector functionality
+//(fitting, integration, differentiation, container, behavior outside domain).
+//Probably templates will also be required to specify behavior outside domain.
+//Unclear how saving to files should work.
+//TODO:  3) Fix data loss (size change) when integrating
+//TODO:  4) Maybe tone down boost::optional usage (bloated declarations)
+//!TODO:  5) Move classes used across several projects (this file included)
+//to separate library. Some projects will require fixing. In this case boost implementation
+//may be used with ROOT if boost is hidden from library headers.
+//TODO:  6) Thread-local caching of lookup tables
+//TODO:  7) PolynomialFit should be hidden
+//TODO:  8) Add plotting with gnuplot via pipe. With support of integration intervals.
+//TODO:  9) Infinite domains support (for PDFs), including integration
 
 //TVectorD parameters are [0]+[1]*x+[2]*x^2+...
 class PolynomialFit {
@@ -110,16 +127,18 @@ public:
 		return xys[n].second;
 	}
 	void scaleX(double factor) {
-	  for (auto i : xys)
-	    i.first *= factor;
+	  for (auto &i : xys)
+      i.first *= factor;
 	}
 	void scaleY(double factor) {
-	  for (auto i : xys)
+	  for (auto &i : xys)
       i.second *= factor;
 	}
 	void scaleXY(double factorX, double factorY) {
-	  scaleX(factorX);
-	  scaleY(factorY);
+	  for (auto &i : xys) {
+	    i.first *= factorX;
+      i.second *= factorY;
+	  }
 	}
 	std::vector<double> get_Xs(double scaling = 1.0) const;
 	std::vector<double> get_Ys(double scaling = 1.0) const;
@@ -139,6 +158,8 @@ public:
 	double operator()(double X_point, boost::optional<double> x0 = boost::none) const; //x0 = point is recommended to use. At least x0 must be close to point, or there will be large errors otherwise
 	void insert(double x, double y);
 	void push_back (double x, double y);
+	double integrate(const IntegrationRange &range);
+	void integrate(void); // Transforms itself to integral
 
 	//save/load full state except cache from file
 	void read(std::ifstream& str);
