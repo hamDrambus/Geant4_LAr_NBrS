@@ -23,6 +23,8 @@
 
 #include "DriftMedium.hh"
 
+//TODO: FindElement13 is too slow. Need to sort/group elements after initialization
+//so that only some indexes are iterated over for a given (x,y,z)
 class FieldElmerMap {
 public:
   FieldElmerMap();

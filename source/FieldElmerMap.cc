@@ -432,8 +432,8 @@ bool FieldElmerMap::Initialise(std::string header, std::string elist,
 
   // Establish the ranges.
   SetRange();
-  std::cerr << m_className << "::Initialise:\n";
-  std::cerr << "    Caching the bounding box calculations of all elements.\n";
+  std::cout << m_className << "::Initialise:\n";
+  std::cout << "    Caching the bounding box calculations of all elements.\n";
   CalculateElementBoundingBoxes();
 
   std::cout << m_className << "::Initialise:\n";
@@ -501,7 +501,8 @@ void FieldElmerMap::CalculateElementBoundingBoxes(void)
     std::cerr << "    Bounding boxes of elements cannot be computed.\n";
     return;
   }
-
+  // Tolerance
+  const double f = 0.2;
   // Calculate the bounding boxes of all elements
   for (int i = 0; i < nElements; ++i) {
     element& elem = elements[i];
@@ -523,6 +524,13 @@ void FieldElmerMap::CalculateElementBoundingBoxes(void)
     elem.zmax = std::max(
         std::max(nodes[elem.emap[0]].z, nodes[elem.emap[1]].z),
         std::max(nodes[elem.emap[2]].z, nodes[elem.emap[3]].z));
+    double tolx = f * (elem.xmax - elem.xmin), toly = f * (elem.ymax - elem.ymin), tolz = f * (elem.zmax - elem.zmin);
+    elem.xmin -= tolx;
+    elem.xmax += tolx;
+    elem.ymin -= toly;
+    elem.ymax += toly;
+    elem.zmin -= tolz;
+    elem.zmax += tolz;
   }
 }
 
@@ -687,15 +695,12 @@ int FieldElmerMap::FindElement13(const double x, const double y,
   int nfound = 0;
   int imap = -1;
 
-  // Tolerance
-  const double f = 0.2;
-
   // Scan all elements
   for (int i = 0; i < nElements; i++) {
     element& e = elements[i];
-    if (x < e.xmin - f * (e.xmax - e.xmin) || x > e.xmax + f * (e.xmax - e.xmin) ||
-        y < e.ymin - f * (e.ymax - e.ymin) || y > e.ymax + f * (e.ymax - e.ymin) ||
-        z < e.zmin - f * (e.zmax - e.zmin) || z > e.zmax + f * (e.zmax - e.zmin))
+    if (x < e.xmin || x > e.xmax ||
+        y < e.ymin || y > e.ymax ||
+        z < e.zmin || z > e.zmax)
       continue;
 
     rc = Coordinates13(x, y, z, t1, t2, t3, t4, jac, det, i);

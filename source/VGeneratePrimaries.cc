@@ -66,6 +66,8 @@ void VGeneratePrimaries::SetupElectronDrift(void)
     mElectronDrift->EnableDiffusion();
   if (gPars::general.electron_max_time != DBL_MAX)
     mElectronDrift->SetTimeWindow(0.0, gPars::general.electron_max_time);
+  if (gPars::field_map.max_rel_field_change > 0)
+    mElectronDrift->SetFieldChangeLimit(gPars::field_map.max_rel_field_change);
 }
 
 G4long VGeneratePrimaries::GetAndFixSeed(void)

@@ -1,6 +1,6 @@
 Dependencies:
 1) c++ Boost. Headers are enough, no need for compiling it.
-2) Geant4 (only v10.4 was used and tested). Do not forget to run '$source ../bin/geant4.sh' and to add Geant4's library path to LD_LIBRARY_PATH. Best to add 'source ../bin/geant4.sh' to startup script in /etc/profile.d/ and 
+2) Geant4 (only v11.0 was used and tested). Do not forget to run '$source ../bin/geant4.sh' and to add Geant4's library path to LD_LIBRARY_PATH. Best to add 'source ../bin/geant4.sh' to startup script in /etc/profile.d/ and 
 
 Required for the project overall but not used in compilation of C++ code:
 1) CERN ROOT is required to analyze obtained data with root_scripts/*.

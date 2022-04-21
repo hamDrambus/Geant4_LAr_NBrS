@@ -106,6 +106,7 @@ namespace gPars
     std::string LAr_diffusion_transversal; // Used only when there is no theoretically calculated one
     double drift_step_size;
     double mesh_tolerance; // relative, necessary to get field near mesh boundary
+    double max_rel_field_change;
 	};
 
 	struct DetectorOptics {
@@ -113,6 +114,8 @@ namespace gPars
 		double StainlessSteel_SigmaAlpha;
 		double Cu_SigmaAlpha;
 		double Wire_SigmaAlpha;
+		double FR4_reflectivity;
+		double Cu_reflectivity;
 		std::string pmma_absorption_length_filename;
 		std::string pmma_rindex_filename;
 		std::string pmma_uv_absorption_length_filename;

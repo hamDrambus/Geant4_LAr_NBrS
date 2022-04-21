@@ -107,8 +107,7 @@ void VDetectorConstruction::defineSurfaces()
 	FR4_unified->SetFinish(ground);
 	FR4_unified->SetSigmaAlpha(gPars::det_opt.FR4_SigmaAlpha);//alpha in degrees, from 0 to 90.
 	G4MaterialPropertiesTable *FR4_MaterialProperty = new G4MaterialPropertiesTable();
-	G4double FR4_Materialrefl[2] = {0.2, 0.2};//model_25b
-	//G4double FR4_Materialrefl[2] = { 0.05, 0.05 };//https://www.cetem.gov.br/images/congressos/2008/CAC00560008.pdf
+	G4double FR4_Materialrefl[2] = {gPars::det_opt.FR4_reflectivity, gPars::det_opt.FR4_reflectivity};
 	G4double FR4_Materialeff[2] = { 0, 0 };
 	FR4_MaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::general.no_reflections ? zero : FR4_Materialrefl, 2);
 	FR4_MaterialProperty->AddProperty("EFFICIENCY", ener, FR4_Materialeff, 2);
@@ -134,7 +133,7 @@ void VDetectorConstruction::defineSurfaces()
 	Cu_THGEM->SetFinish(ground);
 	Cu_THGEM->SetSigmaAlpha(gPars::det_opt.Cu_SigmaAlpha * degree);//alpha in degrees, from 0 to 90.
 	G4MaterialPropertiesTable *Cu_THGEM_MaterialProperty = new G4MaterialPropertiesTable();
-	G4double Cu_THGEM_Materialrefl[2] = {0.36, 0.36}; // Bass M. Handbook of optics, Vol.4 Edition3
+	G4double Cu_THGEM_Materialrefl[2] = {gPars::det_opt.Cu_reflectivity, gPars::det_opt.Cu_reflectivity};
 	G4double Cu_THGEM_Materialeff[2] = {0, 0};
 	Cu_THGEM_MaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::general.no_reflections ? zero : Cu_THGEM_Materialrefl, 2);
 	Cu_THGEM_MaterialProperty->AddProperty("EFFICIENCY", ener, Cu_THGEM_Materialeff, 2);
@@ -148,7 +147,7 @@ void VDetectorConstruction::defineSurfaces()
 	Cu_cathode->SetFinish(polished);
 	Cu_cathode->SetSigmaAlpha(gPars::det_opt.Cu_SigmaAlpha * degree);//alpha in degrees, from 0 to 90.
 	G4MaterialPropertiesTable *Cu_Cathode_MaterialProperty = new G4MaterialPropertiesTable();
-	G4double Cu_Cathode_Materialrefl[2] = {0.36 * r_factor, 0.36 * r_factor}; // Bass M. Handbook of optics, Vol.4 Edition3
+	G4double Cu_Cathode_Materialrefl[2] = {gPars::det_opt.Cu_reflectivity * r_factor, gPars::det_opt.Cu_reflectivity * r_factor};
 	G4double Cu_Cathode_Materialeff[2] = {0, 0};
 	Cu_Cathode_MaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::general.no_reflections ? zero : Cu_Cathode_Materialrefl, 2);
 	Cu_Cathode_MaterialProperty->AddProperty("EFFICIENCY", ener, Cu_Cathode_Materialeff, 2);

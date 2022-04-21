@@ -32,7 +32,7 @@ namespace gPars
 		general.doViewElectronDrift = false;
 		general.thread_number = 8;
 		general.data_path = "../../NBrS_THGEM_LAr_v0/data/";
-		general.output_folder = "../../NBrS_THGEM_LAr_v0/results/6180V/";
+		general.output_folder = "../../NBrS_THGEM_LAr_v0/results/6180V_2/";
 		general.check_geometry_overlap = false;
 		general.no_reflections = false;
 		general.no_diffused_reflections = false;
@@ -95,19 +95,23 @@ namespace gPars
     source.N_events = 50000;
     source.NBrS_yield_factor = 10;
 
-		field_map.elmer_mesh_folder = general.data_path + "../singleTHGEM28_LAr/v00.01_THGEM1/";
-		field_map.elmer_solution_filename = general.data_path + "../singleTHGEM28_LAr/Elmer_v00.01/case_v01.result";
+		field_map.elmer_mesh_folder = general.data_path + "../singleTHGEM28_LAr/v00.02_THGEM1/";
+		field_map.elmer_solution_filename = general.data_path + "../singleTHGEM28_LAr/Elmer_v00.02/case_6180v.result";
 		field_map.elmer_mesh_center = G4ThreeVector(0,0,0);
 		field_map.LAr_drift_velocity = general.data_path + "LAr_drift/LAr_drift_velocity_data.txt";
 		field_map.LAr_diffusion_transversal = general.data_path + "LAr_drift/LAr_diffusionT_data.txt";
 		field_map.LAr_diffusion_longitudinal = general.data_path + "LAr_drift/LAr_diffusionL_data.txt";
 		field_map.mesh_tolerance = 1e-10;
-		field_map.drift_step_size = 4 * um;
+		field_map.drift_step_size = 2 * um;
+		field_map.max_rel_field_change = 0.05; // 5%
 
 		det_opt.FR4_SigmaAlpha = 50;
 		det_opt.StainlessSteel_SigmaAlpha = 10;
 		det_opt.Cu_SigmaAlpha = 30;
 		det_opt.Wire_SigmaAlpha = 5;
+		det_opt.FR4_reflectivity = 0.20; //model_25b
+		//det_opt.FR4_reflectivity = 0.05; //https://www.cetem.gov.br/images/congressos/2008/CAC00560008.pdf
+		det_opt.Cu_reflectivity = 0.36; // Bass M. Handbook of optics, Vol.4 Edition3
 		det_opt.pmma_absorption_length_filename = general.data_path+"absorption_length/PMMA_absorption_length_eV_mm.dat";
 		det_opt.pmma_rindex_filename = general.data_path+"refractive_index/PMMA_rindex_eV_1.dat";
 		det_opt.pmma_uv_absorption_length_filename = general.data_path+"absorption_length/PMMA_VU_absorption_length_eV_mm.dat";

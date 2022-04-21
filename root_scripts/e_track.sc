@@ -1,13 +1,15 @@
 set xlabel "e path [mm]" 
-set xrange [0:4.5]
+set xrange [0:10]
+set grid
 
-prefix = "../tests/test_07_electron_track/e_track_T0_E"
+prefix = "../tests/test_10_e_tracks/e_track_T0_E"
 suffix = ".txt"
 
 #set ylabel "e z position [mm]"
 #set yrange [-3.5:0.75]
 #plot for [k=0:19] sprintf("%s%i%s", prefix, k, suffix) u 1:4 title sprintf("%i%s", k, suffix)
 
+#Field amplitude vs length
 set ylabel "Electric field [kV/cm]"
 set yrange [0:100]
 plot for [k=0:19] sprintf("%s%i%s", prefix, k, suffix) u 1:8 title sprintf("%i%s", k, suffix)

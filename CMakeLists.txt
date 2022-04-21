@@ -1,6 +1,6 @@
-#!For finding Geant4 specify -DCMAKE_PREFIX_PATH=...geant4.10.04.p01-install/lib/Geant4-11.0.0
+#!For finding Geant4 specify -DCMAKE_PREFIX_PATH=...geant4.11.0.0-install/lib/Geant4-11.0.0
 #!For finding Boost specify only root directory-DBOOST_ROOT=...Software/boost_1_67_0/
-#!For finding Geant4 libraries during execution 'source .../geant4.10.04.p01-install/bin/geant4.sh'
+#!For finding Geant4 libraries during execution 'source .../geant4.11.0.0-install/bin/geant4.sh'
 #is required either at the start of each bash session or at system startup
 
 #----------------------------------------------------------------------------
@@ -16,9 +16,9 @@ find_package(Boost 1.33 REQUIRED)
 #
 option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
 if(WITH_GEANT4_UIVIS)
-  find_package(Geant4 REQUIRED ui_all vis_all)
+  find_package(Geant4 10.4 REQUIRED ui_all vis_all)
 else()
-  find_package(Geant4 REQUIRED)
+  find_package(Geant4 10.4 REQUIRED)
 endif()
 
 #----------------------------------------------------------------------------
@@ -42,6 +42,22 @@ list (APPEND headers ${headers1})
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
+
+#----------------------------------------------------------------------------
+# Set -rpath for binary. Allows it to find libraries in non-stardard locations
+# (e.g. not in /usr/) without using LD_LIBRARY_PATH
+#
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+# add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# the RPATH to be used when installing, but only if it's not a system directory
+list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+if("${isSystemDir}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif("${isSystemDir}" STREQUAL "-1")
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries

@@ -1,6 +1,6 @@
 Header
   CHECK KEYWORDS Warn
-  Mesh DB "../v00.01_THGEM1" "."
+  Mesh DB "../v00.02_THGEM1" "."
   Include Path "."
   Results Directory "."
 End
@@ -14,8 +14,8 @@ Simulation
   Output Intervals = 1
   Timestepping Method = BDF
   BDF Order = 1
-  Solver Input File = case_v01.sif
-  Output File = case_v01.result
+  Solver Input File = case_CASE_VERSION.sif
+  Output File = case_CASE_VERSION.result
   #Post File = case.vtu
 End
 
@@ -105,25 +105,25 @@ End
 Boundary Condition 1
   Target Boundaries(1) = 1 
   Name = "Cathode"
-  Potential = -2124
+  Potential = CATHODE_POTENTIAL
 End
 
 Boundary Condition 2
   Target Boundaries(1) = 2 
   Name = "Anode"
-  Potential = 2196.3
+  Potential = ANODE_POTENTIAL
 End
 
 Boundary Condition 3
   Target Boundaries(8) = 11 12 13 14 15 16 17 18 
   Name = "topCu"
-  Potential = 5493.3
+  Potential = TOP_THGEM_POTENTIAL
 End
 
 Boundary Condition 4
   Target Boundaries(8) = 19 20 21 22 23 24 25 26 
   Name = "botCu"
-  Potential = 572.2
+  Potential = BOT_THGEM_POTENTIAL
 End
 
 Boundary Condition 5

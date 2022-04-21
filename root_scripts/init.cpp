@@ -5,10 +5,15 @@ enum PlotParameter
   gammaYpos,
   gammaZpos,
   gammaEnergy,
+  gammaSpectrum,
   gammaTime,
   gammaAngle,
   gammaNProfile
 };
+
+double ev_to_nm(double energy) {
+  return 1239.84198 / energy;
+}
 
 class ElectronInfo {
 public:
@@ -34,6 +39,26 @@ public:
   double mom_z;
   PhotonInfo() : energy(0), pos_x(0), pos_y(0), pos_z(0),
     time(0), mom_x(0), mom_y(0), mom_z(0) {}
+};
+
+class ExperimentalXY {
+public:
+  ROOT::Math::Interpolator interpolator;
+  std::vector<double> Xs;
+  std::vector<double> Ys;
+  ExperimentalXY(ROOT::Math::Interpolation::Type type = ROOT::Math::Interpolation::Type::kLINEAR) : interpolator(0, type) {}
+  double Eval(double x) {
+    if (Xs.empty() || Ys.size()!=Ys.size())
+      return 0.0;
+    if (x < Xs[0] || x > Xs[Xs.size()-1])
+      return 0.0;
+    double out = interpolator.Eval(x);
+    if (isnan(out) || isinf(out)) {
+      std::cerr<<"ExperimentalXY::Eval("<<x<<") = "<<out<<std::endl;
+      out = 0.0;
+    }
+    return out;
+  }
 };
 
 std::string strtoken(std::string &in, std::string break_symbs)
@@ -98,6 +123,9 @@ double PickValue(PlotParameter par, const ElectronInfo& electron, const PhotonIn
   case PlotParameter::gammaEnergy: {
     return photon.energy;
   }
+  case PlotParameter::gammaSpectrum: {
+    return ev_to_nm(photon.energy);
+  }
   case PlotParameter::gammaTime: {
     return photon.time;
   }
@@ -145,7 +173,8 @@ void FillHist(PlotInfo& plot_info, ElectronInfo& electron, PhotonInfo& photon)
       return;
     if (PlotParameter::None == plot_info.plot_par_y) { // 1D histogram
       TH1D* hist = (TH1D*) plot_info.histogram;
-      hist->Fill(PickValue(plot_info.plot_par_x, electron, photon));
+      hist->Fill(PickValue(plot_info.plot_par_x, electron, photon), 1.0);
+      return;
     }
     // 2D histogram
     TH2D* hist = (TH2D*) plot_info.histogram;
@@ -228,4 +257,114 @@ bool FileToHist(PlotInfo& plot_info, std::ifstream &str)
 		}
 	}
   return true;
+}
+
+//column number starts from 0
+bool LoadColumnData(std::string file, std::vector<double> &Vs, std::size_t y_column)
+{
+	Vs.clear();
+	std::ifstream str;
+	str.open(file);
+	if (!str.is_open()) {
+		std::cerr << "Error: Failed to open file \"" << file << "\"!" << std::endl;
+		return false;
+	}
+	std::string line, word;
+	int line_n = 0;
+	while (!str.eof()) {
+		std::getline(str, line);
+		++line_n;
+		if (line.size() >= 2) //Ignore simple c style comment
+			if ((line[0] == '/') && (line[1] == '/'))
+				continue;
+		std::size_t column = 0;
+		word = strtoken(line, "\t ");
+		while (column < y_column && !word.empty()) {
+			word = strtoken(line, "\t ");
+			++column;
+		}
+		if (word.empty())
+			continue;
+		double val = std::stod(word);
+		Vs.push_back(val);
+	}
+	return true;
+}
+
+ExperimentalXY* LoadQE (std::string file, bool in_eVs) {
+  ExperimentalXY* out = new ExperimentalXY(ROOT::Math::Interpolation::Type::kLINEAR);
+  if (!LoadColumnData(file, out->Xs, 0) || !LoadColumnData(file, out->Ys, 1)) {
+    delete out;
+    return nullptr;
+  }
+  if (in_eVs) {
+    for (std::size_t i = 0, i_end_=out->Xs.size(); i!=i_end_; ++i) {
+      out->Xs[i] = ev_to_nm(out->Xs[i]);
+    }
+    for (std::size_t i = 1, i_end_=out->Xs.size(); i!=i_end_ && i_end_!=0; ++i) {
+      if (out->Xs[i] <= out->Xs[i-1]) {
+        std::cerr<<"LoadQE:Non increasing Xs: i="<<i<<" Xs[i]="<<out->Xs[i]<<" Xs[i-1]="<<out->Xs[i-1]<<std::endl;
+      }
+    }
+  }
+  out->interpolator.SetData(out->Xs, out->Ys);
+  return out;
+}
+
+TGraph* GraphFromData(ExperimentalXY* data, double scaleX = 1.0, double scaleY = 1.0) {
+  TGraph* out = nullptr;
+  Int_t size = std::min(data->Xs.size(), data->Ys.size());
+	Double_t *xs = NULL, *ys = NULL;
+	if (size > 0) {
+		xs = new Double_t[size];
+		ys = new Double_t[size];
+		for (Int_t i = 0; i != size; ++i) {
+			xs[i] = data->Xs[i] * scaleX;
+			ys[i] = data->Ys[i] * scaleY;
+		}
+		out = new TGraph(size, xs, ys);
+		delete [] xs;
+		delete [] ys;
+	}
+  return out;
+}
+
+double CalculateNpe(TH1D* spectrum_counts, ExperimentalXY* QEdata = nullptr) {
+  double out = 0.0;
+  if (spectrum_counts == nullptr) {
+    std::cout<<"CalculateNpe: Invalid input"<<std::endl;
+    return out;
+  }
+  if (QEdata == nullptr || QEdata->Xs.empty()) {
+    for (int bin = 1, bin_end = spectrum_counts->GetNbinsX()+1; bin!=bin_end; ++bin) {
+      double N_counts = spectrum_counts->GetBinContent(bin);
+      out += N_counts;
+    }
+    return out;
+  }
+  for (int bin = 1, bin_end = spectrum_counts->GetNbinsX()+1; bin!=bin_end; ++bin) {
+    double lambda = spectrum_counts->GetBinCenter(bin);
+    double N_counts = spectrum_counts->GetBinContent(bin);
+    double QE = QEdata->Eval(lambda);
+    out += QE * N_counts;
+  }
+  return out;
+}
+
+void AddStatValue(TPaveStats *ps, std::string name, double value) {
+  if (nullptr == ps)
+    return;
+  ps->SetName("mystats");
+  TList *listOfLines = ps->GetListOfLines();
+  // Add a new line in the stat box.
+  // Note that "=" is a control character
+  //std::string format = gStyle->GetStatFormat();
+  std::string format = ps->GetStatFormat();
+  TString line = TString::Format((name + "=%" + format).c_str(), value);
+  TLatex *myt = new TLatex(0,0,line.Data());
+  myt->SetTextColor(gStyle->GetStatColor());
+  myt->SetTextFont(gStyle->GetStatFont());
+  myt->SetTextSize(gStyle->GetStatFontSize());
+  listOfLines->Add(myt);
+  return;
 }
