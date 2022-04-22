@@ -437,7 +437,7 @@ bool FieldElmerMap::Initialise(std::string header, std::string elist,
   CalculateElementBoundingBoxes();
   std::cout << m_className << "::Initialise:\n";
   std::cout << "    Caching the regions of all elements.\n";
-  CalculateElementRegions();
+  InitializeTetrahedralTree();
 
   std::cout << m_className << "::Initialise:\n";
   std::cout << "    Finished.\n";
@@ -545,42 +545,77 @@ void FieldElmerMap::CalculateElementBoundingBoxes(void)
   }
 }
 
-void FieldElmerMap::CalculateElementRegions(void)
+bool FieldElmerMap::InitializeTetrahedralTree(void)
 {
-  regions.clear();
-  nRegions = 0;
-  if (nElements <= 0)
-    return;
-  int N_split = round(pow(nElements / 1000.0, 1.0/3.0)); // along each axis. 1000 is a characteristic number of elements in each region.
-  if (N_split > 16)
-    N_split = 16;
-  if (N_split <= 1)
-    return;
-  for (std::size_t rx = 0; rx != N_split; ++rx) {
-    for (std::size_t ry = 0; ry != N_split; ++ry) {
-      for (std::size_t rz = 0; rz != N_split; ++rz) {
-        region reg;
-        reg.xmin = regxmin + rx * (regxmax - regxmin) / N_split;
-        reg.xmax = reg.xmin + (regxmax - regxmin) / N_split;
-        reg.ymin = regymin + ry * (regymax - regymin) / N_split;
-        reg.ymax = reg.ymin + (regymax - regymin) / N_split;
-        reg.zmin = regzmin + rz * (regzmax - regzmin) / N_split;
-        reg.zmax = reg.zmin + (regzmax - regzmin) / N_split;
-        nRegions++;
-        regions.push_back(reg);
-      }
-    }
+  // Do not proceed if not properly initialised.
+  if (!ready) {
+    std::cerr << m_className << "::InitializeTetrahedralTree:\n";
+    std::cerr << "    Field map not yet initialised.\n";
+    std::cerr << "    Bounding boxes of elements cannot be computed.\n";
+    return false;
   }
-  for (int i = 0; i < nElements; ++i) {
-    element& elem = elements[i];
-    for (int r = 0; r < nRegions; ++r) {
-      region& reg = regions[r];
-      if (!(elem.xmin > reg.xmax || elem.xmax < reg.xmin
-          || elem.ymin > reg.ymax || elem.ymax < reg.ymin
-          || elem.zmin > reg.zmax || elem.zmax < reg.zmin))
-        reg.indices.push_back(i);
-    }
+
+  if (debug) {
+    std::cout << m_className << "::InitializeTetrahedralTree:\n"
+        << "    About to initialize the tetrahedral tree.\n";
   }
+
+  if (nodes.empty()) {
+    std::cerr << m_className << "::InitializeTetrahedralTree: Empty mesh.\n";
+    return false;
+  }
+
+  // Determine the bounding box
+  double xmin = nodes.front().x;
+  double ymin = nodes.front().y;
+  double zmin = nodes.front().z;
+  double xmax = xmin;
+  double ymax = ymin;
+  double zmax = zmin;
+  for (const auto& node : nodes) {
+    xmin = std::min(xmin, node.x);
+    xmax = std::max(xmax, node.x);
+    ymin = std::min(ymin, node.y);
+    ymax = std::max(ymax, node.y);
+    zmin = std::min(zmin, node.z);
+    zmax = std::max(zmax, node.z);
+  }
+
+  if (debug) {
+    std::cout << "    Bounding box:\n"
+        << std::scientific << "\tx: " << xmin << " -> " << xmax << "\n"
+        << std::scientific << "\ty: " << ymin << " -> " << ymax << "\n"
+        << std::scientific << "\tz: " << zmin << " -> " << zmax << "\n";
+  }
+
+  const double hx = 0.5 * (xmax - xmin);
+  const double hy = 0.5 * (ymax - ymin);
+  const double hz = 0.5 * (zmax - zmin);
+  m_octree.reset(new TetrahedralTree(G4ThreeVector(xmin + hx, ymin + hy, zmin + hz),
+      G4ThreeVector(hx, hy, hz)));
+
+  if (debug)
+    std::cout << "    Tree instantiated.\n";
+
+  // Insert all mesh nodes in the tree
+  for (unsigned int i = 0; i < nodes.size(); i++) {
+    const node& n = nodes[i];
+    m_octree->InsertMeshNode(G4ThreeVector(n.x, n.y, n.z), i);
+  }
+
+  if (debug)
+    std::cout << "    Tree nodes initialized successfully.\n";
+
+  // Insert all mesh elements (tetrahedrons) in the tree
+  for (unsigned int i = 0; i < elements.size(); ++i) {
+    const element& e = elements[i];
+    const double bb[6] = {e.xmin, e.ymin, e.zmin,
+                          e.xmax, e.ymax, e.zmax};
+    m_octree->InsertMeshElement(bb, i);
+  }
+
+  std::cout << m_className << "::InitializeTetrahedralTree: Success.\n";
+  return true;
 }
 
 void FieldElmerMap::ElectricField(const double x, const double y, const double z, double& ex,
@@ -717,22 +752,6 @@ void FieldElmerMap::ElectricField(const double xin, const double yin,
   }
 }
 
-// Find the region for a given point.
-int FieldElmerMap::FindRegion(const double x, const double y, const double z) {
-  int out = -1;
-  if (nRegions <= 0)
-    return out;
-  for (int r = 0; r < nRegions; ++r) {
-    region& reg = regions[r];
-    if (x <= reg.xmax && x >= reg.xmin
-        && y <= reg.ymax && y >= reg.ymin
-        && z <= reg.zmax && z >= reg.zmin) {
-      return r;
-    }
-  }
-  return out;
-}
-
 int FieldElmerMap::FindElement13(const double x, const double y,
                                  const double z, double& t1, double& t2,
                                  double& t3, double& t4, double jac[4][4],
@@ -760,7 +779,7 @@ int FieldElmerMap::FindElement13(const double x, const double y,
   int nfound = 0;
   int imap = -1;
 
-  // The loop below can be rewritten without lambda function but it will be slower by ~35%.
+  // The loop below can be written without lambda function but it will be slower by ~35%.
   auto process_found_element = [&] (int i) {
     rc = Coordinates13(x, y, z, t1, t2, t3, t4, jac, det, i);
 
@@ -804,9 +823,7 @@ int FieldElmerMap::FindElement13(const double x, const double y,
     return -1;
   };
 
-  int r = FindRegion(x, y, z);
-  // If r < 0 scan all elements, otherwise scan only elements in region.
-  if (r < 0) {
+  if (!m_useTetrahedralTree || !m_octree) {
     for (int i = 0; i != nElements; ++i) {
       element& e = elements[i];
       if (x < e.xmin || x > e.xmax ||
@@ -818,9 +835,9 @@ int FieldElmerMap::FindElement13(const double x, const double y,
         return res;
     }
   } else {
-    region& reg = regions[r];
-    for (int j = 0, j_end_ = reg.indices.size(); j != j_end_; ++j) {
-      int i = reg.indices[j];
+    std::vector<int> tetList = m_octree->GetElementsInBlock(G4ThreeVector(x, y, z));
+    for (int j = 0, j_end_ = tetList.size(); j != j_end_; ++j) {
+      int i = tetList[j];
       element& e = elements[i];
       if (x < e.xmin || x > e.xmax ||
           y < e.ymin || y > e.ymax ||

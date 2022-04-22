@@ -23,7 +23,7 @@
 #include <G4Cache.hh>
 
 #include "DriftMedium.hh"
-
+#include "TetrahedralTree.hh"
 
 //TODO: For speeding up element search use new Garfield++'s TetrahedralTree class.
 //Check it against my approach. It will possibly need to be optimized as well (remove recursion)
@@ -97,18 +97,17 @@ public:
   void EnableDebugging() { debug = true; }
   void DisableDebugging() { debug = false; }
 
+  // Enable or disable the usage of the tetrahedral tree
+  // for searching the element in the mesh.
+  void EnableTetrahedralTreeForElementSearch(const bool on = true) {
+    m_useTetrahedralTree = on;
+  }
+
+
 protected:
   std::string m_className;
   bool ready;
   double fTolerance;
-
-  // Grouping of elements into regions for faster search of element corresponding to (x,y,z)
-  int nRegions;
-  struct region {
-    std::vector<std::size_t> indices; // indices of elements inside this region
-    double xmin, ymin, zmin, xmax, ymax, zmax; // Bounding box of the region and all contained elements
-  };
-  std::deque<region> regions;
 
   // Elements
   int nElements;
@@ -155,6 +154,9 @@ protected:
   bool warning; // Warnings flag
   bool debug;
 
+  bool m_useTetrahedralTree = true;
+  std::unique_ptr<TetrahedralTree> m_octree;
+
   // Local coordinates
   // Calculate coordinates in linear tetrahedra
   int Coordinates12(double x, double y, double z, double& t1, double& t2,
@@ -171,8 +173,6 @@ protected:
   int FindElement13(const double x, const double y, const double z, double& t1,
                    double& t2, double& t3, double& t4, double jac[4][4],
                    double& det);
-  // Find the region for a given point.
-  int FindRegion(const double x, const double y, const double z);
 
   static int ReadInteger(char* token, int def, bool& error);
   static double ReadDouble(char* token, double def, bool& error);
@@ -180,7 +180,7 @@ protected:
   // Calculate the bounding boxes of all elements after initialization
   void CalculateElementBoundingBoxes(void);
   // Calculate regions of elements after initialization
-  void CalculateElementRegions(void);
+  bool InitializeTetrahedralTree();
 };
 
 #endif // FIELD_ELMER_MAP_H_
