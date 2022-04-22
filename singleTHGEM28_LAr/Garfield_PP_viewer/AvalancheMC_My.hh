@@ -1,6 +1,7 @@
 #ifndef G_AVALANCHE_MC_MY_H
 #define G_AVALANCHE_MC_MY_H
 
+#include <Utilities/PolynomialFit.hh>
 #include <vector>
 #include <string>
 #include <cmath>
@@ -8,7 +9,6 @@
 #include "FundamentalConstants.hh"
 #include "GarfieldConstants.hh"
 #include "Random.hh"
-#include "PolynomialFit.hh"
 #include "Sensor.hh"
 #include "ViewDrift.hh"
 

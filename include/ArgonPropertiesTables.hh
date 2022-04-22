@@ -6,10 +6,10 @@
 #include <G4SystemOfUnits.hh>
 #include <G4PhysicalConstants.hh>
 
-#include "IntegrationInterval.hh"
-#include "PolynomialFit.hh"
-#include "FunctionTable.hh"
-#include "GlobalUtilities.hh"
+#include "utilities/FunctionTable.hh"
+#include "utilities/GlobalUtilities.hh"
+#include "utilities/IntegrationInterval.hh"
+#include "utilities/PolynomialFit.hh"
 #include "GlobalParameters.hh"
 
 //TODO: add multithreading to calculations. (CalcYeildAndSpectra is quite long for small step sizes).

@@ -15,9 +15,7 @@
 #include <G4PhysicalConstants.hh>
 #include <G4ThreeVector.hh>
 
-#include "PolynomialFit.hh"
-#include "HexagonalMapping.hh"
-#include "PhotonHit.hh"
+#include "utilities/PolynomialFit.hh"
 
 //#define TEMP_CODE_
 

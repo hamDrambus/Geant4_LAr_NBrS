@@ -32,11 +32,11 @@ include_directories(${Boost_INCLUDE_DIR} ${Geant4_INCLUDE_DIRS} ${PROJECT_SOURCE
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 #
-file(GLOB sources ${PROJECT_SOURCE_DIR}/source/*.cc)
-file (GLOB sources1 ${PROJECT_SOURCE_DIR}/source/*.cpp)
+file(GLOB_RECURSE sources ${PROJECT_SOURCE_DIR}/source/*.cc)
+file (GLOB_RECURSE sources1 ${PROJECT_SOURCE_DIR}/source/*.cpp)
 list (APPEND sources ${sources1})
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
-file (GLOB headers1 ${PROJECT_SOURCE_DIR}/include/*.h)
+file(GLOB_RECURSE headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+file(GLOB_RECURSE headers1 ${PROJECT_SOURCE_DIR}/include/*.h)
 list (APPEND headers ${headers1})
 
 if(NOT CMAKE_BUILD_TYPE)

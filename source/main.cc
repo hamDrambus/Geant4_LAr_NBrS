@@ -9,10 +9,10 @@
 #include <G4VisExecutive.hh>
 #endif
 
-#include "GlobalParameters.hh"
-#include "GlobalData.hh"
-#include "Randomize.hh"
-#include "UserInitialization.hh"
+#include <GlobalParameters.hh>
+#include <GlobalData.hh>
+#include <Randomize.hh>
+#include <geant4/UserInitialization.hh>
 
 int main(int argc, char** argv)
 {

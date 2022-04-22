@@ -5,6 +5,7 @@
  */
 #ifndef GlobalData_h
 #define GlobalData_h
+#include <field_drift/FieldElmerMap.hh>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -18,12 +19,11 @@
 #include <G4ThreeVector.hh>
 #include <G4Polyline.hh>
 
+#include "utilities/IntegrationInterval.hh"
+#include "utilities/PolynomialFit.hh"
 #include "GlobalParameters.hh"
-#include "PolynomialFit.hh"
-#include "HexagonalMapping.hh"
-#include "PhotonHit.hh"
-#include "FieldElmerMap.hh"
-#include "IntegrationInterval.hh"
+#include "geant4/HexagonalMapping.hh"
+#include "geant4/PhotonHit.hh"
 #include "ArgonPropertiesTables.hh"
 
 class DriftTrack {
