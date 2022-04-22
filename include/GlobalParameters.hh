@@ -36,7 +36,6 @@ namespace gPars
     bool doView;
     bool doViewElectronDrift;
     bool check_geometry_overlap;
-    std::string track_mapping_info_class;
     int teleportation_verbosity; // 0 is quiet
     bool no_reflections;
     bool no_diffused_reflections;

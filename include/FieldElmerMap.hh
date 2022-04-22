@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
@@ -23,8 +24,8 @@
 
 #include "DriftMedium.hh"
 
-//TODO: FindElement13 is too slow. Need to sort/group elements after initialization
-//so that only some indexes are iterated over for a given (x,y,z)
+//TODO: For speeding up element search use new Garfield++'s TetrahedralTree class.
+//Check it against my approach. It will possibly need to be optimized as well (remove recursion)
 class FieldElmerMap {
 public:
   FieldElmerMap();
@@ -100,6 +101,14 @@ protected:
   bool ready;
   double fTolerance;
 
+  // Grouping of elements into regions for faster search of element corresponding to (x,y,z)
+  int nRegions;
+  struct region {
+    std::vector<std::size_t> indices; // indices of elements inside this region
+    double xmin, ymin, zmin, xmax, ymax, zmax; // Bounding box of the region and all contained elements
+  };
+  std::deque<region> regions;
+
   // Elements
   int nElements;
   struct element {
@@ -137,6 +146,8 @@ protected:
   double mapxmin, mapymin, mapzmin;
   double mapxmax, mapymax, mapzmax;
   double mapvmin, mapvmax;
+  double regxmin, regymin, regzmin;
+  double regxmax, regymax, regzmax;
 
   // Options
   bool checkMultipleElement; // Scan for multiple elements that contain a point
@@ -159,12 +170,16 @@ protected:
   int FindElement13(const double x, const double y, const double z, double& t1,
                    double& t2, double& t3, double& t4, double jac[4][4],
                    double& det);
+  // Find the region for a given point.
+  int FindRegion(const double x, const double y, const double z);
 
   static int ReadInteger(char* token, int def, bool& error);
   static double ReadDouble(char* token, double def, bool& error);
 
   // Calculate the bounding boxes of all elements after initialization
   void CalculateElementBoundingBoxes(void);
+  // Calculate regions of elements after initialization
+  void CalculateElementRegions(void);
 };
 
 #endif // FIELD_ELMER_MAP_H_

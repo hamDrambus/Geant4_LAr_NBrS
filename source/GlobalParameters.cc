@@ -32,12 +32,11 @@ namespace gPars
 		general.doViewElectronDrift = false;
 		general.thread_number = 8;
 		general.data_path = "../../NBrS_THGEM_LAr_v0/data/";
-		general.output_folder = "../../NBrS_THGEM_LAr_v0/results/6180V_2/";
+		general.output_folder = "../../NBrS_THGEM_LAr_v0/results/6180V_debug/";
 		general.check_geometry_overlap = false;
 		general.no_reflections = false;
 		general.no_diffused_reflections = false;
 		general.enable_e_diffusion = true;
-		general.track_mapping_info_class = "TrackMappingInfo";
 		general.teleportation_verbosity = 0;
 		general.photon_max_time = 3.0 * ns; // about 1 meter full path.
 		general.electron_max_time = DBL_MAX;//3 * 3.5e-4 * ns; // 3 times normal drift time
@@ -92,7 +91,7 @@ namespace gPars
     source.z_center = det_dims.z_bottom_THGEM1 - 1.5;
     source.xy_radius = 7;
     source.z_width = 0;
-    source.N_events = 50000;
+    source.N_events = 500;
     source.NBrS_yield_factor = 10;
 
 		field_map.elmer_mesh_folder = general.data_path + "../singleTHGEM28_LAr/v00.02_THGEM1/";

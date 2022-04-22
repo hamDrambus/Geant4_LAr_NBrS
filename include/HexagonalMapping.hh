@@ -45,7 +45,7 @@ public:
 // This class does not track geometry changes automatically.
 
 // TODO: When particle enters container from its sides (not x-y planes) it is not mapped to cell
-//because cell container is always bigger that cell covered area: (n * cell_size <= full_size) because n is an integer.
+//because cell container is always bigger than cell covered area: (n * cell_size <= full_size) because n is an integer.
 // TODO*: Add different symmetry cases: (-,-) (implemented), (+,+), (-,+), (+,-) for (x,y)
 // TODO*: It is possible to add arbitrary rotation of cell and cell container
 class HexagonalMapping {

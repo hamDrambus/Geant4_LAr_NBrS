@@ -1,8 +1,10 @@
 #include "TrackUserInfo.hh"
 
+const std::string TrackUserInfo::track_info_classname = "TrackMappingInfo";
+
 TrackUserInfo::TrackUserInfo()
 {
-  pType = new G4String(gPars::general.track_mapping_info_class);
+  pType = new G4String(track_info_classname);
 }
 
 TrackUserInfo::TrackUserInfo(const G4String& infoType)
@@ -12,7 +14,7 @@ TrackUserInfo::TrackUserInfo(const G4String& infoType)
 
 TrackUserInfo::TrackUserInfo(const HexagonalMappingData& mapping_info)
 {
-  pType = new G4String(gPars::general.track_mapping_info_class);
+  pType = new G4String(track_info_classname);
   mapping_data = mapping_info;
 }
 

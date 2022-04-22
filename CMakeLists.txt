@@ -73,6 +73,7 @@ message(STATUS "Geant4 libraries: ${Geant4_LIBRARIES}")
 #
 set(PROJECT_SCRIPTS
   vis.mac
+  .gdbinit
   )
 
 foreach(_script ${PROJECT_SCRIPTS})

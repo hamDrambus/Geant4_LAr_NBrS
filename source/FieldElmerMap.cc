@@ -435,6 +435,9 @@ bool FieldElmerMap::Initialise(std::string header, std::string elist,
   std::cout << m_className << "::Initialise:\n";
   std::cout << "    Caching the bounding box calculations of all elements.\n";
   CalculateElementBoundingBoxes();
+  std::cout << m_className << "::Initialise:\n";
+  std::cout << "    Caching the regions of all elements.\n";
+  CalculateElementRegions();
 
   std::cout << m_className << "::Initialise:\n";
   std::cout << "    Finished.\n";
@@ -501,6 +504,8 @@ void FieldElmerMap::CalculateElementBoundingBoxes(void)
     std::cerr << "    Bounding boxes of elements cannot be computed.\n";
     return;
   }
+  regxmin = regymin = regzmin = DBL_MAX;
+  regxmax = regymax = regzmax = -DBL_MAX;
   // Tolerance
   const double f = 0.2;
   // Calculate the bounding boxes of all elements
@@ -531,6 +536,50 @@ void FieldElmerMap::CalculateElementBoundingBoxes(void)
     elem.ymax += toly;
     elem.zmin -= tolz;
     elem.zmax += tolz;
+    regxmin = std::min(regxmin, elem.xmin);
+    regxmax = std::max(regxmax, elem.xmax);
+    regymin = std::min(regymin, elem.ymin);
+    regymax = std::max(regymax, elem.ymax);
+    regzmin = std::min(regzmin, elem.zmin);
+    regzmax = std::max(regzmax, elem.zmax);
+  }
+}
+
+void FieldElmerMap::CalculateElementRegions(void)
+{
+  regions.clear();
+  nRegions = 0;
+  if (nElements <= 0)
+    return;
+  int N_split = round(pow(nElements / 1000.0, 1.0/3.0)); // along each axis. 1000 is a characteristic number of elements in each region.
+  if (N_split > 16)
+    N_split = 16;
+  if (N_split <= 1)
+    return;
+  for (std::size_t rx = 0; rx != N_split; ++rx) {
+    for (std::size_t ry = 0; ry != N_split; ++ry) {
+      for (std::size_t rz = 0; rz != N_split; ++rz) {
+        region reg;
+        reg.xmin = regxmin + rx * (regxmax - regxmin) / N_split;
+        reg.xmax = reg.xmin + (regxmax - regxmin) / N_split;
+        reg.ymin = regymin + ry * (regymax - regymin) / N_split;
+        reg.ymax = reg.ymin + (regymax - regymin) / N_split;
+        reg.zmin = regzmin + rz * (regzmax - regzmin) / N_split;
+        reg.zmax = reg.zmin + (regzmax - regzmin) / N_split;
+        nRegions++;
+        regions.push_back(reg);
+      }
+    }
+  }
+  for (int i = 0; i < nElements; ++i) {
+    element& elem = elements[i];
+    for (int r = 0; r < nRegions; ++r) {
+      region& reg = regions[r];
+      if (!(elem.xmin > reg.xmax || elem.xmax < reg.xmin
+          || elem.ymin > reg.ymax || elem.ymax < reg.ymin
+          || elem.zmin > reg.zmax || elem.zmax < reg.zmin))
+        reg.indices.push_back(i);
+    }
   }
 }
 
@@ -668,6 +717,22 @@ void FieldElmerMap::ElectricField(const double xin, const double yin,
   }
 }
 
+// Find the region for a given point.
+int FieldElmerMap::FindRegion(const double x, const double y, const double z) {
+  int out = -1;
+  if (nRegions <= 0)
+    return out;
+  for (int r = 0; r < nRegions; ++r) {
+    region& reg = regions[r];
+    if (x <= reg.xmax && x >= reg.xmin
+        && y <= reg.ymax && y >= reg.ymin
+        && z <= reg.zmax && z >= reg.zmin) {
+      return r;
+    }
+  }
+  return out;
+}
+
 int FieldElmerMap::FindElement13(const double x, const double y,
                                  const double z, double& t1, double& t2,
                                  double& t3, double& t4, double jac[4][4],
@@ -684,25 +749,19 @@ int FieldElmerMap::FindElement13(const double x, const double y,
 
   // Check previously used element
   int rc;
-  if (lastElement.Get() > -1 && !checkMultipleElement) {
-    rc = Coordinates13(x, y, z, t1, t2, t3, t4, jac, det, lastElement.Get());
+  int lastElem = lastElement.Get();
+  if (lastElem > -1 && lastElem < nElements && !checkMultipleElement) {
+    rc = Coordinates13(x, y, z, t1, t2, t3, t4, jac, det, lastElem);
     if (rc == 0 && t1 >= -fTolerance && t1 <= (1 + fTolerance) && t2 >= -fTolerance && t2 <= (1 + fTolerance) &&
         t3 >= -fTolerance && t3 <= (1 + fTolerance) && t4 >= -fTolerance && t4 <= (1 + fTolerance))
-      return lastElement.Get();
+      return lastElem;
   }
-
   // Verify the count of volumes that contain the point.
   int nfound = 0;
   int imap = -1;
 
-  // Scan all elements
-  for (int i = 0; i < nElements; i++) {
-    element& e = elements[i];
-    if (x < e.xmin || x > e.xmax ||
-        y < e.ymin || y > e.ymax ||
-        z < e.zmin || z > e.zmax)
-      continue;
-
+  // The loop below can be rewritten without lambda function but it will be slower by ~35%.
+  auto process_found_element = [&] (int i) {
     rc = Coordinates13(x, y, z, t1, t2, t3, t4, jac, det, i);
 
     if (rc == 0 && t1 >= -fTolerance && t1 <= (1 + fTolerance) && t2 >= -fTolerance && t2 <= (1 + fTolerance) && t3 >= -fTolerance &&
@@ -716,7 +775,8 @@ int FieldElmerMap::FindElement13(const double x, const double y,
       }
       if (!checkMultipleElement) return i;
       for (int j = 0; j < 4; ++j) {
-        for (int k = 0; k < 4; ++k) jacbak[j][k] = jac[j][k];
+        for (int k = 0; k < 4; ++k)
+          jacbak[j][k] = jac[j][k];
       }
       detbak = det;
       t1bak = t1;
@@ -726,7 +786,7 @@ int FieldElmerMap::FindElement13(const double x, const double y,
       imapbak = imap;
       if (debug) {
         std::cout << m_className << "::FindElement13:\n";
-        std::cout << "    Global = (" << x << ", " << y << ")\n";
+        std::cout << "    Global = (" << x / mm << ", " << y / mm << ", " << z / mm << ")\n";
         std::cout << "    Local = (" << t1 << ", " << t2 << ", " << t3 << ", "
                   << t4 << ")\n";
         std::cout << "    Element = " << imap << "\n";
@@ -740,6 +800,35 @@ int FieldElmerMap::FindElement13(const double x, const double y,
                  nodes[elements[imap].emap[ii]].v);
         }
       }
+    }
+    return -1;
+  };
+
+  int r = FindRegion(x, y, z);
+  // If r < 0 scan all elements, otherwise scan only elements in region.
+  if (r < 0) {
+    for (int i = 0; i != nElements; ++i) {
+      element& e = elements[i];
+      if (x < e.xmin || x > e.xmax ||
+          y < e.ymin || y > e.ymax ||
+          z < e.zmin || z > e.zmax)
+        continue;
+      int res = process_found_element(i);
+      if (res >= 0)
+        return res;
+    }
+  } else {
+    region& reg = regions[r];
+    for (int j = 0, j_end_ = reg.indices.size(); j != j_end_; ++j) {
+      int i = reg.indices[j];
+      element& e = elements[i];
+      if (x < e.xmin || x > e.xmax ||
+          y < e.ymin || y > e.ymax ||
+          z < e.zmin || z > e.zmax)
+        continue;
+      int res = process_found_element(i);
+      if (res >= 0)
+        return res;
     }
   }
 

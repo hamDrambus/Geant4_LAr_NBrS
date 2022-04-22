@@ -23,6 +23,8 @@ public:
 
 protected:
   HexagonalMappingData mapping_data;
+public:
+  static const std::string track_info_classname;
 };
 
 #endif // TRACK_USER_INFO_H_
