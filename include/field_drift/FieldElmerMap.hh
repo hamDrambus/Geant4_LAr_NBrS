@@ -103,7 +103,6 @@ public:
     m_useTetrahedralTree = on;
   }
 
-
 protected:
   std::string m_className;
   bool ready;
@@ -111,33 +110,33 @@ protected:
 
   // Elements
   int nElements;
-  struct element {
+  struct Element {
    int emap[10]; // Nodes
    int matmap; // Material
    bool degenerate;
    // Bounding box of the element
    double xmin, ymin, zmin, xmax, ymax, zmax;
   };
-  std::vector<element> elements;
+  std::vector<Element> elements;
 
   G4Cache<int> lastElement;
 
   // Nodes
   int nNodes;
-  struct node {
+  struct Node {
    double x, y, z; // Coordinates
    double v; // Potential
    std::vector<double> w; // Weighting potentials
   };
-  std::vector<node> nodes;
+  std::vector<Node> nodes;
 
   // Materials
   int nMaterials;
-  struct material {
+  struct Material {
     bool driftmedium;
     DriftMedium* medium;
   };
-  std::vector<material> materials;
+  std::vector<Material> materials;
 
   // Bounding box
   bool hasBoundingBox;
@@ -173,6 +172,14 @@ protected:
   int FindElement13(const double x, const double y, const double z, double& t1,
                    double& t2, double& t3, double& t4, double jac[4][4],
                    double& det);
+
+  // Calculate potential for a point in curved quadratic tetrahedra
+  double Potential13(const std::array<double, 10>& v, const std::array<double, 4>& t);
+  // Calculate electric field for a point in curved quadratic tetrahedra
+  void Field13(const std::array<double, 10>& v, const std::array<double, 4>& t,
+                   double jac[4][4], const double det, double& ex, double& ey, double& ez);
+
+
 
   static int ReadInteger(char* token, int def, bool& error);
   static double ReadDouble(char* token, double def, bool& error);

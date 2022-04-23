@@ -14,12 +14,14 @@ TetrahedralTree::TetrahedralTree(const G4ThreeVector& origin, const G4ThreeVecto
   m_min = origin - halfDimension;
   m_max = origin + halfDimension;
   // Initially, there are no children
-  for (int i = 0; i < 8; ++i) children[i] = nullptr;
+  for (int i = 0; i < 8; ++i)
+    children[i] = nullptr;
 }
 
 TetrahedralTree::~TetrahedralTree() {
   // Recursively destroy octants
-  for (int i = 0; i < 8; ++i) delete children[i];
+  for (int i = 0; i < 8; ++i)
+    delete children[i];
 }
 
 // Check if a box overlaps with this node
@@ -90,7 +92,7 @@ void TetrahedralTree::InsertMeshElement(const double bb[6], const int index) {
     return;
   }
   // Check which children overlap with the element's bounding box.
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 8; ++i) {
     if (!children[i]->DoesBoxOverlap(bb)) continue;
     children[i]->InsertMeshElement(bb, index);
   }
@@ -101,36 +103,40 @@ void TetrahedralTree::InsertMeshElement(const double bb[6], const int index) {
 // point passed as input.
 std::vector<int> TetrahedralTree::GetElementsInBlock(const G4ThreeVector& point) const {
   const TetrahedralTree* octreeNode = GetBlockFromPoint(point);
-
   if (octreeNode) {
     return octreeNode->elements;
   }
-
   return std::vector<int>();
 }
 
-// check if the point is inside the domain.
-// This function is only executed at root to ensure that input point is inside
-// the mesh's bounding box
-// If we don't check this, the case when root is leaf node itself will return
-// wrong block
+/// Frees nodes which are unnecessary once all mesh elements are added to the tree.
+void TetrahedralTree::Finalize(void) {
+  if (IsLeafNode())
+    nodes.clear();
+  else {
+    for (int i = 0; i < 8; ++i)
+      children[i]->Finalize();
+  }
+}
+
+// Must check if the point is inside the domain.
+// This function is executed for the tree root.
 const TetrahedralTree* TetrahedralTree::GetBlockFromPoint(
     const G4ThreeVector& point) const {
   if (!(m_min.x() <= point.x() && point.x() <= m_max.x() &&
         m_min.y() <= point.y() && point.y() <= m_max.y() &&
-        m_min.z() <= point.z() && point.z() <= m_max.z()))
+        m_min.z() <= point.z() && point.z() <= m_max.z())) {
     return nullptr;
-
-  return GetBlockFromPointHelper(point);
+  }
+  return GetBlockFromPointDescend(point);
 }
 
-const TetrahedralTree* TetrahedralTree::GetBlockFromPointHelper(
+const TetrahedralTree* TetrahedralTree::GetBlockFromPointDescend(
     const G4ThreeVector& point) const {
   // If we're at a leaf node, it means, the point is inside this block
   if (IsLeafNode()) return this;
-  // We are at the interior node, so check which child octant contains the
-  // point
+  // We are at the interior node, so check which child octant contains the point
   int octant = GetOctantContainingPoint(point);
-  return children[octant]->GetBlockFromPointHelper(point);
+  return children[octant]->GetBlockFromPointDescend(point);
 }
 

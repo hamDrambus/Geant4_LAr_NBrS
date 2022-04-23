@@ -10,10 +10,7 @@
 
 #include <G4SystemOfUnits.hh>
 #include <G4ThreeVector.hh>
-
-//TODO: Nodes are unnecessary. Rewrite using only elements (position and bounding box). How to check when to split into children?
-//TODO: Recursion usually poorly affects the performance. Check it and rewrite if necessary.
-//TODO: Thread-local cache for last leaf, and search starting from there instead of the start of the tree.
+#include <G4Cache.hh>
 
 /* Brief Helper class for searches in field maps.
  * This class stores the mesh nodes and elements in an Octree data
@@ -34,6 +31,8 @@ class TetrahedralTree {
   void InsertMeshElement(const double bb[6], const int index);
   /// Get all elements linked to a block corresponding to the given point.
   std::vector<int> GetElementsInBlock(const G4ThreeVector& point) const;
+  /// Frees nodes which are unnecessary once all mesh elements are added to the tree.
+  void Finalize(void);
 
  private:
   // Physical centre of this tree node.
@@ -73,7 +72,7 @@ class TetrahedralTree {
 
   // A helper function used by the function above.
   // Called recursively on the child nodes.
-  const TetrahedralTree* GetBlockFromPointHelper(const G4ThreeVector& point) const;
+  const TetrahedralTree* GetBlockFromPointDescend(const G4ThreeVector& point) const;
 };
 
 #endif // TetrahedralTree_H_

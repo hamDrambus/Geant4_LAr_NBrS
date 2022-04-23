@@ -32,7 +32,7 @@ namespace gPars
 		general.doViewElectronDrift = false;
 		general.thread_number = 8;
 		general.data_path = "../../NBrS_THGEM_LAr_v0/data/";
-		general.output_folder = "../../NBrS_THGEM_LAr_v0/tests/test_11_fieldmap_speed/v01_tetra/";
+		general.output_folder = "../../NBrS_THGEM_LAr_v0/results/with_diff/6180V/";
 		general.check_geometry_overlap = false;
 		general.no_reflections = false;
 		general.no_diffused_reflections = false;
@@ -41,8 +41,8 @@ namespace gPars
 		general.photon_max_time = 3.0 * ns; // about 1 meter full path.
 		general.electron_max_time = DBL_MAX;//3 * 3.5e-4 * ns; // 3 times normal drift time
 		general.surface_tolerance = 1e-8 * mm;
-		general.record_electrons = false; // if false, only photons are recorded to files and kept in memory
-		general.record_detailed = false; // if false, only number of hits per channel is kept track of
+		general.record_electrons = true; // if false, only photons are recorded to files and kept in memory
+		general.record_detailed = true; // if false, only number of hits per channel is kept track of
 		general.print_drift_track = false; // works only for Detector_THGEM1_detailed and GenElectronsPatterns testing classes
 
 		// THGEM CERN 28%, in [mm]
@@ -91,8 +91,8 @@ namespace gPars
     source.z_center = det_dims.z_bottom_THGEM1 - 1.5;
     source.xy_radius = 7;
     source.z_width = 0;
-    source.N_events = 500000;
-    source.NBrS_yield_factor = 1;
+    source.N_events = 100000;
+    source.NBrS_yield_factor = 10;
 
 		field_map.elmer_mesh_folder = general.data_path + "../singleTHGEM28_LAr/v00.02_THGEM1/";
 		field_map.elmer_solution_filename = general.data_path + "../singleTHGEM28_LAr/Elmer_v00.02/case_6180v.result";
