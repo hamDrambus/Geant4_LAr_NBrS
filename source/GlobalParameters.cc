@@ -32,7 +32,7 @@ namespace gPars
 		general.doViewElectronDrift = false;
 		general.thread_number = 8;
 		general.data_path = "../../NBrS_THGEM_LAr_v0/data/";
-		general.output_folder = "../../NBrS_THGEM_LAr_v0/tests/test_11_fieldmap_speed/v00_my_impl/";
+		general.output_folder = "../../NBrS_THGEM_LAr_v0/results/with_diff/6180V/";
 		general.check_geometry_overlap = false;
 		general.no_reflections = false;
 		general.no_diffused_reflections = false;
@@ -91,8 +91,8 @@ namespace gPars
     source.z_center = det_dims.z_bottom_THGEM1 - 1.5;
     source.xy_radius = 7;
     source.z_width = 0;
-    source.N_events = 500000;
-    source.NBrS_yield_factor = 1;
+    source.N_events = 100000;
+    source.NBrS_yield_factor = 10;
 
 		field_map.elmer_mesh_folder = general.data_path + "../singleTHGEM28_LAr/v00.02_THGEM1/";
 		field_map.elmer_solution_filename = general.data_path + "../singleTHGEM28_LAr/Elmer_v00.02/case_6180v.result";

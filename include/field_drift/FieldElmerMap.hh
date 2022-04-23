@@ -23,7 +23,7 @@
 #include <G4Cache.hh>
 
 #include "DriftMedium.hh"
-
+#include "TetrahedralTree.hh"
 
 //TODO: For speeding up element search use new Garfield++'s TetrahedralTree class.
 //Check it against my approach. It will possibly need to be optimized as well (remove recursion)
@@ -97,48 +97,46 @@ public:
   void EnableDebugging() { debug = true; }
   void DisableDebugging() { debug = false; }
 
+  // Enable or disable the usage of the tetrahedral tree
+  // for searching the element in the mesh.
+  void EnableTetrahedralTreeForElementSearch(const bool on = true) {
+    m_useTetrahedralTree = on;
+  }
+
 protected:
   std::string m_className;
   bool ready;
   double fTolerance;
 
-  // Grouping of elements into regions for faster search of element corresponding to (x,y,z)
-  int nRegions;
-  struct region {
-    std::vector<std::size_t> indices; // indices of elements inside this region
-    double xmin, ymin, zmin, xmax, ymax, zmax; // Bounding box of the region and all contained elements
-  };
-  std::deque<region> regions;
-
   // Elements
   int nElements;
-  struct element {
+  struct Element {
    int emap[10]; // Nodes
    int matmap; // Material
    bool degenerate;
    // Bounding box of the element
    double xmin, ymin, zmin, xmax, ymax, zmax;
   };
-  std::vector<element> elements;
+  std::vector<Element> elements;
 
   G4Cache<int> lastElement;
 
   // Nodes
   int nNodes;
-  struct node {
+  struct Node {
    double x, y, z; // Coordinates
    double v; // Potential
    std::vector<double> w; // Weighting potentials
   };
-  std::vector<node> nodes;
+  std::vector<Node> nodes;
 
   // Materials
   int nMaterials;
-  struct material {
+  struct Material {
     bool driftmedium;
     DriftMedium* medium;
   };
-  std::vector<material> materials;
+  std::vector<Material> materials;
 
   // Bounding box
   bool hasBoundingBox;
@@ -154,6 +152,9 @@ protected:
   bool checkMultipleElement; // Scan for multiple elements that contain a point
   bool warning; // Warnings flag
   bool debug;
+
+  bool m_useTetrahedralTree = true;
+  std::unique_ptr<TetrahedralTree> m_octree;
 
   // Local coordinates
   // Calculate coordinates in linear tetrahedra
@@ -171,8 +172,14 @@ protected:
   int FindElement13(const double x, const double y, const double z, double& t1,
                    double& t2, double& t3, double& t4, double jac[4][4],
                    double& det);
-  // Find the region for a given point.
-  int FindRegion(const double x, const double y, const double z);
+
+  // Calculate potential for a point in curved quadratic tetrahedra
+  double Potential13(const std::array<double, 10>& v, const std::array<double, 4>& t);
+  // Calculate electric field for a point in curved quadratic tetrahedra
+  void Field13(const std::array<double, 10>& v, const std::array<double, 4>& t,
+                   double jac[4][4], const double det, double& ex, double& ey, double& ez);
+
+
 
   static int ReadInteger(char* token, int def, bool& error);
   static double ReadDouble(char* token, double def, bool& error);
@@ -180,7 +187,7 @@ protected:
   // Calculate the bounding boxes of all elements after initialization
   void CalculateElementBoundingBoxes(void);
   // Calculate regions of elements after initialization
-  void CalculateElementRegions(void);
+  bool InitializeTetrahedralTree();
 };
 
 #endif // FIELD_ELMER_MAP_H_

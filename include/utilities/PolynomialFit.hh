@@ -29,6 +29,8 @@
 //TODO:  7) PolynomialFit should be hidden
 //TODO:  8) Add plotting with gnuplot via pipe. With support of integration intervals.
 //TODO:  9) Infinite domains support (for PDFs), including integration
+//TODO:  10) Do not reallocate memory for coefficient vector each time. Allocate only once when order is selected.
+//TODO:  11) Look up GSL implementation for some ideas.
 
 //TVectorD parameters are [0]+[1]*x+[2]*x^2+...
 class PolynomialFit {
