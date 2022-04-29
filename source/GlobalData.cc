@@ -159,8 +159,8 @@ void GlobalData::SetupTHGEM1Mapping(void)
 {
   if (nullptr != THGEM1_mapping)
     delete THGEM1_mapping;
-  boost::optional<G4PhysicalVolumesSearchScene::Findings> foundCell = FindSinglePV(gPars::det_dims.THGEM1_cell_name);
-  boost::optional<G4PhysicalVolumesSearchScene::Findings> foundTHGEM1 = FindSinglePV(gPars::det_dims.THGEM1_cell_container_name);
+  boost::optional<G4PhysicalVolumesSearchScene::Findings> foundCell = FindSinglePV(gPars::det_dims->THGEM1_cell_name);
+  boost::optional<G4PhysicalVolumesSearchScene::Findings> foundTHGEM1 = FindSinglePV(gPars::det_dims->THGEM1_cell_container_name);
   if (boost::none == foundCell) {
     std::cerr<<"RunAction::SetupTHGEM1Mapping:Error:"<<std::endl;
     std::cerr<<"\tTHGEM1 cell is not found. Geometry without THGEM1 mapping is used."<<std::endl;
@@ -193,12 +193,12 @@ void GlobalData::SetupFieldMap(void)
         "InvalidSetup", FatalException, "Failed to prepare field map.");
     return;
   }
-  double tolerance = gPars::general.surface_tolerance;
+  double tolerance = G4GeometryTolerance::GetInstance()->GetSurfaceTolerance();
   double x_min, x_max, y_min, y_max, z_min, z_max;
   field_map->GetBoundingBox(x_min, y_min, z_min, x_max, y_max, z_max);
-  if ((gPars::det_dims.THGEM1_hole_pitch / 2.0 - (x_max- x_min)) > tolerance ||
-      (gPars::det_dims.THGEM1_hole_pitch * std::sqrt(3) / 2.0 - (y_max- y_min)) > tolerance ||
-      (gPars::det_dims.THGEM1_container_width > (z_max- z_min))) {
+  if ((gPars::det_dims->THGEM1_hole_pitch / 2.0 - (x_max- x_min)) > tolerance ||
+      (gPars::det_dims->THGEM1_hole_pitch * std::sqrt(3) / 2.0 - (y_max- y_min)) > tolerance ||
+      (gPars::det_dims->THGEM1_container_width > (z_max- z_min))) {
     G4Exception("GlobalData::SetupFieldMap: ",
         "InvalidSetup", FatalException, "Loaded field map has dimensions incomparable to THGEM1 cell.");
     return;
@@ -209,7 +209,7 @@ void GlobalData::SetupFieldMap(void)
   if (!Ar_props.drift_velocity.isValid()) {
     velocity = new DataVector();
     std::ifstream str;
-    str.open(gPars::field_map.LAr_drift_velocity);
+    str.open(gPars::Ar_props.LAr_drift_velocity);
     if (!str.is_open()) {
       G4Exception("GlobalData::SetupFieldMap: ",
         "InvalidSetup", FatalException, "Failed to open LAr drift velocity file");
@@ -229,7 +229,7 @@ void GlobalData::SetupFieldMap(void)
     diff_longitudinal = new DataVector();
     diff_transversal = new DataVector();
     std::ifstream str;
-    str.open(gPars::field_map.LAr_diffusion_longitudinal);
+    str.open(gPars::Ar_props.LAr_diffusion_longitudinal);
     if (!str.is_open()) {
       G4Exception("GlobalData::SetupFieldMap: ",
         "InvalidSetup", JustWarning, "Failed to open LAr longitudinal diffusion file");
@@ -240,7 +240,7 @@ void GlobalData::SetupFieldMap(void)
       diff_longitudinal->use_rightmost(true);
     }
 
-    str.open(gPars::field_map.LAr_diffusion_transversal);
+    str.open(gPars::Ar_props.LAr_diffusion_transversal);
     if (!str.is_open()) {
       G4Exception("GlobalData::SetupFieldMap: ",
         "InvalidSetup", JustWarning, "Failed to open LAr transversal diffusion file");
@@ -266,6 +266,17 @@ void GlobalData::SetupFieldMap(void)
   LAr_medium = new DriftMedium("LAr", *velocity, *diff_longitudinal, *diff_transversal);
   LAr_medium->SetDriftable(true);
   field_map->SetMedium(0, LAr_medium);
+  gPars::det_dims->drift_start_center = GetDriftStartCenter();
+}
+
+G4ThreeVector GlobalData::GetDriftStartCenter(void) const
+{
+  G4ThreeVector c = gPars::field_map.elmer_mesh_center;
+  if (!field_map)
+    return c;
+  double xmin, ymin, zmin, xmax, ymax, zmax;
+  field_map->GetBoundingBox(xmin, ymin, zmin, xmax, ymax, zmax);
+  return gPars::det_dims->THGEM1_center + G4ThreeVector(0, 0, c.z() + zmin);
 }
 
 G4ThreeVector GlobalData::GetFieldAtGlobal(G4ThreeVector position, DriftMedium* &medium, int *status)
@@ -295,7 +306,7 @@ G4ThreeVector GlobalData::GetFieldAtGlobal(G4ThreeVector position, DriftMedium* 
         *status = -6;
     return mapping_data.momentum;
   }
-  G4ThreeVector in_mesh_pos = mapping_data.position - gPars::det_dims.THGEM1_single_cell_position + gPars::field_map.elmer_mesh_center;
+  G4ThreeVector in_mesh_pos = mapping_data.position - gPars::det_dims->THGEM1_single_cell_position + gPars::field_map.elmer_mesh_center;
   double ex,ey,ez;
   int status_;
   field_map->ElectricField(in_mesh_pos.x(),in_mesh_pos.y(),in_mesh_pos.z(),ex,ey,ez,medium, status_);

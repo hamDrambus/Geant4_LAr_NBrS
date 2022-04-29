@@ -35,7 +35,7 @@ G4bool DetectorSensor::ProcessHits_Optical(const G4Step* aStep, G4TouchableHisto
 		return false;
 	G4StepPoint *thePrePoint  = aStep->GetPostStepPoint();
 	G4VPhysicalVolume* vol = aStep->GetPostStepPoint()->GetTouchable()->GetVolume();
-	if (NULL != vol && vol->GetName() == gPars::det_dims.PMT_device_name) {
+	if (NULL != vol && vol->GetName() == gPars::det_dims->PMT_device_name) {
 		std::size_t PMT_no = vol->GetCopyNo();
 		PhotonHit *hit = new PhotonHit();
 		hit->_energy = thePrePoint->GetTotalEnergy();
@@ -45,7 +45,7 @@ G4bool DetectorSensor::ProcessHits_Optical(const G4Step* aStep, G4TouchableHisto
 		hit->_channel = PMT_no;
 		hitCollection->insert(hit);
 	}
-	if (NULL != vol && vol->GetName() == gPars::det_dims.SiPM_device_name) {
+	if (NULL != vol && vol->GetName() == gPars::det_dims->SiPM_device_name) {
 		std::size_t SiPM_no = vol->GetCopyNo();
 		PhotonHit *hit = new PhotonHit();
 		hit->_energy = thePrePoint->GetTotalEnergy();

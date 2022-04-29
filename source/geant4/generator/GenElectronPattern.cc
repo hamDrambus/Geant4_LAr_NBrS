@@ -1,7 +1,7 @@
 #include <geant4/generator/GenElectronsPatterns.hh>
 
 GenElectronsPatterns::GenElectronsPatterns(PatternElectron pattern) :
-  VGeneratePrimaries(0), mPattern(pattern)
+  VGeneratePrimaries(), mPattern(pattern)
 {}
 
 GenElectronsPatterns::~GenElectronsPatterns()
@@ -33,7 +33,7 @@ void GenElectronsPatterns::GeneratePrimaries(G4Event* anEvent)
       }
     }
     ++ID;
-  } while ((anEvent->GetEventID() == gPars::source.N_events - 1) && ID != (gPars::source.N_events + ExtraEventsN()));
+  } while ((anEvent->GetEventID() == gPars::source->N_events - 1) && ID != (gPars::source->N_events + ExtraEventsN()));
   // Loop triggers only at the end of beamOn and when extra events are required.
 }
 
@@ -68,115 +68,115 @@ G4ThreeVector GenElectronsPatterns::GenPosition_RandomCircle(int event_number) c
 {
   double x, y, z;
   double phi = 2 * M_PI * G4UniformRand();
-  double R = std::sqrt(G4UniformRand()) * gPars::source.xy_radius;
-  x = gPars::source.x_center + R*std::cos(phi);
-  y = gPars::source.y_center + R*std::sin(phi);
-  z = gPars::source.z_center;
-  return G4ThreeVector(x  * mm, y * mm, z * mm);
+  double R = std::sqrt(G4UniformRand()) * gPars::source->xy_radius;
+  x = gPars::source->x_center + R*std::cos(phi);
+  y = gPars::source->y_center + R*std::sin(phi);
+  z = gPars::source->z_center;
+  return gPars::det_dims->drift_start_center + G4ThreeVector(x, y, z);
 }
 
 G4ThreeVector GenElectronsPatterns::GenPosition_RandomSquare(int event_number) const
 {
   double x, y, z;
-  x = gPars::source.x_center + (G4UniformRand() - 0.5) * gPars::source.xy_radius;
-  y = gPars::source.y_center + (G4UniformRand() - 0.5) * gPars::source.xy_radius;
-  z = gPars::source.z_center;
-  return G4ThreeVector(x  * mm, y * mm, z * mm);
+  x = gPars::source->x_center + (G4UniformRand() - 0.5) * gPars::source->xy_radius;
+  y = gPars::source->y_center + (G4UniformRand() - 0.5) * gPars::source->xy_radius;
+  z = gPars::source->z_center;
+  return gPars::det_dims->drift_start_center + G4ThreeVector(x, y, z);
 }
 
 G4ThreeVector GenElectronsPatterns::GenPosition_UniformLineX(int event_number) const
 {
   double x, y, z;
-  double step = 2.0 * gPars::source.xy_radius / (gPars::source.N_events - 1);
-  x = gPars::source.x_center + event_number * step - (gPars::source.N_events - 1) / 2.0 * step;
-  y = gPars::source.y_center;
-  z = gPars::source.z_center;
-  return G4ThreeVector(x  * mm, y * mm, z * mm);
+  double step = 2.0 * gPars::source->xy_radius / (gPars::source->N_events - 1);
+  x = gPars::source->x_center + event_number * step - (gPars::source->N_events - 1) / 2.0 * step;
+  y = gPars::source->y_center;
+  z = gPars::source->z_center;
+  return gPars::det_dims->drift_start_center + G4ThreeVector(x, y, z);
 }
 
 G4ThreeVector GenElectronsPatterns::GenPosition_UniformLineY(int event_number) const
 {
   double x, y, z;
-  double step = 2.0 * gPars::source.xy_radius / (gPars::source.N_events - 1);
-  x = gPars::source.x_center;
-  y = gPars::source.y_center + event_number * step - (gPars::source.N_events - 1) / 2.0 * step;
-  z = gPars::source.z_center;
-  return G4ThreeVector(x  * mm, y * mm, z * mm);
+  double step = 2.0 * gPars::source->xy_radius / (gPars::source->N_events - 1);
+  x = gPars::source->x_center;
+  y = gPars::source->y_center + event_number * step - (gPars::source->N_events - 1) / 2.0 * step;
+  z = gPars::source->z_center;
+  return gPars::det_dims->drift_start_center + G4ThreeVector(x, y, z);
 }
 
 G4ThreeVector GenElectronsPatterns::GenPosition_UniformSquareGrid(int event_number) const
 {
   double x, y, z;
-  int N = gPars::source.N_events;
+  int N = gPars::source->N_events;
   int real_n = std::pow(std::sqrt(N), 2) < N ?
       std::pow(std::sqrt(N) + 1, 2) : N;
   N = std::sqrt(real_n);
-  double stepX = 2.0 * gPars::source.xy_radius / (N - 1);
+  double stepX = 2.0 * gPars::source->xy_radius / (N - 1);
   double stepY = stepX;
-  x = gPars::source.x_center + (event_number % N) * stepX - (N - 1) / 2.0 * stepX;
-  y = gPars::source.y_center + (event_number / N) * stepY - (N - 1) / 2.0 * stepY;
-  z = gPars::source.z_center;
-  return G4ThreeVector(x  * mm, y * mm, z * mm);
+  x = gPars::source->x_center + (event_number % N) * stepX - (N - 1) / 2.0 * stepX;
+  y = gPars::source->y_center + (event_number / N) * stepY - (N - 1) / 2.0 * stepY;
+  z = gPars::source->z_center;
+  return gPars::det_dims->drift_start_center + G4ThreeVector(x, y, z);
 }
 
 G4ThreeVector GenElectronsPatterns::GenPosition_Uniform1Ring(int event_number) const
 {
   double x, y, z;
-  double step_phi = 2.0 * pi / gPars::source.N_events;
-  double R = gPars::source.xy_radius;
+  double step_phi = 2.0 * pi / gPars::source->N_events;
+  double R = gPars::source->xy_radius;
   double phi = event_number * step_phi;
-  x = gPars::source.x_center + R*std::cos(phi);
-  y = gPars::source.y_center + R*std::sin(phi);
-  z = gPars::source.z_center;
-  return G4ThreeVector(x  * mm, y * mm, z * mm);
+  x = gPars::source->x_center + R*std::cos(phi);
+  y = gPars::source->y_center + R*std::sin(phi);
+  z = gPars::source->z_center;
+  return gPars::det_dims->drift_start_center + G4ThreeVector(x, y, z);
 }
 
 G4ThreeVector GenElectronsPatterns::GenPosition_Uniform2Rings(int event_number) const
 {
   double x, y, z;
-  int N = gPars::source.N_events;
+  int N = gPars::source->N_events;
   int real_n = N + N % 2;
   N = real_n / 2;
   double step_phi = 2.0 * pi / N;
-  double R = gPars::source.xy_radius / (1 + event_number / N);
+  double R = gPars::source->xy_radius / (1 + event_number / N);
   double phi = (event_number % N) * step_phi;
-  x = gPars::source.x_center + R*std::cos(phi);
-  y = gPars::source.y_center + R*std::sin(phi);
-  z = gPars::source.z_center;
-  return G4ThreeVector(x  * mm, y * mm, z * mm);
+  x = gPars::source->x_center + R*std::cos(phi);
+  y = gPars::source->y_center + R*std::sin(phi);
+  z = gPars::source->z_center;
+  return gPars::det_dims->drift_start_center + G4ThreeVector(x, y, z);
 }
 
 G4ThreeVector GenElectronsPatterns::GenPosition_Uniform3Rings(int event_number) const
 {
   double x, y, z;
-  int N = gPars::source.N_events;
+  int N = gPars::source->N_events;
   int real_n = N + (N % 3 ? 0 : (3 - N % 3));
   N = real_n / 3;
   double step_phi = 2.0 * pi / N;
-  double R = gPars::source.xy_radius / (1 + event_number / N);
+  double R = gPars::source->xy_radius / (1 + event_number / N);
   double phi = (event_number % N) * step_phi;
-  x = gPars::source.x_center + R*std::cos(phi);
-  y = gPars::source.y_center + R*std::sin(phi);
-  z = gPars::source.z_center;
-  return G4ThreeVector(x  * mm, y * mm, z * mm);
+  x = gPars::source->x_center + R*std::cos(phi);
+  y = gPars::source->y_center + R*std::sin(phi);
+  z = gPars::source->z_center;
+  return gPars::det_dims->drift_start_center + G4ThreeVector(x, y, z);
 }
 
 int GenElectronsPatterns::ExtraEventsN() const
 {
   switch(mPattern) {
   case UniformSquareGrid: {
-    int N = gPars::source.N_events;
+    int N = gPars::source->N_events;
     int real_n = std::pow(std::sqrt(N), 2) < N ?
         std::pow(std::sqrt(N) + 1, 2) : N;
     return real_n - N;
   }
   case Uniform2Rings: {
-    int N = gPars::source.N_events;
+    int N = gPars::source->N_events;
     int real_n = N + N % 2;
     return real_n - N;
   }
   case Uniform3Rings: {
-    int N = gPars::source.N_events;
+    int N = gPars::source->N_events;
     int real_n = N + (N % 3 ? 0 : (3 - N % 3));
     return real_n - N;
   }

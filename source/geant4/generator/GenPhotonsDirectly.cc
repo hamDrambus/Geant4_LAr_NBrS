@@ -1,15 +1,32 @@
 #include <geant4/generator/GenPhotonsDirectly.hh>
 
-GenPhotonsDirectly::GenPhotonsDirectly(double energy, PatternPhoton pattern, double parameter) :
-  VGeneratePrimaries(energy), mPattern(pattern), mParameter(parameter)
+GenPhotonsDirectly::GenPhotonsDirectly(double energy, PatternPhoton pattern, double angle) :
+  VGeneratePrimaries(), mPattern(pattern), mAngle(angle)
 {}
 
-GenPhotonsDirectly::GenPhotonsDirectly(PDF_routine& energy_spectrum, PatternPhoton pattern, double parameter) :
-  VGeneratePrimaries(energy_spectrum), mPattern(pattern), mParameter(parameter)
+GenPhotonsDirectly::GenPhotonsDirectly(PDF_routine& energy_spectrum, PatternPhoton pattern, double angle) :
+  VGeneratePrimaries(), mPattern(pattern), mAngle(angle)
 {}
 
 GenPhotonsDirectly::~GenPhotonsDirectly()
 {}
+
+void GenPhotonsDirectly::SetParticleEnergySpectrum(double energy)
+{
+  PDF_routine spectrum;
+  spectrum.insert(energy, 1.0);
+  spectrum.pdf_to_cdf();
+  SetParticleEnergySpectrum(spectrum);
+}
+
+void GenPhotonsDirectly::SetParticleEnergySpectrum(PDF_routine energy_spectrum)
+{
+  mEnergySpectrum = energy_spectrum;
+  if (!mEnergySpectrum.isValid()) {
+    G4Exception("VGeneratePrimaries::SetParticleEnergySpectrum()", "Event0101",
+      FatalException, "Invalid energy spectrum is given.");
+  }
+}
 
 void GenPhotonsDirectly::GeneratePrimaries(G4Event* anEvent)
 {
@@ -50,7 +67,7 @@ void GenPhotonsDirectly::GeneratePrimaries(G4Event* anEvent)
   // Set particle direction
   G4ThreeVector direction;
   if (mPattern == PatternPhoton::SiPM_shading) {
-    double angle = mParameter * degree;
+    double angle = mAngle;
     direction = G4ThreeVector(std::sin(angle), 0, std::cos(angle));
   } else {
     double phi = 2 * pi * G4UniformRand();
@@ -64,39 +81,39 @@ void GenPhotonsDirectly::GeneratePrimaries(G4Event* anEvent)
   // Set particle position
   double x, y, z;
   if (mPattern == PatternPhoton::SiPM_shading) { // Square-shaped distribution
-    x = gPars::det_dims.SiPM_size*(G4UniformRand() - 0.5);
-    y = gPars::det_dims.SiPM_size*(G4UniformRand() - 0.5);
-    z = gPars::general.EL_gap_center.z();
+    x = gPars::det_dims->THGEM1_hole_center.x() + gPars::source->xy_radius*(G4UniformRand() - 0.5);
+    y = gPars::det_dims->THGEM1_hole_center.y() + gPars::source->xy_radius*(G4UniformRand() - 0.5);
+    z = gPars::det_dims->THGEM1_hole_center.z() + gPars::source->z_center;
   } else if (mPattern == PatternPhoton::THGEM1_hole_center) {
-    x = gPars::general.THGEM1_hole_center.x();
-    y = gPars::general.THGEM1_hole_center.y();
-    z = gPars::general.THGEM1_hole_center.z();
+    x = gPars::det_dims->THGEM1_hole_center.x();
+    y = gPars::det_dims->THGEM1_hole_center.y();
+    z = gPars::det_dims->THGEM1_hole_center.z();
   } else if (mPattern == PatternPhoton::EL_gap_center) {
-    x = gPars::general.EL_gap_center.x();
-    y = gPars::general.EL_gap_center.y();
-    z = gPars::general.EL_gap_center.z();
+    x = gPars::det_dims->EL_gap_center.x();
+    y = gPars::det_dims->EL_gap_center.y();
+    z = gPars::det_dims->EL_gap_center.z();
   } else if (mPattern == PatternPhoton::Cathode_center) {
-    x = 0;
-    y = 0;
-    z = gPars::det_dims.THGEM_cathode_width + 0.1;
+    x = gPars::det_dims->Cathode_top_center.x();
+    y = gPars::det_dims->Cathode_top_center.y();
+    z = gPars::det_dims->Cathode_top_center.z() + 0.1;
   } else if (mPattern == PatternPhoton::Cathode_14mm_coll) {
     double phi = 2 * pi * G4UniformRand();
     double R = std::sqrt(G4UniformRand()) * 14;
-    x = R * std::cos(phi);
-    y = R * std::sin(phi);
-    z = gPars::det_dims.THGEM_cathode_width + 0.1;
+    x = gPars::det_dims->Cathode_top_center.x() + R * std::cos(phi);
+    y = gPars::det_dims->Cathode_top_center.x() + R * std::sin(phi);
+    z = gPars::det_dims->Cathode_top_center.z() + 0.1;
   } else if (mPattern == PatternPhoton::By_source) {
     double phi = 2 * pi * G4UniformRand();
-    double R = std::sqrt(G4UniformRand()) * gPars::source.xy_radius;
-    x = gPars::source.x_center + R * std::cos(phi);
-    y = gPars::source.y_center + R * std::sin(phi);
-    z = gPars::source.z_center + gPars::source.z_width*(G4UniformRand() - 0.5);
+    double R = std::sqrt(G4UniformRand()) * gPars::source->xy_radius;
+    x = gPars::source->x_center + R * std::cos(phi);
+    y = gPars::source->y_center + R * std::sin(phi);
+    z = gPars::source->z_center + gPars::source->z_width*(G4UniformRand() - 0.5);
   } else {
     G4Exception("GenPhotonsDirectly::GeneratePrimaries: ",
         "InvalidCode", FatalException, "Used PatternPhoton is not implemented!.");
     return;
   }
-  G4ThreeVector position(x * mm, y * mm, z * mm);
+  G4ThreeVector position(x, y, z);
   single_particle.SetParticlePosition(position);
   photon._pos = G4ThreeVector(position);
   //------------------------------------

@@ -25,6 +25,7 @@
 
 #include "GlobalParameters.hh"
 #include "VGeneratePrimaries.hh"
+#include "SourceSettings.hh"
 
 class GenPhotonsDirectly : public VGeneratePrimaries
 {
@@ -35,21 +36,36 @@ public:
       Cathode_center,
       Cathode_14mm_coll,
       SiPM_shading,
-      SiPM_shading_test,
       By_source
   };
 
-  // parameter meaning depends on pattern selected.
-  GenPhotonsDirectly(double energy, PatternPhoton pattern, double parameter = 0.0); //monoenergetic case
-  GenPhotonsDirectly(PDF_routine& energy_spectrum, PatternPhoton pattern, double parameter = 0.0); //continious spectrum case
+  GenPhotonsDirectly(double energy, PatternPhoton pattern, double angle = 0.0); //monoenergetic case
+  GenPhotonsDirectly(PDF_routine& energy_spectrum, PatternPhoton pattern, double angle = 0.0); //continious spectrum case
   ~GenPhotonsDirectly();
+
+  void SetParticleEnergySpectrum(PDF_routine energy_spectrum);
+  void SetParticleEnergySpectrum(double energy);
+  void SetParticleAngle(double angle) { mAngle = angle; }
 
   void SetPattern(PatternPhoton pattern) { mPattern = pattern; }
   void GeneratePrimaries(G4Event* anEvent);
 
 protected:
+  PDF_routine mEnergySpectrum;
   PatternPhoton mPattern;
-  double mParameter;
+  double mAngle;
+};
+
+class SettingsDirectPhotons: public VSourceSettings
+{
+public:
+  GenPhotonsDirectly::PatternPhoton pattern;
+  double energy;
+  double angle; // Photon angle to z axis in Geant4 units. Works only for SiPM_shading pattern
+  PDF_routine energy_spectrum;
+  std::string energy_spectrum_filename;
+  SettingsDirectPhotons() : pattern(GenPhotonsDirectly::By_source), energy(-1), angle(0)
+  { generator_type = PhotonsDirectly; }
 };
 
 #endif // GenPhotonsDirectly_h

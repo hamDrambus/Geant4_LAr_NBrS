@@ -16,8 +16,20 @@
 
 int main(int argc, char** argv)
 {
+  std::string settings_fname;
+  if (argc != 1) {
+    if (argc>2)
+      std::cout << "Warning! Only single parameter (settings filename) is used." << std::endl;
+    settings_fname = argv[1];
+  } else {
+    std::cout << "Using default settings file \"settings.xml\"" << std::endl;
+    settings_fname = "settings.xml";
+  }
 	// Initialize detector and run parameters
-	gPars::InitGlobals();
+	if (!gPars::InitGlobals(settings_fname)) {
+	  std::cerr<<"Failed to initialize globals."<<std::endl;
+	  return -1;
+	}
 	// Choose the Random engine
 	G4Random::setTheEngine(new CLHEP::RanecuEngine);
 	// Seed the random number generator manually
@@ -50,17 +62,20 @@ int main(int argc, char** argv)
 	UI->ApplyCommand("/event/verbose 0");
 	UI->ApplyCommand("/tracking/verbose 0");
 	UI->ApplyCommand("/tracking/storeTrajectory 2");
-	if (gPars::general.doView)
+	if (gPars::general.doView) {
 		UI->ApplyCommand("/control/execute vis.mac");
+	}
 
-	double THGEM1_z = gPars::det_dims.z_bottom_THGEM1 + gPars::det_dims.THGEM1_width_total / 2.0;
+	double THGEM1_z = gPars::det_dims->THGEM1_center.z() - gPars::det_dims->THGEM1_width_total / 2.0;
   //gData.PlotField("v00.01.01/center_axis_field.txt", G4ThreeVector(0, 0, THGEM1_z * mm - 3 * mm), G4ThreeVector(0, 0, THGEM1_z * mm + 3 * mm), 3000);
   //gData.PlotField("v00.01.01/x_p0.05_axis_field.txt", G4ThreeVector(0.05 * mm, 0, THGEM1_z * mm - 3 * mm), G4ThreeVector(0.05 * mm, 0, THGEM1_z * mm + 3 * mm), 3000);
   //gData.PlotField("v00.01.01/y_p0.05_axis_field.txt", G4ThreeVector(0, 0.05 * mm, THGEM1_z * mm - 3 * mm), G4ThreeVector(0, 0.05 * mm, THGEM1_z * mm + 3 * mm), 3000);
-	runManager->BeamOn(gPars::source.N_events);
+	runManager->BeamOn(gPars::source->N_events);
 
-	if (gPars::general.doView)
+	if (gPars::general.doView) {
 		UI->ApplyCommand("vis/viewer/update");
+		rename_file("g4_00.wrl", gPars::general.output_folder + "g4_00.wrl");
+	}
 
 	if (visManager)
 	  delete visManager;

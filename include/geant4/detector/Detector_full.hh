@@ -62,7 +62,6 @@ private:
 
 	G4LogicalVolume*    logic_SiPM;
 	G4LogicalVolume*    logic_PMT;
-
 	G4LogicalVolume*    logic_anode_grid;
 
 	//anode wire
@@ -108,8 +107,8 @@ private:
 	int Nx_SiPMs;
 	int Ny_SiPMs;
 	double thickness_SiPM;
-	double size_SiPM;
-	double chamberSpacing;
+	double SiPM_size;
+	double SiPM_pitch;
 	double z_size_SiPMFR4;
 
 	//tracker SiPM

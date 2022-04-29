@@ -1,14 +1,7 @@
 #include <geant4/generator/VGeneratePrimaries.hh>
 
-VGeneratePrimaries::VGeneratePrimaries(double energy)
+VGeneratePrimaries::VGeneratePrimaries()
 {
-  SetParticleEnergySpectrum(energy);
-  mNavigator = nullptr;
-  mElectronDrift = nullptr;
-}
-VGeneratePrimaries::VGeneratePrimaries(PDF_routine& energy_spectrum)
-{
-  SetParticleEnergySpectrum(energy_spectrum);
   mNavigator = nullptr;
   mElectronDrift = nullptr;
 }
@@ -19,23 +12,6 @@ VGeneratePrimaries::~VGeneratePrimaries()
     delete mNavigator;
   if (nullptr!=mElectronDrift)
     delete mElectronDrift;
-}
-
-void VGeneratePrimaries::SetParticleEnergySpectrum(double energy)
-{
-  PDF_routine spectrum;
-  spectrum.insert(energy, 1.0);
-  spectrum.pdf_to_cdf();
-  SetParticleEnergySpectrum(spectrum);
-}
-
-void VGeneratePrimaries::SetParticleEnergySpectrum(PDF_routine energy_spectrum)
-{
-  mEnergySpectrum = energy_spectrum;
-  if (!mEnergySpectrum.isValid()) {
-    G4Exception("VGeneratePrimaries::SetParticleEnergySpectrum()", "Event0101",
-      FatalException, "Invalid energy spectrum is given.");
-  }
 }
 
 void VGeneratePrimaries::SetupNavigator(void)

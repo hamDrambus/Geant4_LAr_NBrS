@@ -17,6 +17,7 @@
 
 #include "GlobalParameters.hh"
 #include "VGeneratePrimaries.hh"
+#include "SourceSettings.hh"
 
 class GenNBrS_InTHGEM : public VGeneratePrimaries
 {
@@ -24,7 +25,18 @@ public:
   GenNBrS_InTHGEM();
   ~GenNBrS_InTHGEM();
 
-void GeneratePrimaries(G4Event* anEvent);
+  void GeneratePrimaries(G4Event* anEvent);
+  double GetNBrSYieldFactor(void) const {return mNBrS_yield_factor; }
+  void SetNBrSYieldFactor(double yield_factor) { mNBrS_yield_factor = yield_factor; }
+protected:
+  double mNBrS_yield_factor;
+};
+
+class SettingsNBrSGenerator: public VSourceSettings
+{
+public:
+  double NBrS_yield_factor;
+  SettingsNBrSGenerator() : NBrS_yield_factor(1) { generator_type = NBrS; }
 };
 
 #endif // GenNBrS_InTHGEM_h

@@ -31,11 +31,11 @@ G4VPhysicalVolume * Detector_THGEM1_SiPM_shading::Construct()
 	// Create THGEM1
   G4Box* solid_THGEM1_container = new G4Box("solid_THGEM1_container", x_size_THGEM1_container / 2.0, y_size_THGEM1_container / 2.0, z_size_THGEM1_container / 2.0);
   G4LogicalVolume* logic_THGEM1_container = new G4LogicalVolume(solid_THGEM1_container, matLAr, "logic_THGEM1_container", 0, 0, 0);
-  G4VPhysicalVolume* phys_THGEM1_container = new G4PVPlacement(0, position_THGEM1_container, logic_THGEM1_container, gPars::det_dims.THGEM1_cell_container_name,
+  G4VPhysicalVolume* phys_THGEM1_container = new G4PVPlacement(0, position_THGEM1_container, logic_THGEM1_container, gPars::det_dims->THGEM1_cell_container_name,
       logicWorld, false, 0, fCheckOverlaps);
 
   G4Box* solid_THGEM1_dummy = new G4Box("solid_THGEM1_dummy", x_size_THGEM1_container / 2.0, y_size_THGEM1_container / 2.0,
-      gPars::det_dims.THGEM1_width_total * mm / 2.0);
+      gPars::det_dims->THGEM1_width_total / 2.0);
   G4LogicalVolume* logic_THGEM1_dummy = new G4LogicalVolume(solid_THGEM1_dummy, matFR4, "logic_THGEM1_dummy", 0, 0, 0);
   G4VPhysicalVolume* phys_THGEM1_dummy = new G4PVPlacement(0, G4ThreeVector(0,0,0), logic_THGEM1_dummy, "phys_THGEM1_dummy",
       logic_THGEM1_container, false, 0, fCheckOverlaps);
@@ -44,7 +44,7 @@ G4VPhysicalVolume * Detector_THGEM1_SiPM_shading::Construct()
   // Create sensor
   G4Box* solid_sensor = new G4Box("solid_sensor", x_size_sensor / 2.0, y_size_sensor / 2.0, z_size_sensor / 2.0);
   logic_sensor = new G4LogicalVolume(solid_sensor, matLAr, "logic_sensor", 0, 0, 0);
-  G4VPhysicalVolume* phys_sensor = new G4PVPlacement(0, position_sensor, logic_sensor, gPars::det_dims.SiPM_device_name,
+  G4VPhysicalVolume* phys_sensor = new G4PVPlacement(0, position_sensor, logic_sensor, gPars::det_dims->SiPM_device_name,
       logicWorld, false, 0, fCheckOverlaps);
 
   //--------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ void Detector_THGEM1_SiPM_shading::SetSizeAndPosition()
 
 	x_size_THGEM1_container = 5 * cm;
   y_size_THGEM1_container = 5 * cm;
-  z_size_THGEM1_container = gPars::det_dims.THGEM1_container_width * mm;
+  z_size_THGEM1_container = gPars::det_dims->THGEM1_container_width;
 
   position_SingleTHGEMCell = G4ThreeVector(4 * cm, 4 * cm, -4 * cm);
   position_THGEM1_container = G4ThreeVector(0 * mm, 0 * mm, 0 * mm);
@@ -101,14 +101,12 @@ void Detector_THGEM1_SiPM_shading::SetSizeAndPosition()
   z_size_sensor = 1 * mm;
   position_sensor = G4ThreeVector(0 * mm, 0 * mm, z_size_THGEM1_container / 2.0 + 1 * mm);
 
-  gPars::det_dims.THGEM1_active_area_size = x_size_THGEM1_container;
-  gPars::det_dims.z_bottom_THGEM1 = position_THGEM1_container.x()/ mm - gPars::det_dims.THGEM1_width_total / 2.0;
-  gPars::det_dims.THGEM1_single_cell_position = position_SingleTHGEMCell / mm;
-  gPars::det_dims.n_PMTs = 0;
-  gPars::det_dims.n_SiPMs_rows = 0;
-  gPars::general.THGEM1_hole_center = G4ThreeVector(0, 0, 0);
-  gPars::general.EL_gap_center = G4ThreeVector(0, 0, -gPars::det_dims.THGEM1_container_width / 2.0 - 0.1);
-  gPars::source.z_center = gPars::det_dims.z_bottom_THGEM1 - 2.9;
-
-  gPars::det_dims.SiPM_size = 3 * mm;
+  double z_bottom_THGEM1 = position_THGEM1_container.x() - gPars::det_dims->THGEM1_width_total / 2.0;
+  gPars::det_dims->THGEM1_single_cell_position = position_SingleTHGEMCell;
+  gPars::det_dims->n_PMTs = 0;
+  gPars::det_dims->n_SiPMs = 0;
+  gPars::det_dims->THGEM1_hole_center = G4ThreeVector(0, 0, 0);
+  gPars::det_dims->THGEM1_center = G4ThreeVector(0, 0, 0);
+  gPars::det_dims->EL_gap_center = G4ThreeVector(DBL_MAX, DBL_MAX, DBL_MAX);
+  gPars::det_dims->Cathode_top_center = G4ThreeVector(DBL_MAX, DBL_MAX, DBL_MAX);
 }

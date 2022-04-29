@@ -26,14 +26,11 @@
 class VGeneratePrimaries : public G4VUserPrimaryGeneratorAction
 {
 public:
-  VGeneratePrimaries(double energy); // Monoenergetic case
-  VGeneratePrimaries(PDF_routine& energy_spectrum); // Continuous spectrum case
+  VGeneratePrimaries();
   ~VGeneratePrimaries();
 
 public:
   virtual void GeneratePrimaries(G4Event* anEvent) = 0;
-  void SetParticleEnergySpectrum(PDF_routine energy_spectrum);
-  void SetParticleEnergySpectrum(double energy);
   inline const std::deque<GeneratedData>& GetGeneratedData(void) const
   { return mGeneratedInfo; }
 
@@ -45,7 +42,6 @@ protected:
   void RecordPhoton(PhotonHit photon);
   void ClearRecords(void);
 
-  PDF_routine mEnergySpectrum;
   G4Navigator* mNavigator; // Separate from tracking navigator is used to locate points before particle generation.
   DriftElectron* mElectronDrift;
 

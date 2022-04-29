@@ -6,10 +6,29 @@ UserInitialization::UserInitialization(G4RunManager *run_manager) :
   if (nullptr != runManager) {
     runManager->SetNumberOfEventsToBeStored(0);
     runManager->SetNumberOfThreads(std::max(gPars::general.thread_number, 1));
+    // Create detector depending on settings given
+    VDetectorConstruction* detector = nullptr;
+    switch(gPars::det_dims->detector_type) {
+    case (VDetectorDimensions::Full_detector): {
+      detector = new Detector_full;
+      break;
+    }
+    case (VDetectorDimensions::THGEM1_detailed): {
+      detector = new Detector_THGEM1_detailed;
+      break;
+    }
+    case (VDetectorDimensions::THGEM1_SiPM_shading): {
+      detector = new Detector_THGEM1_SiPM_shading;
+      break;
+    }
+    default: {
+      G4Exception("UserInitialization::UserInitialization: ",
+          "InvalidSetup", FatalException, "Unimplemented detector type is used.");
+      return;
+    }
+    }
     // Set mandatory initialization classes
-    runManager->SetUserInitialization(new Detector_full);
-    //runManager->SetUserInitialization(new Detector_THGEM1_detailed);
-    //runManager->SetUserInitialization(new Detector_THGEM1_SiPM_shading);
+    runManager->SetUserInitialization(detector);
     runManager->SetUserInitialization(new PhysicsList);
     runManager->SetUserInitialization(new UserWorkerThread); // Only responsible for clearing merged runs.
     runManager->SetUserInitialization(this);
@@ -26,12 +45,40 @@ void UserInitialization::BuildForMaster() const
 
 void UserInitialization::Build() const
 {
+  // Create generator depending on settings given
+  VGeneratePrimaries* generator = nullptr;
+  switch(gPars::source->generator_type) {
+  case (VSourceSettings::NBrS): {
+    SettingsNBrSGenerator *settings = static_cast<SettingsNBrSGenerator*>(gPars::source);
+    GenNBrS_InTHGEM *gen = new GenNBrS_InTHGEM;
+    generator = gen;
+    gen->SetNBrSYieldFactor(settings->NBrS_yield_factor);
+    break;
+  }
+  case (VSourceSettings::PhotonsDirectly): {
+    SettingsDirectPhotons *settings = static_cast<SettingsDirectPhotons*>(gPars::source);
+    GenPhotonsDirectly *gen;
+    if (settings->energy_spectrum.isValid())
+      gen = new GenPhotonsDirectly(settings->energy_spectrum, settings->pattern, settings->angle);
+    else
+      gen = new GenPhotonsDirectly(settings->energy, settings->pattern, settings->angle);
+    generator = gen;
+    break;
+  }
+  case (VSourceSettings::ElectronPatterns): {
+    SettingsElectronPattern *settings = static_cast<SettingsElectronPattern*>(gPars::source);
+    GenElectronsPatterns *gen = new GenElectronsPatterns(settings->pattern);
+    generator = gen;
+    break;
+  }
+  default: {
+    G4Exception("UserInitialization::UserInitialization: ",
+        "InvalidSetup", FatalException, "Unimplemented generator type is used.");
+    return;
+  }
+  }
   SetUserAction(new RunAction);
-  //SetUserAction(new GenElectronsPatterns(GenElectronsPatterns::PatternElectron::UniformLineX));
-  //SetUserAction(new GenPhotonsDirectly(3.1, GenPhotonsDirectly::PatternPhoton::THGEM1_hole_center));
-  //SetUserAction(new GenPhotonsDirectly(3.1, GenPhotonsDirectly::PatternPhoton::Cathode_14mm_coll));
-  //SetUserAction(new GenPhotonsDirectly(3.1, GenPhotonsDirectly::PatternPhoton::SiPM_shading, 20.0));
-  SetUserAction(new GenNBrS_InTHGEM);
+  SetUserAction(generator);
   SetUserAction(new SteppingAction);
   SetUserAction(new TrackingAction);
 }

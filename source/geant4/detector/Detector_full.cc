@@ -200,10 +200,10 @@ G4VPhysicalVolume * Detector_full::Construct()
 	G4VPhysicalVolume* phys_tracker = new G4PVPlacement(0, position_SiPM_container, trackerLV, "Tracker", logicWorld,
 	 	false, 0, fCheckOverlaps);
 
-	G4Box* solid_SiPM = new G4Box("sscintillator", size_SiPM / 2.0, size_SiPM / 2.0, thickness_SiPM / 2.0);
+	G4Box* solid_SiPM = new G4Box("sscintillator", SiPM_size / 2.0, SiPM_size / 2.0, thickness_SiPM / 2.0);
 	logic_SiPM = new G4LogicalVolume(solid_SiPM, matAl, "lSiPM", 0, 0, 0);
-	G4VPVParameterisation* chamberParam = new DetectorParameterisation(Nx_SiPMs, Ny_SiPMs, 1, NULL, G4ThreeVector(0,0,0), G4ThreeVector(chamberSpacing, chamberSpacing, 0));
-	G4VPhysicalVolume* phys_SiPM = new G4PVParameterised(gPars::det_dims.SiPM_device_name, logic_SiPM, trackerLV,
+	G4VPVParameterisation* chamberParam = new DetectorParameterisation(Nx_SiPMs, Ny_SiPMs, 1, NULL, G4ThreeVector(0,0,0), G4ThreeVector(SiPM_pitch, SiPM_pitch, 0));
+	G4VPhysicalVolume* phys_SiPM = new G4PVParameterised(gPars::det_dims->SiPM_device_name, logic_SiPM, trackerLV,
 		kXAxis, Nx_SiPMs * Ny_SiPMs, chamberParam, fCheckOverlaps);
 
 	G4Box* solid_SiPMFR4 = new G4Box("solid_SiPMFR4", x_size_tracker / 2.0, y_size_tracker / 2.0, z_size_SiPMFR4 / 2.0);
@@ -229,7 +229,7 @@ G4VPhysicalVolume * Detector_full::Construct()
 
   G4Box* solid_THGEM1_container = new G4Box("solid_THGEM1_container", x_size_THGEM1_container / 2.0, y_size_THGEM1_container / 2.0, z_size_THGEM1_container / 2.0);
   G4LogicalVolume* logic_THGEM1_container = new G4LogicalVolume(solid_THGEM1_container, matLAr, "logic_THGEM1_container", 0, 0, 0);
-  G4VPhysicalVolume* phys_THGEM1_container = new G4PVPlacement(0, position_THGEM1_container, logic_THGEM1_container, gPars::det_dims.THGEM1_cell_container_name,
+  G4VPhysicalVolume* phys_THGEM1_container = new G4PVPlacement(0, position_THGEM1_container, logic_THGEM1_container, gPars::det_dims->THGEM1_cell_container_name,
         logic_LAr_inner, false, 0, fCheckOverlaps);
 
   G4LogicalVolume* logic_THGEM1_copper = new G4LogicalVolume(solid_active_THGEM1, matFR4, "logic_THGEM1_copper", 0, 0, 0);
@@ -250,13 +250,13 @@ G4VPhysicalVolume * Detector_full::Construct()
 	G4Tubs* solid_PMT = new G4Tubs("solid_PMT", 0, radius_PMT, z_size_PMT / 2.0, 0.*deg, 360.*deg);
 	logic_PMT = new G4LogicalVolume(solid_PMT, matAl, "logic_PMT", 0, 0, 0);
 
-	G4VPhysicalVolume* phys_PMT0 = new G4PVPlacement(rotY_90, position_PMT_0, logic_PMT, gPars::det_dims.PMT_device_name,
+	G4VPhysicalVolume* phys_PMT0 = new G4PVPlacement(rotY_90, position_PMT_0, logic_PMT, gPars::det_dims->PMT_device_name,
 		logicWorld, false, 0, fCheckOverlaps);
-	G4VPhysicalVolume* phys_PMT1 = new G4PVPlacement(rotY_90, position_PMT_1, logic_PMT, gPars::det_dims.PMT_device_name,
+	G4VPhysicalVolume* phys_PMT1 = new G4PVPlacement(rotY_90, position_PMT_1, logic_PMT, gPars::det_dims->PMT_device_name,
 		logicWorld, false, 1, fCheckOverlaps);
-	G4VPhysicalVolume* phys_PMT2 = new G4PVPlacement(rotX_90, position_PMT_2, logic_PMT, gPars::det_dims.PMT_device_name,
+	G4VPhysicalVolume* phys_PMT2 = new G4PVPlacement(rotX_90, position_PMT_2, logic_PMT, gPars::det_dims->PMT_device_name,
 		logicWorld, false, 2, fCheckOverlaps);
-	G4VPhysicalVolume* phys_PMT3 = new G4PVPlacement(rotX_90, position_PMT_3, logic_PMT, gPars::det_dims.PMT_device_name,
+	G4VPhysicalVolume* phys_PMT3 = new G4PVPlacement(rotX_90, position_PMT_3, logic_PMT, gPars::det_dims->PMT_device_name,
 		logicWorld, false, 3, fCheckOverlaps);
 
 	//--------------------------------------------------------------------------------
@@ -398,6 +398,20 @@ void Detector_full::SetSizeAndPosition()
 {
 	HalfWorldLength = 17 * cm;
 
+	double width_interface_grid_support = 1.4 * mm; // Interface grid frame width at support pillars
+  double width_interface_grid_frame = 5.0 * mm; // Interface grid frame full width (there are holes drilled for pillars)
+  double LAr_drift_width = 48.0 * mm; // Distance between cathode top and interface grid bottom
+  double max_EL_gap_thickness = 22.0 * mm; // Distance between interface grid top and THGEM1 bottom
+  double THGEM_cathode_width = 0.5 * mm;
+  double THGEM1_active_area_size = 100 * mm;
+
+  int n_SiPMs_rows = 5; // total number = n_SiPMs_rows^2
+  SiPM_size = 6 * mm; // Full size of SiPM active area
+  SiPM_pitch = 10 * mm; // Distance between SiPM centers
+  double EL_gap_thickness = -4 * mm; // Must be negative (single phase). From THGEM1 real bottom
+  double z_top_interface_grid = LAr_drift_width + width_interface_grid_support;
+  double z_bottom_THGEM1 =z_top_interface_grid + max_EL_gap_thickness; //=71.4
+
 	//PMTs
 	radius_PMT = 45 * mm / 2.0;
 	z_size_PMT = 2 * mm;
@@ -419,9 +433,9 @@ void Detector_full::SetSizeAndPosition()
 
 	//Anode_grid
 	thickness_anode_grid = 0.5 * mm;
-	size_anode_grid = 127*mm ;//see Download:\DetectorPhotos\2021\THGEM_Electroconnect
+	size_anode_grid = 127 * mm ;//see Download:\DetectorPhotos\2021\THGEM_Electroconnect
 	size_anode_grid_hole = length_wire;
-	z_anode_grid_bottom = gPars::det_dims.z_bottom_THGEM1 * mm + gPars::det_dims.THGEM1_width_total * mm + 5 * mm;
+	z_anode_grid_bottom = z_bottom_THGEM1 + gPars::det_dims->THGEM1_width_total + 5 * mm;
 	double z_anode_grid_center = z_anode_grid_bottom + thickness_anode_grid / 2.0;
 
 	//PMMA plate
@@ -431,18 +445,16 @@ void Detector_full::SetSizeAndPosition()
 	double z_PMMA_plate_center = z_anode_grid_center + thickness_anode_grid / 2.0 + z_size_PMMA_plate / 2.0;
 
 	//SiPMs
-	Nx_SiPMs = gPars::det_dims.n_SiPMs_rows;
-	Ny_SiPMs = gPars::det_dims.n_SiPMs_rows;
+	Nx_SiPMs = n_SiPMs_rows;
+	Ny_SiPMs = n_SiPMs_rows;
 	thickness_SiPM = 1 * nm;
-	size_SiPM = gPars::det_dims.SiPM_size * mm;
-	chamberSpacing = 10 * mm;
 	double z_SiPM_bottom = z_anode_grid_bottom + thickness_anode_grid + z_size_PMMA_plate + (0.1*mm /*small gap between PMMA and SiPM*/);
 	double z_SiPM_center = z_SiPM_bottom + thickness_SiPM / 2.0;
 	z_size_SiPMFR4 = 2*mm;
 
 	//tracker SiPM
-	x_size_tracker = Nx_SiPMs * chamberSpacing + size_SiPM / 2.0;
-	y_size_tracker = Ny_SiPMs * chamberSpacing + size_SiPM / 2.0;
+	x_size_tracker = Nx_SiPMs * SiPM_pitch + SiPM_size / 2.0;
+	y_size_tracker = Ny_SiPMs * SiPM_pitch + SiPM_size / 2.0;
 	z_size_tracker = 0.1 * mm;
 
 	//tracker Anode_grid
@@ -453,22 +465,22 @@ void Detector_full::SetSizeAndPosition()
 	//tracker THGEM2 (active region with holes)
 	x_size_tracker_THGEM2 = 100 * mm;
 	y_size_tracker_THGEM2 = 100 * mm;
-	z_size_tracker_THGEM2 = gPars::det_dims.THGEM1_width_total * mm;
+	z_size_tracker_THGEM2 = gPars::det_dims->THGEM1_width_total;
 
 	// THGEM1
 	x_size_THGEM1 = size_anode_grid;
   y_size_THGEM1 = size_anode_grid;
-  z_size_THGEM1 = gPars::det_dims.THGEM1_width_total * mm;
-  x_size_THGEM1_container = gPars::det_dims.THGEM1_active_area_size * mm;
-  y_size_THGEM1_container = gPars::det_dims.THGEM1_active_area_size * mm;
-  z_size_THGEM1_container = gPars::det_dims.THGEM1_container_width * mm;
+  z_size_THGEM1 = gPars::det_dims->THGEM1_width_total;
+  x_size_THGEM1_container = THGEM1_active_area_size;
+  y_size_THGEM1_container = THGEM1_active_area_size;
+  z_size_THGEM1_container = gPars::det_dims->THGEM1_container_width;
 
 	//Interface_grid
 	x_size_tracker_Interface_grid = x_size_tracker_THGEM2;
 	y_size_tracker_Interface_grid = y_size_tracker_THGEM2;
 	x_size_Interface_grid_substrate = size_anode_grid;
 	y_size_Interface_grid_substrate = size_anode_grid;
-	z_size_Interface_grid_substrate = gPars::det_dims.width_interface_grid_frame * mm;
+	z_size_Interface_grid_substrate = width_interface_grid_frame;
 
 	//THGEM_without_holes
 	x_size_THGEM_without_holes = size_anode_grid;
@@ -494,7 +506,7 @@ void Detector_full::SetSizeAndPosition()
 	//LAr_inner
 	x_size_LAr_inner = x_size_Insulator_box_inner;
 	y_size_LAr_inner = y_size_Insulator_box_inner;
-	z_size_LAr_inner = gPars::det_dims.z_top_interface_grid * mm + (22.0 - gPars::det_dims.EL_gap_thickness);
+	z_size_LAr_inner = z_top_interface_grid + (max_EL_gap_thickness - EL_gap_thickness);
 
 	//LArOuter
 	x_size_LAr_outer_in = x_size_Insulator_box_outer;
@@ -521,7 +533,7 @@ void Detector_full::SetSizeAndPosition()
 	//Cathode
 	x_size_Cathode = x_size_LAr_outer_out;
 	y_size_Cathode = y_size_LAr_outer_out;
-	z_size_Cathode = 0.5 * mm;
+	z_size_Cathode = THGEM_cathode_width;
 
 	//LArInactive
 	x_size_LArInactive = x_size_LAr_outer_out;
@@ -591,24 +603,19 @@ void Detector_full::SetSizeAndPosition()
 	radiusTPB = 35;
 	z_size_TPB = 0.2;
 
-	position_SingleTHGEMCell = gPars::det_dims.THGEM1_single_cell_position;
+	position_SingleTHGEMCell = G4ThreeVector(150 * mm, 150 * mm, 150 * mm);
 
 	position_anode_grid = G4ThreeVector(0, 0, z_anode_grid_center);
 	position_SiPM_container = G4ThreeVector(0, 0, z_SiPM_center);
 	position_PMMA_plate = G4ThreeVector(0, 0, z_PMMA_plate_center);
 	position_SiPMFR4 = G4ThreeVector(0, 0, z_SiPM_center + z_size_tracker /2.0 + z_size_SiPMFR4/2.0);
 
-	position_THGEM1_frame = G4ThreeVector(0, 0, gPars::det_dims.z_bottom_THGEM1 * mm + z_size_THGEM1 / 2.0 - z_size_LAr_inner / 2.0);
-  position_THGEM1_container = G4ThreeVector(0, 0, gPars::det_dims.z_bottom_THGEM1 * mm + z_size_THGEM1 / 2.0 - z_size_LAr_inner / 2.0);
+	position_THGEM1_frame = G4ThreeVector(0, 0, z_bottom_THGEM1 + z_size_THGEM1 / 2.0 - z_size_LAr_inner / 2.0);
+  position_THGEM1_container = G4ThreeVector(0, 0, z_bottom_THGEM1 + z_size_THGEM1 / 2.0 - z_size_LAr_inner / 2.0);
   position_THGEM1_copper_plate = G4ThreeVector(0, 0, 0); //is inside THGEM1_container
 
-  gPars::general.THGEM1_hole_center = //x!=0 because x=0 is just across anode wire before SiPM.
-      G4ThreeVector(gPars::det_dims.THGEM1_hole_pitch * mm, 0, gPars::det_dims.z_bottom_THGEM1 * mm + gPars::det_dims.THGEM1_width_total / 2.0 * mm);
-  gPars::general.EL_gap_center =
-      G4ThreeVector(gPars::det_dims.THGEM1_hole_pitch * mm, 0, (gPars::det_dims.z_top_interface_grid + gPars::det_dims.z_bottom_THGEM1) / 2.0 * mm);
-
-	position_interface_wire_container = G4ThreeVector(0, 0, gPars::det_dims.z_top_interface_grid * mm - radius_Interface_wire - z_size_LAr_inner / 2.0);
-	position_interface_frame = G4ThreeVector(0, 0, gPars::det_dims.z_top_interface_grid * mm - z_size_Interface_grid_substrate / 2.0 - z_size_LAr_inner / 2.0);
+	position_interface_wire_container = G4ThreeVector(0, 0, z_top_interface_grid - radius_Interface_wire - z_size_LAr_inner / 2.0);
+	position_interface_frame = G4ThreeVector(0, 0, z_top_interface_grid - z_size_Interface_grid_substrate / 2.0 - z_size_LAr_inner / 2.0);
 
 
 	position_Insulator_box = G4ThreeVector(0, 0, z_Insulator_box_center);
@@ -646,7 +653,7 @@ void Detector_full::SetSizeAndPosition()
 	//PMTAnodeGridTracker
 	const double x_pos_PMTAnodeGridTracker = (x_pos_PMT - z_size_PMT / 2.0 - PMTAnodeGridTrackerThickness / 2.0);
 	const double y_pos_PMTAnodeGridTracker = 0;
-	const double z_pos_PMTAnodeGridTracker = PMTAnodeGridTrackerGasXSize /2.0 + z_size_LAr_inner;
+	const double z_pos_PMTAnodeGridTracker = PMTAnodeGridTrackerGasXSize / 2.0 + z_size_LAr_inner;
 	position_PMTAnodeGridTrackerGas_1 = G4ThreeVector(x_pos_PMTAnodeGridTracker, y_pos_PMTAnodeGridTracker, z_pos_PMTAnodeGridTracker);
 	position_PMTAnodeGridTrackerGasInner_1 = G4ThreeVector(x_pos_PMTAnodeGridTracker - PMTAnodeGridTrackerThickness, y_pos_PMTAnodeGridTracker, z_pos_PMTAnodeGridTracker);
 
@@ -662,5 +669,23 @@ void Detector_full::SetSizeAndPosition()
 	positionSteelBox1 = G4ThreeVector(xPosSteelBox, 0, z_pos_PMT);
 	positionSteelBox2 = G4ThreeVector(0, -xPosSteelBox, z_pos_PMT);
 	positionSteelBox3 = G4ThreeVector(0, xPosSteelBox, z_pos_PMT);
+
+	if ((-EL_gap_thickness < (gPars::det_dims->THGEM1_width_total + (gPars::det_dims->THGEM1_container_width - gPars::det_dims->THGEM1_width_total)*0.5)) &&
+      (-EL_gap_thickness > (-(gPars::det_dims->THGEM1_container_width - gPars::det_dims->THGEM1_width_total)*0.5))) {
+    G4Exception("gPars::InitGlobals(): ",
+          "InvalidSetup", FatalException, "LAr level intersects with THGEM1 (or its container)! This case is not supported.");
+    return;
+  }
+
+	gPars::det_dims->THGEM1_hole_center = //x!=0 because x=0 is just across anode wire before SiPM.
+      G4ThreeVector(gPars::det_dims->THGEM1_hole_pitch, 0, z_bottom_THGEM1 + gPars::det_dims->THGEM1_width_total / 2.0);
+  gPars::det_dims->EL_gap_center =
+      G4ThreeVector(gPars::det_dims->THGEM1_hole_pitch, 0, (z_top_interface_grid + z_bottom_THGEM1) / 2.0);
+  gPars::det_dims->Cathode_top_center =
+      G4ThreeVector(0, 0, 0);
+  gPars::det_dims->THGEM1_center = G4ThreeVector(0, 0, z_bottom_THGEM1 + gPars::det_dims->THGEM1_width_total / 2.0);
+  gPars::det_dims->THGEM1_single_cell_position = position_SingleTHGEMCell;
+  gPars::det_dims->n_PMTs = 4;
+  gPars::det_dims->n_SiPMs = Nx_SiPMs * Ny_SiPMs;
 }
 

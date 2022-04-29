@@ -32,6 +32,7 @@
 
 #include "GlobalParameters.hh"
 #include "VGeneratePrimaries.hh"
+#include "SourceSettings.hh"
 
 class GenElectronsPatterns : public VGeneratePrimaries
 {
@@ -46,6 +47,7 @@ public:
     Uniform2Rings,
     Uniform3Rings,
   };
+  GenElectronsPatterns() = delete;
   GenElectronsPatterns(PatternElectron pattern);
   ~GenElectronsPatterns();
 
@@ -65,6 +67,13 @@ protected:
   G4ThreeVector GenPosition_Uniform2Rings(int event_number) const;
   G4ThreeVector GenPosition_Uniform3Rings(int event_number) const;
   PatternElectron mPattern;
+};
+
+class SettingsElectronPattern: public VSourceSettings
+{
+public:
+  GenElectronsPatterns::PatternElectron pattern;
+  SettingsElectronPattern() : pattern(GenElectronsPatterns::UniformSquareGrid) { generator_type= ElectronPatterns; }
 };
 
 #endif // GenElectronPatterns_h

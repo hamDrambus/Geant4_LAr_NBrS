@@ -25,13 +25,13 @@ VDetectorConstruction::~VDetectorConstruction()
 
 void VDetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elmer simulation
 {
-  double cell_size_x = gPars::det_dims.THGEM1_hole_pitch / 2.0 * mm;
+  double cell_size_x = gPars::det_dims->THGEM1_hole_pitch / 2.0;
   double cell_size_y = cell_size_x * std::sqrt(3.0);
   double cell_size_z = z_size_THGEM1_container;
-  double diel_size_z = gPars::det_dims.THGEM1_dielectric_thickness * mm;
-  double radius = gPars::det_dims.THGEM1_hole_radius * mm;
-  double radius_cu = radius + gPars::det_dims.THGEM1_hole_rim * mm;
-  double cu_size_z = gPars::det_dims.THGEM1_copper_thickness * mm;
+  double diel_size_z = gPars::det_dims->THGEM1_dielectric_thickness;
+  double radius = gPars::det_dims->THGEM1_hole_radius;
+  double radius_cu = radius + gPars::det_dims->THGEM1_hole_rim;
+  double cu_size_z = gPars::det_dims->THGEM1_copper_thickness;
 
   G4ThreeVector zero(0.0, 0.0, 0.0);
   G4ThreeVector hole_1_pos(cell_size_x / 2.0, cell_size_y / 2.0, 0.0);
@@ -44,7 +44,7 @@ void VDetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elm
 
   G4Box* solid_THGEM1_cell_LAr = new G4Box("solid_THGEM1_cell_LAr", cell_size_x / 2.0, cell_size_y / 2.0, cell_size_z / 2.0);
   logic_THGEM1_cell_LAr = new G4LogicalVolume(solid_THGEM1_cell_LAr, G4Material::GetMaterial("LAr"), "logic_THGEM1_cell_LAr", 0, 0, 0);
-  G4VPhysicalVolume* phys_THGEM1_cell_LAr = new G4PVPlacement(0, zero, logic_THGEM1_cell_LAr, gPars::det_dims.THGEM1_cell_name,
+  G4VPhysicalVolume* phys_THGEM1_cell_LAr = new G4PVPlacement(0, zero, logic_THGEM1_cell_LAr, gPars::det_dims->THGEM1_cell_name,
       logic_THGEM1_cell, false, 0, fCheckOverlaps);
 
   G4Box* solid_THGEM1_diel_box = new G4Box("solid_THGEM1_diel_box", cell_size_x / 2.0, cell_size_y / 2.0, diel_size_z / 2.0);

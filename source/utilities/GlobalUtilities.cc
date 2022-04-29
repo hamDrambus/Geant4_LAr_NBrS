@@ -169,6 +169,21 @@ void ensure_folder(std::string folder)
 #endif //defined(_WIN32)||defined(_WIN64)
 }
 
+void rename_file(std::string origin, std::string destination)
+{
+#if defined(__WIN32__)
+  //TODO: implement
+#else
+  ensure_file(destination);
+  int code = system(("rm -f \"" + destination + "\"").c_str());
+  code = system(("mv \"" + origin + "\" " + destination).c_str());
+  if (code) {
+    std::cerr << "mv error: " << code << std::endl;
+    std::cerr << "Error renaming \""<<origin<<"\" to \""<<destination<<"\"" << std::endl;
+  }
+#endif //_WIN32__
+}
+
 char* c_str_cp (const std::string &str)
 {
   std::size_t i_end_= str.size();

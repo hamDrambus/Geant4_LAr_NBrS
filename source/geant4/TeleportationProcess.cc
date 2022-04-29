@@ -88,12 +88,12 @@ G4VParticleChange* TeleportationProcess::PostStepDoIt(const G4Track& aTrack, con
       "Invalid Surface Normal - Geometry must return valid surface normal");
   }
 
-  if (prevPVolume->GetName() == gPars::det_dims.THGEM1_cell_name
+  if (prevPVolume->GetName() == gPars::det_dims->THGEM1_cell_name
       && globalNormal*fOldState.momentum > 0.0
       && postPVolume->GetLogicalVolume()->IsAncestor(prevPVolume)) {
     fNewState = gData.THGEM1_mapping->MapFromCell(fOldState, false);
   }
-  if (postPVolume->GetName() == gPars::det_dims.THGEM1_cell_container_name
+  if (postPVolume->GetName() == gPars::det_dims->THGEM1_cell_container_name
       && globalNormal*fOldState.momentum > 0.0
       && !postPVolume->GetLogicalVolume()->IsAncestor(prevPVolume)) {
     fNewState = gData.THGEM1_mapping->MapToCell(fOldState, true);

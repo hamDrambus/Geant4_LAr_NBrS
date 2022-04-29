@@ -1,4 +1,5 @@
 #include <geant4/Run.hh>
+#include <geant4/generator/GenNBrS_InTHGEM.hh>
 
 Run::Run() : hit_collection_ID(-1)
 {
@@ -77,8 +78,8 @@ void Run::Results::FindSensorsCoordinates(void) //Sets global positions of SiPMs
 {
   SiPM_positions.clear();
   PMT_positions.clear();
-  std::vector<G4PhysicalVolumesSearchScene::Findings> findingsVectorSiPM = FindAllPVs(gPars::det_dims.SiPM_device_name);
-  std::vector<G4PhysicalVolumesSearchScene::Findings> findingsVectorPMT = FindAllPVs(gPars::det_dims.PMT_device_name);
+  std::vector<G4PhysicalVolumesSearchScene::Findings> findingsVectorSiPM = FindAllPVs(gPars::det_dims->SiPM_device_name);
+  std::vector<G4PhysicalVolumesSearchScene::Findings> findingsVectorPMT = FindAllPVs(gPars::det_dims->PMT_device_name);
   G4int max_number = -1;
   for (const auto& findings: findingsVectorSiPM)
     max_number = std::max(findings.fFoundPVCopyNo, max_number);
@@ -123,7 +124,10 @@ void Run::Results::ClearAndInit(void)
 void Run::Results::Print(std::ostream &str) const
 {
   str<<"************************************************"<<std::endl;
-  str<<"NBrS real yield was multiplied by: "<<gPars::source.NBrS_yield_factor<<std::endl;
+  if (VSourceSettings::NBrS == gPars::source->generator_type) {
+    SettingsNBrSGenerator *settings = static_cast<SettingsNBrSGenerator*>(gPars::source);
+    str<<"NBrS real yield was multiplied by: "<<settings->NBrS_yield_factor<<std::endl;
+  }
   str<<"Run information from detailed records:"<<std::endl;
   str<<"Electrons generated:"<<GetNGeneratedElectrons()<<std::endl;
   str<<"Photons generated:"<<GetNGeneratedPhotons()<<std::endl;

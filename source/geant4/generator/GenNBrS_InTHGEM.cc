@@ -1,7 +1,7 @@
 #include <geant4/generator/GenNBrS_InTHGEM.hh>
 
 GenNBrS_InTHGEM::GenNBrS_InTHGEM() :
-  VGeneratePrimaries(0)
+  VGeneratePrimaries()
 {}
 
 GenNBrS_InTHGEM::~GenNBrS_InTHGEM()
@@ -32,24 +32,24 @@ void GenNBrS_InTHGEM::GeneratePrimaries(G4Event* anEvent)
 	// Set electron position
   double x, y, z;
   double phi1 = 2 * M_PI * G4UniformRand();
-  double R = std::sqrt(G4UniformRand()) * gPars::source.xy_radius;
-  x = gPars::source.x_center + R*std::cos(phi1);
-  y = gPars::source.y_center + R*std::sin(phi1);
-  z = gPars::source.z_center + gPars::source.z_width*(G4UniformRand() - 0.5);
+  double R = std::sqrt(G4UniformRand()) * gPars::source->xy_radius;
+  x = gPars::source->x_center + R*std::cos(phi1);
+  y = gPars::source->y_center + R*std::sin(phi1);
+  z = gPars::source->z_center + gPars::source->z_width*(G4UniformRand() - 0.5);
 
-  G4ThreeVector electron_position = G4ThreeVector(x * mm, y * mm, z * mm);
-  if (!mElectronDrift->DoDriftElectron(x, y, z, 0))
+  G4ThreeVector e_pos = G4ThreeVector(x, y, z) + gPars::det_dims->drift_start_center;
+  if (!mElectronDrift->DoDriftElectron(e_pos.x(), e_pos.y(), e_pos.z(), 0))
     return;
 	if (gPars::general.doViewElectronDrift)
-    RecordElectron(electron_position, anEvent->GetEventID(), seed, mElectronDrift->GetDriftTrack());
+    RecordElectron(e_pos, anEvent->GetEventID(), seed, mElectronDrift->GetDriftTrack());
   else
-    RecordElectron(electron_position, anEvent->GetEventID(), seed);
+    RecordElectron(e_pos, anEvent->GetEventID(), seed);
 
   const std::vector<DriftTrack::driftPoint> &TR = mElectronDrift->GetDriftTrack().track;
 	for (std::size_t i=1, i_end_ = TR.size(); i!=i_end_ && i_end_!=0; ++i) {
 	  double dl = (TR[i].pos - TR[i-1].pos).mag();
 	  double E_avg = 0.5 * (TR[i].field.mag() + TR[i-1].field.mag());
-	  double yield = gPars::source.NBrS_yield_factor * gData.Ar_props.yield(E_avg);
+	  double yield = mNBrS_yield_factor * gData.Ar_props.yield(E_avg);
 	  double N_ph_avg = yield * dl; // All variables are in Geant4 units.
 	  G4long N_ph_actual = G4Poisson(N_ph_avg);
 	  for (G4long ph = 0; ph!=N_ph_actual; ++ph) {
