@@ -41,4 +41,8 @@ Generally speaking simulation is configured from several places:
 
 1) and 2) are easiest to change without breaking anything and are supposed to be chagned most often.
 3) is requried if physical properties must be chadged.
-4) is requried for field maps. Must be done for newly loaded project. 
+4) is requried for field maps. Must be done for newly loaded project.
+
+UPD: parameters are now set in setting.xml file
+run as:
+...build/Geant_simulation path/to/settings.xml | tee path/to/log.txt

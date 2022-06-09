@@ -15,5 +15,7 @@ rm -rf ${SCRIPTPATH}-build
 mkdir ${SCRIPTPATH}-build
 cd ${SCRIPTPATH}-build
 # set -x displays cmake command. Brackets create subshell so that there is no need ot call set +x
-(set -x; cmake -G "Eclipse CDT4 - Unix Makefiles" -DCMAKE_PREFIX_PATH=${GEANT4PATH} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBOOST_ROOT=${BOOSTPATH} -DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=TRUE -DCMAKE_ECLIPSE_MAKE_ARGUMENTS=-j6 ../${PROJECTNAME})
+#-DCMAKE_BUILD_TYPE=RelWithDebInfo
+#-DCMAKE_BUILD_TYPE=Debug
+(set -x; cmake -G "Eclipse CDT4 - Unix Makefiles" -DCMAKE_PREFIX_PATH=${GEANT4PATH} -DCMAKE_BUILD_TYPE=Debug -DBOOST_ROOT=${BOOSTPATH} -DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=TRUE -DCMAKE_ECLIPSE_MAKE_ARGUMENTS=-j6 ../${PROJECTNAME})
 

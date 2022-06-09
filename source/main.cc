@@ -33,9 +33,7 @@ int main(int argc, char** argv)
 	// Choose the Random engine
 	G4Random::setTheEngine(new CLHEP::RanecuEngine);
 	// Seed the random number generator manually
-	//G4long myseed = 43;
-	G4long myseed = time(NULL);
-	G4Random::setTheSeed(myseed);
+	G4Random::setTheSeed(gPars::general.initial_seed);
 
 	// Construct the default run manager
 	G4MTRunManager *runManager = new G4MTRunManager;

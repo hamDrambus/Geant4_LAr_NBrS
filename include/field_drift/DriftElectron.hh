@@ -28,7 +28,10 @@ static const int StatusLeftDriftMedium = -5;
 static const int StatusAttached = -7;
 static const int StatusBelowTransportCut = -16;
 static const int StatusOutsideTimeWindow = -17;
+static const int StatusStuck = -18;
 
+static const unsigned int StuckCheckIterations = 40;
+static const unsigned int StuckCheckFrequency = 40;
 static const double BoundaryDistance = 1.e-8;
 
 class DriftElectron {
@@ -94,10 +97,13 @@ class DriftElectron {
   double m_tMin, m_tMax;
 
   bool m_debug;
+  unsigned int stuck_check_counter;
 
   // Compute a drift line with starting point (x0, y0, z0, t0)
   bool DriftLine(const double x0, const double y0, const double z0,
                  const double t0, const int type);
+  // Checks that drifting particle is not stuck in the same place due to field errors and element finite size
+  bool IsStuck(void);
 };
 
 #endif // DRIFT_ELECTRON_H_

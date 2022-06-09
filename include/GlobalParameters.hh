@@ -50,6 +50,7 @@ namespace gPars
     bool record_electrons; // if false, only photons are recorded to files and kept in memory
     bool record_detailed; // if false, only number of hits per channel is kept track of
     bool print_drift_track; // works only for Detector_THGEM1_detailed and GenElectronsPatterns testing classes
+    G4long initial_seed; // if not specified in setups random time(NULL) is used as starting seed for the simulation
   };
 
 	struct ElmerFieldMap {

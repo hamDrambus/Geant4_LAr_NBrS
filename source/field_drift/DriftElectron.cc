@@ -11,7 +11,8 @@ DriftElectron::DriftElectron()
       m_field_rel_delta(DBL_MAX),
       m_hasTimeWindow(false),
       m_tMin(-DBL_MAX),
-      m_tMax(DBL_MAX)
+      m_tMax(DBL_MAX),
+      stuck_check_counter(0)
 {
   m_className = "DriftElectron";
   m_drift.track.reserve(10000);
@@ -98,7 +99,7 @@ bool DriftElectron::DoDriftElectron(const double x0, const double y0,
     std::cerr << m_className << "::DriftElectron:\n";
     std::cerr << "    Field map is not available.\n";
     return false;
-  }
+  } //1.8004977683123558  -3.8561206537818222 68.410000000000011
   if (!DriftLine(x0, y0, z0, t0, -1)) {
     if (m_debug)
       std::cout<<"Electron drift failed."<<std::endl;
@@ -362,6 +363,19 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
     // Check if the time is still within the specified interval.
     if (m_hasTimeWindow && point.time > m_tMax) {
       abortReason = StatusOutsideTimeWindow;
+      ok = false;
+      break;
+    }
+    if (IsStuck()) {
+      std::cerr << m_className <<"::DriftLine(\n";
+      std::cerr << "    Drifting particle is stuck! Aborting drift.\n"
+                << "    Starting position: (" << m_drift.track.begin()->pos.x() / mm << ", " << m_drift.track.begin()->pos.y() / mm << ", "
+                << m_drift.track.begin()->pos.z() / mm << ")\n"
+                << "    Current position: (" << m_drift.track.back().pos.x() / mm << ", " << m_drift.track.back().pos.y() / mm << ", "
+                << m_drift.track.back().pos.z() / mm << ").\n"
+                << "    Diffusion:" << (m_useDiffusion ? "true" : "false") << "\n";
+      abortReason = StatusStuck;
+      ok = false;
       break;
     }
   }
@@ -377,6 +391,34 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
 
   if (!ok) return false;
   return true;
+}
+
+bool DriftElectron::IsStuck(void)
+{
+  if (stuck_check_counter < StuckCheckFrequency) {
+    ++stuck_check_counter;
+    return false;
+  }
+  stuck_check_counter = 0;
+  if (m_drift.track.size() < StuckCheckIterations || StuckCheckIterations < 3)
+    return false;
+  double length = 0;
+  double min_x = m_drift.track.back().pos.x(), max_x = min_x;
+  double min_y = m_drift.track.back().pos.y(), max_y = min_y;
+  double min_z = m_drift.track.back().pos.z(), max_z = min_z;
+  for (std::size_t i = m_drift.track.size() - 2, i_end_ = m_drift.track.size() - StuckCheckIterations; i!=i_end_; --i) {
+    length += (m_drift.track[i].pos - m_drift.track[i+1].pos).mag();
+    min_x = std::min(min_x, m_drift.track[i].pos.x());
+    max_x = std::max(max_x, m_drift.track[i].pos.x());
+    min_y = std::min(min_y, m_drift.track[i].pos.y());
+    max_y = std::max(max_y, m_drift.track[i].pos.y());
+    min_z = std::min(min_z, m_drift.track[i].pos.z());
+    max_z = std::max(max_z, m_drift.track[i].pos.z());
+  }
+  double bound = (max_x - min_x + max_y - min_y + max_z - min_z) / 3;
+  if (length > 5 * bound * sqrt(StuckCheckIterations)) // In random walk (length ~=~ bound * sqrt(StuckCheckIterations))
+    return true;
+  return false;
 }
 
 void DriftElectron::Draw(void) const

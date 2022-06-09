@@ -36,6 +36,7 @@ namespace gPars
       general.enable_e_diffusion = gen.get<bool>("enable_e_diffusion", true);
       general.thread_number = gen.get<int>("thread_number", 8);
       general.photon_max_time = gen.get<double>("photon_max_time_us", 3.0) * us;
+      general.initial_seed = gen.get<long>("initial_seed", time(NULL));
       }
       {
       ptree deb = pt.get_child("Settings.Debug");

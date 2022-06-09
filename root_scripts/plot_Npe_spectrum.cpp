@@ -28,8 +28,8 @@ void plot_Npe_spectrum(void)
   std::pair<double, double> Y_axis_zoom(0, 0);
   int X_n_bins = 100, Y_n_bins = 1000;
 
-  //std::string input_file = "../results/6180V/generated.dat";
-  std::string input_file = "../results/6180V/recorded.dat";
+  //std::string input_file = "../results/v8/6180V/generated.dat";
+  std::string input_file = "../results/v8/1765V/recorded.dat";
   PlotInfo plot_info;
   //plot_info.selection = SelectSiPMs;
   plot_info.selection = SelectPMTs;

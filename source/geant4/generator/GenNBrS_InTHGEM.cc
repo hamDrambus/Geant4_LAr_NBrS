@@ -27,19 +27,28 @@ void GenNBrS_InTHGEM::GeneratePrimaries(G4Event* anEvent)
     return;
 	}
 
-	// Generate electron
-	G4long seed = GetAndFixSeed(); // Results may be reproduced by fixating seed to this value and copying the rest of parameters.
-	// Set electron position
-  double x, y, z;
-  double phi1 = 2 * M_PI * G4UniformRand();
-  double R = std::sqrt(G4UniformRand()) * gPars::source->xy_radius;
-  x = gPars::source->x_center + R*std::cos(phi1);
-  y = gPars::source->y_center + R*std::sin(phi1);
-  z = gPars::source->z_center + gPars::source->z_width*(G4UniformRand() - 0.5);
+	G4ThreeVector e_pos;
+	G4long seed;
+	bool ok = false;
+	int j = 0;
+	do {
+    // Generate electron
+    seed = GetAndFixSeed(); // Results may be reproduced by fixating seed to this value and copying the rest of parameters.
+    // Set electron position
+    double x, y, z;
+    double phi1 = 2 * M_PI * G4UniformRand();
+    double R = std::sqrt(G4UniformRand()) * gPars::source->xy_radius;
+    x = gPars::source->x_center + R*std::cos(phi1);
+    y = gPars::source->y_center + R*std::sin(phi1);
+    z = gPars::source->z_center + gPars::source->z_width*(G4UniformRand() - 0.5);
 
-  G4ThreeVector e_pos = G4ThreeVector(x, y, z) + gPars::det_dims->drift_start_center;
-  if (!mElectronDrift->DoDriftElectron(e_pos.x(), e_pos.y(), e_pos.z(), 0))
+    e_pos = G4ThreeVector(x, y, z) + gPars::det_dims->drift_start_center;
+    ok = mElectronDrift->DoDriftElectron(e_pos.x(), e_pos.y(), e_pos.z(), 0);
+	  ++j;
+	} while (!ok && j < 50); // j is to avoid deadlock when there are issues with settings.
+  if (!ok)
     return;
+
 	if (gPars::general.doViewElectronDrift)
     RecordElectron(e_pos, anEvent->GetEventID(), seed, mElectronDrift->GetDriftTrack());
   else

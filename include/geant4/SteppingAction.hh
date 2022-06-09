@@ -1,6 +1,7 @@
 #ifndef SteppingAction_h
 #define SteppingAction_h
 
+
 #include <G4Material.hh>
 #include <G4LogicalVolume.hh>
 #include <G4ThreeVector.hh>
@@ -27,6 +28,13 @@ class SteppingAction : public G4UserSteppingAction
 public:
   SteppingAction();
   virtual void UserSteppingAction(const G4Step*);
+  bool CheckStuckParticle(const G4Step*);
+protected:
+  const int N_iterations;
+  const double epsilon;
+  std::size_t stuck_N_iterations;
+  std::deque<G4ThreeVector> positions;
+  std::deque<G4ThreeVector> momentums;
 };
 
 #endif
