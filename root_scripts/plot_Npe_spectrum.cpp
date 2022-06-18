@@ -13,11 +13,14 @@ void plot_Npe_spectrum(void)
 	gStyle->SetGridWidth(1);
 	gStyle->SetOptStat("e");
 
-  //std::string plot_name = "SiPM matrix photon hits spectrum";
-  std::string plot_name = "4PMTs photon hits spectrum";
+  double NBrS_yield_factor = 10;
+  bool isPMT = 1;
+  //std::string input_file = "../results/v8/6180V/generated.dat";
+  std::string input_file = "../results/v9.0_transfer_with_diffusion/1765V/recorded.dat";
+
+  std::string plot_name = isPMT ? "4PMTs photon hits spectrum" : "SiPM matrix photon hits spectrum";
   //std::string plot_name = "Generated photon spectrum";
-  //std::string QE_filename = "../data/quantum_efficiency/SiPM_s13360-6050pe_46V.dat";
-  std::string QE_filename = "../data/quantum_efficiency/PMT_R6041_506MOD.dat";
+  std::string QE_filename = isPMT ? "../data/quantum_efficiency/PMT_R6041_506MOD.dat" : "../data/quantum_efficiency/SiPM_s13360-6050pe_46V.dat";
   bool linear_x = true, linear_y = true, linear_z = true;
   std::string X_axis_title = "#lambda [nm]";
   std::string Y_axis_title = "Counts [PE]";
@@ -28,11 +31,8 @@ void plot_Npe_spectrum(void)
   std::pair<double, double> Y_axis_zoom(0, 0);
   int X_n_bins = 100, Y_n_bins = 1000;
 
-  //std::string input_file = "../results/v8/6180V/generated.dat";
-  std::string input_file = "../results/v8/1765V/recorded.dat";
   PlotInfo plot_info;
-  //plot_info.selection = SelectSiPMs;
-  plot_info.selection = SelectPMTs;
+  plot_info.selection = isPMT ? SelectPMTs : SelectSiPMs;
   plot_info.histogram = NULL;
   plot_info.plot_par_x = PlotParameter::gammaSpectrum;
   plot_info.plot_par_y = PlotParameter::None;
@@ -91,6 +91,21 @@ void plot_Npe_spectrum(void)
   std::cout<<"Input PE number = "<<CalculateNpe(hist_00)<<std::endl;
   double N_real = CalculateNpe(hist_00, SiPM_QE);
   std::cout<<"Resulting PE number = "<<N_real<<std::endl;
+  double QE = ((double)N_real)/CalculateNpe(hist_00);
+  std::cout<<"<QE> = "<<QE<<std::endl;
+  std::cout<<"*************************************"<<std::endl;
+  std::cout<<"Npe[-1] = "<<GetNpeCh(plot_info, -1)<<std::endl;
+  std::cout<<"NBrS real yield was multiplied by: "<<NBrS_yield_factor<<std::endl;
+  std::cout<<"Number of electrons = "<<plot_info.N_electrons<<std::endl;
+  if (isPMT) {
+    std::cout<<"PMT recorded Npe raw = "<<GetNpePMTraw(plot_info)<<std::endl;
+    std::cout<<"Average Npe per 1 PMT (grid is accounted for) = "<<GetNpePMTavg(plot_info)<<std::endl;
+    std::cout<<"Average real Npe per 1 PMT per 1 e = "<<GetNpePMTavg(plot_info) * QE / plot_info.N_electrons / NBrS_yield_factor <<std::endl;
+  } else {
+    std::cout<<"SiPMs recorded Npe raw = "<<GetNpeSiPMs(plot_info)<<std::endl;
+    std::cout<<"Npe for 23 SiPMs = "<<GetNpeSiPMs23(plot_info)<<std::endl;
+    std::cout<<"Average real Npe for 23 SiPMs per 1 e = "<<GetNpeSiPMs23(plot_info) * QE / plot_info.N_electrons / NBrS_yield_factor <<std::endl;
+  }
 
   TPaveStats *ps = (TPaveStats*)c_00->GetPrimitive("stats");
   AddStatValue(ps, "Detected", N_real);

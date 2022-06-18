@@ -56,6 +56,9 @@ protected:
   //Normalized as integral{0, +inf} {e^(1/2)*f'(e) de} = 1. Usual distribution f(e) = e^(1/2)*f'(e).
   DataVector CalcFDistribution(double field) const; // eq. 5 in Atrazhev1985
   DataVector CalcDiffXS(double field) const; // Spectrum normalized to yield. Integrate to get yield, normalize to unit area to get spectrum.
+  DataVector CalcDiffXS_ElasticFormula(double field) const; // Default: uses elastic XS for NBrS XS calculation
+  DataVector CalcDiffXS_TransferFormula(double field) const; // Uses momentum transfer XS for NBrS XS calculation (correct, but only for hv << E of electron https://doi.org/10.48550/arXiv.2206.01388)
+  DataVector CalcDiffXS_ExactFormula(double field) const; // TODO: requires potential in LAr as well as radial wave functions
   double CalcDriftVelocity(double field) const;
   double CalcDiffusionT(double field) const;
   double CalcDiffusionL(double field) const;
@@ -88,6 +91,8 @@ protected:
   static const std::string filename_spectra;
   static const std::string filename_electron_distributions;
   static const std::string filename_F_distributions;
+  static const std::string filename_XS_energy;
+  static const std::string filename_XS_momentum;
 };
 
 #endif // ArgonPropertiesTables_h

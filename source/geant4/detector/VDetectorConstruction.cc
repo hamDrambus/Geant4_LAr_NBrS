@@ -48,8 +48,8 @@ void VDetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elm
       logic_THGEM1_cell, false, 0, fCheckOverlaps);
 
   G4Box* solid_THGEM1_diel_box = new G4Box("solid_THGEM1_diel_box", cell_size_x / 2.0, cell_size_y / 2.0, diel_size_z / 2.0);
-  G4Tubs* solid_THGEM1_diel_hole1 = new G4Tubs("solid_THGEM1_diel_hole", 0, radius, diel_size_z / 1.9, 179.*deg, 271.*deg);
-  G4Tubs* solid_THGEM1_diel_hole2 = new G4Tubs("solid_THGEM1_diel_hole", 0, radius, diel_size_z / 1.9, -1.*deg, 91.*deg);
+  G4Tubs* solid_THGEM1_diel_hole1 = new G4Tubs("solid_THGEM1_diel_hole", 0, radius, diel_size_z / 1.9, 177.*deg, 273.*deg);
+  G4Tubs* solid_THGEM1_diel_hole2 = new G4Tubs("solid_THGEM1_diel_hole", 0, radius, diel_size_z / 1.9, -3.*deg, 93.*deg);
   G4SubtractionSolid* solid_THGEM1_diel_tmp = new G4SubtractionSolid("solid_THGEM1_diel_tmp", solid_THGEM1_diel_box, solid_THGEM1_diel_hole1, 0, hole_1_pos);
   G4SubtractionSolid* solid_THGEM1_diel = new G4SubtractionSolid("solid_THGEM1_diel", solid_THGEM1_diel_tmp, solid_THGEM1_diel_hole2, 0, hole_2_pos);
   logic_THGEM1_cell_FR4 = new G4LogicalVolume(solid_THGEM1_diel, G4Material::GetMaterial("FR4"), "logic_THGEM1_cell_FR4", 0, 0, 0);
@@ -57,8 +57,8 @@ void VDetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elm
       logic_THGEM1_cell_LAr, false, 0, fCheckOverlaps);
 
   G4Box* solid_THGEM1_cu_box = new G4Box("solid_THGEM1_cu_box", cell_size_x / 2.0, cell_size_y / 2.0, cu_size_z / 2.0);
-  G4Tubs* solid_THGEM1_cu_hole1 = new G4Tubs("solid_THGEM1_cu_hole", 0, radius_cu, cu_size_z / 1.9, 179.*deg, 271.*deg);
-  G4Tubs* solid_THGEM1_cu_hole2 = new G4Tubs("solid_THGEM1_cu_hole", 0, radius_cu, cu_size_z / 1.9, -1.*deg, 91.*deg);
+  G4Tubs* solid_THGEM1_cu_hole1 = new G4Tubs("solid_THGEM1_cu_hole", 0, radius_cu, cu_size_z / 1.9, 177.*deg, 273.*deg);
+  G4Tubs* solid_THGEM1_cu_hole2 = new G4Tubs("solid_THGEM1_cu_hole", 0, radius_cu, cu_size_z / 1.9, -3.*deg, 93.*deg);
   G4SubtractionSolid* solid_THGEM1_cu_tmp = new G4SubtractionSolid("solid_THGEM1_cu_tmp", solid_THGEM1_cu_box, solid_THGEM1_cu_hole1, 0, hole_1_pos);
   G4SubtractionSolid* solid_THGEM1_cu = new G4SubtractionSolid("solid_THGEM1_cu", solid_THGEM1_cu_tmp, solid_THGEM1_cu_hole2, 0, hole_2_pos);
   logic_THGEM1_cell_copper = new G4LogicalVolume(solid_THGEM1_cu, G4Material::GetMaterial("FR4"), "logic_THGEM1_cell_copper", 0, 0, 0);

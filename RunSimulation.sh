@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #folders are relative to this script
-ResultsFolder=results/v8.1_no_diff
+ResultsFolder=results/v9.0_transfer_with_diffusion
 Binary=../NBrS_THGEM_LAr_v0-build/RelWithDebInfo/Geant_simulation
 declare -a Voltages=(6180 5993 5728 5297 4856 4413 3972 3531 3090 2648 2206 1765)
 
-	# Absolute path to this script, e.g. /home/user/bin/foo.sh
+# Absolute path to this script, e.g. /home/user/bin/foo.sh
 SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/bin
 SCRIPTPATH=$(dirname "$SCRIPT")

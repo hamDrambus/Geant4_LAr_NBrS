@@ -35,6 +35,7 @@ namespace gPars
   struct ProgramSetups {
     std::string this_path;
     std::string data_path;
+    std::string settings_filename;
     std::string output_folder;
     std::string gnuplot_bin;
     int thread_number;
@@ -74,6 +75,11 @@ namespace gPars
 		std::string pmma_uv_absorption_length_filename;
 	};
 
+	enum NBrSFormula {
+	  ElasticXS,
+	  TransferXS
+	};
+
 	struct ArgonProperties {
 	  bool print_calculations;
 	  bool pedantic_calculations; // if true then incorrect computations (such as division by 0,
@@ -86,6 +92,8 @@ namespace gPars
     std::string LAr_diffusion_transversal; // Used only when there is no theoretically calculated one
 	  double atomic_density; // in Geant4 units [mm^-3]
     static constexpr double m_to_M = 5.109989461e5 / 3.726e10; // m_electron / M_Ar_atom ratio (eV to eV)
+    NBrSFormula NBrS_formula;
+    bool force_recalculation;
 	};
 
 	class Results {

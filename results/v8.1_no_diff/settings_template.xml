@@ -79,7 +79,7 @@
     <LAr_diffusion_longitudinal>LAr_drift/LAr_diffusionL_data.txt</LAr_diffusion_longitudinal> <!--OPT In case there is no theoretical values-->
   </ArgonProperties>
   <Debug>
-    <check_geometry_overlap>true</check_geometry_overlap> <!--OPT-->
+    <check_geometry_overlap>false</check_geometry_overlap> <!--OPT-->
     <electron_max_time_ns>MAX</electron_max_time_ns> <!--OPT maximal lifetime of photon. Prevents stuck electrons which normally must not happen-->
     <print_drift_track>false</print_drift_track> <!--OPT print each electron drift track point by point to file-->
     <teleportation_verbosity>0</teleportation_verbosity> <!--OPT to print HexagonalMapping info-->

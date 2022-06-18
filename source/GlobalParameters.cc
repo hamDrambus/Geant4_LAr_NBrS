@@ -87,6 +87,19 @@ namespace gPars
       Ar_props.LAr_drift_velocity = ar_props.get<std::string>("LAr_drift_velocity", "");
       Ar_props.LAr_diffusion_transversal = ar_props.get<std::string>("LAr_diffusion_transversal", "");
       Ar_props.LAr_diffusion_longitudinal = ar_props.get<std::string>("LAr_diffusion_longitudinal", "");
+      std::string NBrS_formula_str = ar_props.get<std::string>("NBrS_formula", "ElasticXS");
+      boost::optional<NBrSFormula> NBrS_formula;
+      if (NBrS_formula_str == "ElasticXS")
+        NBrS_formula = NBrSFormula::ElasticXS;
+      if (NBrS_formula_str == "TransferXS")
+        NBrS_formula = NBrSFormula::TransferXS;
+      if (boost::none == NBrS_formula) {
+        std::cerr<<"LoadSettings:Warning: NBrS_formula=\""<<NBrS_formula_str<<"\" is not supported! Default \"ElasticXS\" is used."<<std::endl;
+        Ar_props.NBrS_formula = NBrSFormula::ElasticXS;
+      } else
+        Ar_props.NBrS_formula = *NBrS_formula;
+      Ar_props.force_recalculation = ar_props.get<bool>("force_recalculation", false);
+
       }
 
       det_dims = CreateDetectorSettings(fname);
@@ -110,26 +123,26 @@ namespace gPars
       Ar_props.LAr_diffusion_longitudinal = general.data_path + Ar_props.LAr_diffusion_longitudinal;
 
     } catch (ptree_bad_path& e) {
-      std::cout << "Settings::Load: ptree_bad_path exception:" << std::endl;
+      std::cout << "LoadSettings: ptree_bad_path exception:" << std::endl;
       std::cout << e.what() << std::endl;
       goto fail_load;
     } catch (ptree_bad_data& e) {
-      std::cout << "Settings::Load: ptree_bad_data exception:" << std::endl;
+      std::cout << "LoadSettings: ptree_bad_data exception:" << std::endl;
       std::cout << e.what() << std::endl;
       goto fail_load;
     } catch (ptree_error& e) {
-      std::cout << "Settings::Load: ptree_error exception:" << std::endl;
+      std::cout << "LoadSettings: ptree_error exception:" << std::endl;
       std::cout << e.what() << std::endl;
       goto fail_load;
     } catch (std::exception& e) {
-      std::cout << "Settings::Load: std::exception:" << std::endl;
+      std::cout << "LoadSettings: std::exception:" << std::endl;
       std::cout << e.what() << std::endl;
       goto fail_load;
     }
-    std::cout << "Settings::Load: Successfully loaded \"" << fname << "\"" << std::endl;
+    std::cout << "LoadSettings: Successfully loaded \"" << fname << "\"" << std::endl;
     return true;
   fail_load:
-    std::cout << "Settings::Load: Failed to load settings \"" << fname << "\"" << std::endl;
+    std::cout << "LoadSettings: Failed to load settings \"" << fname << "\"" << std::endl;
     return false;
 	}
 
@@ -156,7 +169,7 @@ namespace gPars
 #else
 		general.gnuplot_bin = "gnuplot";
 #endif
-
+		general.settings_filename = filename;
 		if (!LoadSettings(filename))
 		  return false;
 

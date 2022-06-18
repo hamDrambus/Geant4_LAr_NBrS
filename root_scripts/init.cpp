@@ -15,6 +15,39 @@ double ev_to_nm(double energy) {
   return 1239.84198 / energy;
 }
 
+int SiPM_index_to_channel (int index) {
+  std::map<int, int> index_to_ch = {
+    {0, 42},
+    {1, 43},
+    {2, 58},
+    {3, 59},
+    {4, 44},
+    {5, 55},
+    {6, 40},
+    {7, 41},
+    {8, 56},
+    {9, 57},
+    {10, 52},
+    {11, 53},
+    {12, 38},
+    {13, 39},
+    {14, 54},
+    {15, 35},
+    {16, 50},
+    {17, 51},
+    {18, 36},
+    {19, 37},
+    {20, 32},
+    {21, 33},
+    {22, 48},
+    {23, 49},
+    {24, 34} };
+  if (index >=0 && index < 25) {
+    return index_to_ch[index];
+  }
+  return -1;
+}
+
 class ElectronInfo {
 public:
   int index;
@@ -101,11 +134,44 @@ bool SelectSiPMs (ElectronInfo& electron, PhotonInfo& photon)
   return true;
 }
 
+int PhotonToChannel (ElectronInfo& electron, PhotonInfo& photon) {
+  const int SiPM_n_rows = 5;
+  const double SiPM_size = 6; // mm
+  const double SiPM_pitch = 10; // mm
+  const double SiPM_matrix_center_x = 0, SiPM_matrix_center_y = 0; // mm
+  const double max_XY = 0.5 * (SiPM_n_rows * SiPM_pitch);
+  const double PMMA_plate_center_z = 78.15;
+
+  if (SelectPMTs(electron, photon)) { // channels as in geant4
+    if (photon.pos_x > 75 && photon.pos_y < 75 && photon.pos_y > -75)
+      return 1;
+    if (photon.pos_x < -75 && photon.pos_y < 75 && photon.pos_y > -75)
+      return 0;
+    if (photon.pos_y < -75 && photon.pos_x < 75 && photon.pos_x > -75)
+      return 2;
+    if (photon.pos_y > 75 && photon.pos_x < 75 && photon.pos_x > -75)
+      return 3;
+  }
+  if (SelectSiPMs(electron, photon)) { // channels as in experiment
+    if (!((photon.pos_y - SiPM_matrix_center_y) > max_XY || (photon.pos_y - SiPM_matrix_center_y) < -max_XY
+        || (photon.pos_x - SiPM_matrix_center_x)> max_XY || (photon.pos_x - SiPM_matrix_center_x) < -max_XY
+        || photon.pos_z < PMMA_plate_center_z)) {
+      int index_x = (int)((photon.pos_x - SiPM_matrix_center_x + max_XY) / SiPM_pitch);
+      int index_y = (int)((photon.pos_y - SiPM_matrix_center_x + max_XY) / SiPM_pitch);
+      int index = index_y * SiPM_n_rows + index_x;
+      return SiPM_index_to_channel(index);
+    }
+  }
+  return -1;
+}
+
 struct PlotInfo {
   TH1* histogram;
   PlotParameter plot_par_x;
   PlotParameter plot_par_y;
   Selector selection;
+  std::map<int, long int> Npes; //per channel. ch 0-3 - PMTs, ch 32-63 - SiPMs
+  unsigned int N_electrons;
 };
 
 double PickValue(PlotParameter par, const ElectronInfo& electron, const PhotonInfo& photon)
@@ -166,6 +232,13 @@ double PickValue(PlotParameter par, const ElectronInfo& electron, const PhotonIn
 
 void FillHist(PlotInfo& plot_info, ElectronInfo& electron, PhotonInfo& photon)
 {
+  int ch = PhotonToChannel(electron, photon);
+  auto e = plot_info.Npes.find(ch);
+  if (e == plot_info.Npes.end()) {
+    plot_info.Npes[ch] = 0;
+  }
+  ++plot_info.Npes[ch];
+
   if (plot_info.selection==NULL || plot_info.selection(electron, photon)) {
     if (PlotParameter::None == plot_info.plot_par_x)
       plot_info.plot_par_x = plot_info.plot_par_y;
@@ -187,6 +260,8 @@ bool FileToHist(PlotInfo& plot_info, std::ifstream &str)
 {
   if (!str.is_open())
     return false;
+  plot_info.Npes.clear();
+  plot_info.N_electrons = 0;
   std::string line, word;
   ElectronInfo electron;
   PhotonInfo photon;
@@ -220,6 +295,7 @@ bool FileToHist(PlotInfo& plot_info, std::ifstream &str)
 
         electron = electron_temp;
         photon_N = electron.photon_number;
+        ++plot_info.N_electrons;
       } else { //read each photon for single electron
         photon_N--;
         PhotonInfo photon_temp;
@@ -367,4 +443,42 @@ void AddStatValue(TPaveStats *ps, std::string name, double value) {
   myt->SetTextSize(gStyle->GetStatFontSize());
   listOfLines->Add(myt);
   return;
+}
+
+int GetNpeCh(PlotInfo& plot_info, int ch) {
+  auto e = plot_info.Npes.find(ch);
+  if (e == plot_info.Npes.end()) {
+    return 0;
+  }
+  return plot_info.Npes[ch];
+}
+
+int GetNpePMTraw (PlotInfo& plot_info) {
+  std::size_t out = GetNpeCh(plot_info, 0) + GetNpeCh(plot_info, 2) + GetNpeCh(plot_info, 3) + GetNpeCh(plot_info, 1);
+  return out;
+}
+
+int GetNpePMTavg (PlotInfo& plot_info) {
+  std::size_t PMT3 = GetNpeCh(plot_info, 0) + GetNpeCh(plot_info, 2) + GetNpeCh(plot_info, 3);
+  double grid_fraction = (double) GetNpeCh(plot_info, 1) * 3.0 / PMT3;
+  std::size_t out = std::round((PMT3 * grid_fraction + GetNpeCh(plot_info, 1)) / 4.0);
+  return out;
+}
+
+int GetNpeSiPMs (PlotInfo& plot_info) {
+  std::size_t out = 0;
+  for (int i = 0; i != 25; ++i) {
+    out += GetNpeCh(plot_info, SiPM_index_to_channel(i));
+  }
+  return out;
+}
+
+int GetNpeSiPMs23 (PlotInfo& plot_info) {
+  std::size_t SiPM43_avg = GetNpeCh(plot_info, 43) + GetNpeCh(plot_info, 55) + GetNpeCh(plot_info, 35) +
+      GetNpeCh(plot_info, 33) + GetNpeCh(plot_info, 49) + GetNpeCh(plot_info, 37) + GetNpeCh(plot_info, 57) +
+      GetNpeCh(plot_info, 59);
+  std::size_t SiPM44_avg = GetNpeCh(plot_info, 44) + GetNpeCh(plot_info, 42) + GetNpeCh(plot_info, 32) + GetNpeCh(plot_info, 34);
+  std::size_t out = GetNpeSiPMs(plot_info);
+  out -= std::round(SiPM43_avg/8.0 + SiPM44_avg/4.0);
+  return out;
 }

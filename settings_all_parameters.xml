@@ -102,6 +102,8 @@
     <LAr_drift_velocity>LAr_drift/LAr_drift_velocity_data.txt</LAr_drift_velocity> <!--OPT In case there is no theoretical values-->
     <LAr_diffusion_transversal>LAr_drift/LAr_diffusionT_data.txt</LAr_diffusion_transversal> <!--OPT In case there is no theoretical values-->
     <LAr_diffusion_longitudinal>LAr_drift/LAr_diffusionL_data.txt</LAr_diffusion_longitudinal> <!--OPT In case there is no theoretical values-->
+    <NBrS_formula>TransferXS</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default) and TransferXS are supported -->
+    <force_recalculation>false</force_recalculation> <!--OPT if true, cached data is always recalculated-->
   </ArgonProperties>
   <Debug>
     <check_geometry_overlap>true</check_geometry_overlap> <!--OPT-->

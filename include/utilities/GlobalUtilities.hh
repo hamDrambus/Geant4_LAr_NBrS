@@ -42,6 +42,7 @@ void open_output_file(std::string name, std::ofstream &str, std::ios_base::openm
 void ensure_file(std::string fname); //makes sure file can be created later on
 void ensure_folder(std::string folder);
 void rename_file(std::string origin, std::string destination);
+void copy_file(std::string origin, std::string destination);
 char* c_str_cp (const std::string &str);
 
 #endif //GLOBAL_UTILITIES_H_

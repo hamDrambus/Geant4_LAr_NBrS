@@ -1,6 +1,6 @@
 #include <geant4/SteppingAction.hh>
 
-SteppingAction::SteppingAction() : N_iterations(5), epsilon(1e-10), stuck_N_iterations(0)
+SteppingAction::SteppingAction() : N_iterations(3), epsilon(1e-10), stuck_N_iterations(0)
 {}
 
 void SteppingAction::UserSteppingAction(const G4Step* theStep)

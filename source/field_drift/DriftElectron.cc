@@ -137,6 +137,7 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
 
   // Reset the drift line.
   m_drift.track.clear();
+  stuck_check_counter = 0;
   // Add the starting point to the drift line.
   DriftTrack::driftPoint point;
   point.pos = G4Point3D(x0, y0, z0);

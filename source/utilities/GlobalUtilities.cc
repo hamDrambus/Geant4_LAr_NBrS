@@ -184,6 +184,21 @@ void rename_file(std::string origin, std::string destination)
 #endif //_WIN32__
 }
 
+void copy_file(std::string origin, std::string destination)
+{
+#if defined(__WIN32__)
+  //TODO: implement
+#else
+  ensure_file(destination);
+  int code = system(("rm -f \"" + destination + "\"").c_str());
+  code = system(("cp \"" + origin + "\" " + destination).c_str());
+  if (code) {
+    std::cerr << "cp error: " << code << std::endl;
+    std::cerr << "Error copying \""<<origin<<"\" to \""<<destination<<"\"" << std::endl;
+  }
+#endif //_WIN32__
+}
+
 char* c_str_cp (const std::string &str)
 {
   std::size_t i_end_= str.size();
