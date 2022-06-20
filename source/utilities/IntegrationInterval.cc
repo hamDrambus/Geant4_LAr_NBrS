@@ -26,11 +26,22 @@ IntegrationInterval& IntegrationInterval::operator*= (const long double& r)
   return *this;
 }
 
+void IntegrationInterval::Rescale(const long double&& new_left, const long double&& new_right)
+{
+  long double l = std::min(new_left, new_right);
+  long double r = std::max(new_left, new_right);
+  long double factor = (r - l)/(right_ - left_);
+  left_ = l;
+  right_ = r;
+  step_ *= factor;
+}
+
 
 IntegrationRange::IntegrationRange(void) {}
 IntegrationRange::IntegrationRange(const IntegrationInterval &inter)
 {
-	arr_.push_back(inter);
+  if (inter.left_!=inter.right_)
+    arr_.push_back(inter);
 }
 
 long int IntegrationRange::NumOfIndices(void) const
@@ -96,18 +107,21 @@ void IntegrationRange::Trim (long double left, long double right)
       if (j != (end_ - 1))
         if (arr_[j+1].left_ <= left)
           continue; // Edge point is present in the next interval, not duplicating
-      new_arr.push_back(IntegrationInterval(left, left, 1.0)); //leave one point intersection
+      //new_arr.push_back(IntegrationInterval(left, left, 1.0)); //leave one point intersection
       continue;
     }
     if (arr_[j].left_ == right) {
       if (j != (0))
         if (arr_[j-1].right_ >= right)
           continue; // Edge point is present in the next interval, not duplicating
-      new_arr.push_back(IntegrationInterval(right, right, 1.0)); //leave one point intersection
+      //new_arr.push_back(IntegrationInterval(right, right, 1.0)); //leave one point intersection
       continue;
     }
     new_arr.push_back(IntegrationInterval(std::max(arr_[j].left_, left), std::min(arr_[j].right_, right), arr_[j].step_));
   }
+  new_arr.erase(std::remove_if(new_arr.begin(), new_arr.end(),
+      [](IntegrationInterval e){return e.left_ == e.right_;}),
+      new_arr.end());
   arr_ = new_arr;
 }
 
@@ -237,6 +251,9 @@ IntegrationRange operator+ (const IntegrationRange &l, const IntegrationInterval
 				out.arr_.push_back(new_l[j]);
 		}
 	}
+	out.arr_.erase(std::remove_if(out.arr_.begin(), out.arr_.end(),
+      [](IntegrationInterval e){return e.left_ == e.right_;}),
+	    out.arr_.end());
 	return out;
 }
 

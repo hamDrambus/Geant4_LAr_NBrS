@@ -94,6 +94,9 @@ namespace gPars
     static constexpr double m_to_M = 5.109989461e5 / 3.726e10; // m_electron / M_Ar_atom ratio (eV to eV)
     NBrSFormula NBrS_formula;
     bool force_recalculation;
+    double distributions_energy_step_factor;
+    double field_step_factor;
+    double spectra_step_factor;
 	};
 
 	class Results {

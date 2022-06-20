@@ -29,6 +29,7 @@ public:
 	IntegrationRange operator += (const IntegrationRange &r);
 	IntegrationRange operator += (const IntegrationInterval &r);
 	IntegrationInterval& operator*= (const long double& r);
+	void Rescale(const long double&& new_left, const long double&& new_right);
 
 	friend class IntegrationRange;
 	friend IntegrationRange operator+ (const IntegrationRange &l, const IntegrationInterval& r);
@@ -36,6 +37,7 @@ public:
 	friend IntegrationRange operator+ (const IntegrationInterval &l, const IntegrationInterval& r);
 };
 
+//Intervals of 0 length are forbidden
 class IntegrationRange
 {
 protected:

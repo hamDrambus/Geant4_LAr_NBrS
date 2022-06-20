@@ -199,6 +199,19 @@ void copy_file(std::string origin, std::string destination)
 #endif //_WIN32__
 }
 
+void delete_file(std::string filename)
+{
+#if defined(__WIN32__)
+  //TODO: implement
+#else
+  int code = system(("rm -f \"" + filename + "\"").c_str());
+  if (code) {
+    std::cerr << "rm -f error: " << code << std::endl;
+    std::cerr << "Error removing \""<<filename<<"\"" << std::endl;
+  }
+#endif //_WIN32__
+}
+
 char* c_str_cp (const std::string &str)
 {
   std::size_t i_end_= str.size();

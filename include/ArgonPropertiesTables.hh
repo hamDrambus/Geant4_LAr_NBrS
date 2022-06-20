@@ -58,7 +58,7 @@ protected:
   DataVector CalcDiffXS(double field) const; // Spectrum normalized to yield. Integrate to get yield, normalize to unit area to get spectrum.
   DataVector CalcDiffXS_ElasticFormula(double field) const; // Default: uses elastic XS for NBrS XS calculation
   DataVector CalcDiffXS_TransferFormula(double field) const; // Uses momentum transfer XS for NBrS XS calculation (correct, but only for hv << E of electron https://doi.org/10.48550/arXiv.2206.01388)
-  DataVector CalcDiffXS_ExactFormula(double field) const; // TODO: requires potential in LAr as well as radial wave functions
+  DataVector CalcDiffXS_ExactFormula(double field) const; // TODO: requires potential in LAr as well as electron radial wave functions
   double CalcDriftVelocity(double field) const;
   double CalcDiffusionT(double field) const;
   double CalcDiffusionL(double field) const;
@@ -69,20 +69,20 @@ protected:
   FunctionTable F_distributions; // F from eq. 5 in Atrazhev1985 as a function of electric field. [F] = [energy^(-1/2)].
 
   // Integration intervals are selected manually after looking at integrated functions behavior.
-  // In case another material or input XSs are used these may need to be changed.
-  // TODO: intervals depending on electric field. Two regions are required at least E: <~ 4kV/cm and E > ~4kV/cm.
+  // In case of another materials, input XSs or domains these may need to be changed.
+  IntegrationRange GetIntervalElectronDistributions(double field) const;
+  IntegrationRange GetIntervalFDistributions(double field) const;
   IntegrationRange interval_XS; // for calculating electron distribution and F(e).
   IntegrationRange interval_photon_En;
-  IntegrationRange interval_e_distr_low_E; // for calculating velocities, F(e) and diffusion.
-  IntegrationRange interval_e_distr_high_E;
-  IntegrationRange interval_F_low_E; // for calculating diffusion.
-  IntegrationRange interval_F_high_E;
   IntegrationRange interval_field_NBrS; // only E > ~3kV/cm. Lower fields have no NBrS and quite different energy distributions.
-  IntegrationRange interval_field_drift; // = E < ~3kV/cm + interval_field_NBrS. Drift parameters are calculated for all fields.
-  double min_e_rel_probability;
+  IntegrationRange interval_field_drift; // wide field range. Drift parameters are calculated for all fields.
+  double low_high_threshold_field; // no NBrS below this, also distributions for display are separated by this value.
+  double max_field;
+  double min_field;
+  double min_f_value_probability;
 
   int verbosity;
-  bool pedantic;
+  bool pedantic; // If true then unexpected issues with calculations throw error. Otherwise they are somehow fixed but may lead to wrong results.
 
   static const std::string filename_drift_velocity;
   static const std::string filename_drift_diffusion_L;

@@ -3,7 +3,7 @@
   <!--Settings sections do not exactly correspond to gPars:: for convinience here-->
   <General>
     <data_path>../../NBrS_THGEM_LAr_v0/data/</data_path> <!-- Path to data folder. All input data filnames must be relative to it-->
-    <output_folder>../../NBrS_THGEM_LAr_v0/results/v10.0_new_calculations/6180V/</output_folder> <!-- Path to output folder-->
+    <output_folder>../../NBrS_THGEM_LAr_v0/results/v10.0_elastic/VOLTAGEV/</output_folder> <!-- Path to output folder-->
     <doView>false</doView> <!--OPT use Geant4 visualization (g4_XX.wrl file is created)-->
     <doViewElectronDrift>false</doViewElectronDrift> <!--OPT display electon drift tracks-->
     <record_electrons>true</record_electrons> <!--OPT write to file to which electron photon corresponds-->
@@ -45,7 +45,7 @@
   </Detector>
   <FieldMap>
     <elmer_mesh_folder>../singleTHGEM28_LAr/v00.02_THGEM1/</elmer_mesh_folder>
-    <elmer_solution_filename>../singleTHGEM28_LAr/Elmer_v00.02/case_6180v.result</elmer_solution_filename>
+    <elmer_solution_filename>../singleTHGEM28_LAr/Elmer_v00.02/case_VOLTAGEv.result</elmer_solution_filename>
     <drift_step_size_um>2.0</drift_step_size_um> <!--Step size during electron drift-->
 
     <mesh_tolerance>1e-10</mesh_tolerance> <!--OPT-->
@@ -78,7 +78,6 @@
     <LAr_diffusion_transversal>LAr_drift/LAr_diffusionT_data.txt</LAr_diffusion_transversal> <!--OPT In case there is no theoretical values-->
     <LAr_diffusion_longitudinal>LAr_drift/LAr_diffusionL_data.txt</LAr_diffusion_longitudinal> <!--OPT In case there is no theoretical values-->
     <NBrS_formula>ElasticXS</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default) and TransferXS are supported -->
-    <force_recalculation>true</force_recalculation> <!--OPT if true, cached data is always recalculated-->
   </ArgonProperties>
   <Debug>
     <check_geometry_overlap>false</check_geometry_overlap> <!--OPT-->
@@ -86,6 +85,5 @@
     <print_drift_track>false</print_drift_track> <!--OPT print each electron drift track point by point to file-->
     <teleportation_verbosity>0</teleportation_verbosity> <!--OPT to print HexagonalMapping info-->
     <Ar_print_calculations>true</Ar_print_calculations> <!--OPT print results of caculating argon properties-->
-    <Ar_pedantic_calculations>false</Ar_pedantic_calculations> <!--OPT if true then issues in calculations will throw error-->
   </Debug>
 </Settings>

@@ -104,6 +104,9 @@
     <LAr_diffusion_longitudinal>LAr_drift/LAr_diffusionL_data.txt</LAr_diffusion_longitudinal> <!--OPT In case there is no theoretical values-->
     <NBrS_formula>TransferXS</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default) and TransferXS are supported -->
     <force_recalculation>false</force_recalculation> <!--OPT if true, cached data is always recalculated-->
+    <distributions_energy_step_factor>1.0</distributions_energy_step_factor> <!--OPT default is 1.0. Energy steps for integral calculations are multiplied by this value-->
+    <field_step_factor>1.0</field_step_factor> <!--OPT default is 1.0-->
+    <spectra_step_factor>1.0</spectra_step_factor> <!--OPT default is 1.0. Photon energy step factor for NBrS spectra calculations-->
   </ArgonProperties>
   <Debug>
     <check_geometry_overlap>true</check_geometry_overlap> <!--OPT-->

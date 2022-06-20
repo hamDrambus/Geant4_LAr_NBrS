@@ -47,7 +47,7 @@ namespace gPars
       general.print_drift_track = deb.get<bool>("print_drift_track", false);
       general.teleportation_verbosity = deb.get<int>("teleportation_verbosity", 0);
       Ar_props.print_calculations = deb.get<bool>("Ar_print_calculations", true);
-      Ar_props.pedantic_calculations = deb.get<bool>("Ar_pedantic_calculations", false);
+      Ar_props.pedantic_calculations = deb.get<bool>("Ar_pedantic_calculations", true);
       }
       {
       ptree field = pt.get_child("Settings.FieldMap");
@@ -82,7 +82,7 @@ namespace gPars
       Ar_props.XS_momentum_transfer_filename = ar_props.get<std::string>("XS_momentum_transfer_filename");
 
       // Not changeable parameters:
-      Ar_props.atomic_density = ar_props.get<double>("atomic_density_cm3", 2.10e22) / (cm * cm * cm);
+      Ar_props.atomic_density = ar_props.get<double>("atomic_density_cm3", 2.10e22) / (cm3);
       Ar_props.cache_folder = ar_props.get<std::string>("cache_folder", "");
       Ar_props.LAr_drift_velocity = ar_props.get<std::string>("LAr_drift_velocity", "");
       Ar_props.LAr_diffusion_transversal = ar_props.get<std::string>("LAr_diffusion_transversal", "");
@@ -99,7 +99,9 @@ namespace gPars
       } else
         Ar_props.NBrS_formula = *NBrS_formula;
       Ar_props.force_recalculation = ar_props.get<bool>("force_recalculation", false);
-
+      Ar_props.distributions_energy_step_factor = ar_props.get<double>("distributions_energy_step_factor", 1.0);
+      Ar_props.field_step_factor = ar_props.get<double>("field_step_factor", 1.0);
+      Ar_props.spectra_step_factor = ar_props.get<double>("spectra_step_factor", 1.0);
       }
 
       det_dims = CreateDetectorSettings(fname);
