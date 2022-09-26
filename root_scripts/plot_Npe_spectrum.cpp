@@ -1,6 +1,7 @@
 // Run .L init.cpp before executing this script
 
-void plot_Npe_spectrum(void)
+double plot_Npe_spectrum(std::string input_file = "../results/v10.0_elastic/2206V/recorded.dat",
+  bool isPMT = false, double NBrS_yield_factor = 10)
 {
   gStyle->SetCanvasDefH(800);
 	gStyle->SetCanvasDefW(1000);
@@ -13,10 +14,6 @@ void plot_Npe_spectrum(void)
 	gStyle->SetGridWidth(1);
 	gStyle->SetOptStat("e");
 
-  double NBrS_yield_factor = 10;
-  bool isPMT = 1;
-  //std::string input_file = "../results/v8/6180V/generated.dat";
-  std::string input_file = "../results/v9.0_transfer_with_diffusion/1765V/recorded.dat";
 
   std::string plot_name = isPMT ? "4PMTs photon hits spectrum" : "SiPM matrix photon hits spectrum";
   //std::string plot_name = "Generated photon spectrum";
@@ -97,14 +94,17 @@ void plot_Npe_spectrum(void)
   std::cout<<"Npe[-1] = "<<GetNpeCh(plot_info, -1)<<std::endl;
   std::cout<<"NBrS real yield was multiplied by: "<<NBrS_yield_factor<<std::endl;
   std::cout<<"Number of electrons = "<<plot_info.N_electrons<<std::endl;
+  double result = -1;
   if (isPMT) {
     std::cout<<"PMT recorded Npe raw = "<<GetNpePMTraw(plot_info)<<std::endl;
     std::cout<<"Average Npe per 1 PMT (grid is accounted for) = "<<GetNpePMTavg(plot_info)<<std::endl;
-    std::cout<<"Average real Npe per 1 PMT per 1 e = "<<GetNpePMTavg(plot_info) * QE / plot_info.N_electrons / NBrS_yield_factor <<std::endl;
+    result = GetNpePMTavg(plot_info) * QE / plot_info.N_electrons / NBrS_yield_factor;
+    std::cout<<"Average real Npe per 1 PMT per 1 e = "<<result <<std::endl;
   } else {
     std::cout<<"SiPMs recorded Npe raw = "<<GetNpeSiPMs(plot_info)<<std::endl;
     std::cout<<"Npe for 23 SiPMs = "<<GetNpeSiPMs23(plot_info)<<std::endl;
-    std::cout<<"Average real Npe for 23 SiPMs per 1 e = "<<GetNpeSiPMs23(plot_info) * QE / plot_info.N_electrons / NBrS_yield_factor <<std::endl;
+    result = GetNpeSiPMs23(plot_info) * QE / plot_info.N_electrons / NBrS_yield_factor;
+    std::cout<<"Average real Npe for 23 SiPMs per 1 e = "<<result <<std::endl;
   }
 
   TPaveStats *ps = (TPaveStats*)c_00->GetPrimitive("stats");
@@ -113,4 +113,5 @@ void plot_Npe_spectrum(void)
   hist_00->SetStats(false);
 
   c_00->Update();
+  return result;
 }

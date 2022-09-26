@@ -10,14 +10,14 @@
     <record_detailed>true</record_detailed> <!--OPT write to file photon information-->
     <generated_filename>generated.dat</generated_filename> <!--OPT filename for generated photons-->
     <recorded_filename>recorded.dat</recorded_filename> <!--OPT filename for recorded (detected) photons-->
-    <enable_e_diffusion>false</enable_e_diffusion> <!--OPT-->
+    <enable_e_diffusion>true</enable_e_diffusion> <!--OPT-->
     <thread_number>8</thread_number> <!--OPT-->
     <photon_max_time_us>3</photon_max_time_us> <!--OPT maximal lifetime of photon. Prevents long loops due to full internal reflections-->
   </General>
   <Source>
     <!-- Only single generator should be specified: NBrS_Generator, PhotonsDirectly or ElectronPattern -->
     <NBrS_Generator> <!-- generate dirfting electrons and then photons by them -->
-      <N_events>0</N_events> <!-- Number of events to simulate-->
+      <N_events>500000</N_events> <!-- Number of events to simulate-->
       <x_center_mm>0.0</x_center_mm> <!-- Source X position. Relative to THGEM1 center -->
       <y_center_mm>0.0</y_center_mm> <!-- Source Y position. Relative to THGEM1 center -->
       <z_center_mm>0.010</z_center_mm> <!-- Source Z position. Relative the lowest point where field map is still present (below THGEM1)-->
