@@ -7,6 +7,8 @@
 #include <G4Transform3D.hh>
 #include <G4Point3D.hh>
 #include <G4Vector3D.hh>
+#include <G4ParallelWorldProcess.hh>
+#include <G4TransportationManager.hh>
 
 // Particle(G4Track)-specific data used by global mapping class
 // HexagonalMapping.
@@ -37,7 +39,24 @@ public:
   }
 };
 
-
+class MappingTrigger {
+public:
+	MappingTrigger();
+	MappingTrigger(G4VPhysicalVolume* volume, bool activate_on_entering, std::string id);
+	//These two overloaded functions have different logic!
+	virtual bool IsSatistied(const G4Track& aTrack, const G4Step& aStep) const;
+	virtual bool IsSatistied(const G4VPhysicalVolume* volume, const HexagonalMappingData& old_state) const;
+	inline virtual bool IsValid() const {
+		return is_set;
+	}
+protected:
+	std::string _id;
+	bool is_set;
+	bool is_for_entering; // trigger is for leaving cell (volume) if false
+	G4VPhysicalVolume* trigger_volume;
+public:
+	friend class HexagonalMapping;
+};
 
 // Class calculating mapping between position in THGEM1 dummy volume and its single cell in global coordinates.
 // This class is used to teleport particle to single THGEM1 cell to model its behavior there.
@@ -59,6 +78,15 @@ public:
   // Propagates particle to the next cell. Cell is changed when particle hit current cell sides only.
   //HexagonalMappingData MapToNeighbourCell(const HexagonalMappingData& map_info) const;
 
+  void AddTrigger(MappingTrigger trigger);
+  void RemoveTrigger(std::string id);
+  void ClearTriggers(void);
+  //These two overloaded functions have different logic!
+  //Called in TeleportationProcess (during particle transport)
+  HexagonalMappingData GetNewState(const G4Track& aTrack, const G4Step& aStep, const HexagonalMappingData& old_state) const;
+  //Called in PrimaryGenerator (during particle creation)
+  HexagonalMappingData GetNewState(const G4VPhysicalVolume* volume, const HexagonalMappingData& old_state) const;
+
   bool isValid(void) const;
   int GetNcells(void) const;
   G4ThreeVector GetCellRelPosition(int x_ind, int y_ind) const;
@@ -67,6 +95,7 @@ public:
   std::pair<int, int> GetIndices(const G4ThreeVector &position) const;
   std::pair<int, int> GetIndices(int index) const;
 protected:
+  std::vector<MappingTrigger> map_triggers;
   G4Transform3D GetCellVectorTransform(int x_ind, int y_ind) const; // transformation of global vector to cell local frame
   HexagonalMappingData MoveToNeighbourCell(const HexagonalMappingData& map_info) const;
   HexagonalMappingData MoveFromCell(const HexagonalMappingData& map_info) const;

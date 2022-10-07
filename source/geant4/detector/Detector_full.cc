@@ -229,7 +229,7 @@ G4VPhysicalVolume * Detector_full::Construct()
 
   G4Box* solid_THGEM1_container = new G4Box("solid_THGEM1_container", x_size_THGEM1_container / 2.0, y_size_THGEM1_container / 2.0, z_size_THGEM1_container / 2.0);
   G4LogicalVolume* logic_THGEM1_container = new G4LogicalVolume(solid_THGEM1_container, matLAr, "logic_THGEM1_container", 0, 0, 0);
-  G4VPhysicalVolume* phys_THGEM1_container = new G4PVPlacement(0, position_THGEM1_container, logic_THGEM1_container, gPars::det_dims->THGEM1_cell_container_name,
+  phys_THGEM1_container = new G4PVPlacement(0, position_THGEM1_container, logic_THGEM1_container, "phys_THGEM1_cell_container",
         logic_LAr_inner, false, 0, fCheckOverlaps);
 
   G4LogicalVolume* logic_THGEM1_copper = new G4LogicalVolume(solid_active_THGEM1, matFR4, "logic_THGEM1_copper", 0, 0, 0);
@@ -383,6 +383,8 @@ G4VPhysicalVolume * Detector_full::Construct()
 	logic_FieldWire->SetVisAttributes(Wires_VisAtt);
 
 	logicWorld->SetVisAttributes(gas_VisAtt);
+
+	SetupTHGEM1Mapping();
 	return physiWorld;
 }
 

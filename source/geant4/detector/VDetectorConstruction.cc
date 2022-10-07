@@ -1,6 +1,7 @@
 #include <geant4/detector/VDetectorConstruction.hh>
 
-VDetectorConstruction::VDetectorConstruction() : fCheckOverlaps(gPars::general.check_geometry_overlap)
+VDetectorConstruction::VDetectorConstruction() : fCheckOverlaps(gPars::general.check_geometry_overlap),
+	phys_THGEM1_cell_LAr(nullptr), phys_THGEM1_container(nullptr)
 {
 	rotX_90 = new G4RotationMatrix();
 	rotX_90->rotateX(90 * deg);
@@ -21,6 +22,71 @@ VDetectorConstruction::~VDetectorConstruction()
 	delete rotZ_90;
 	delete rotZ_180;
 	delete rotZ_270;
+}
+
+std::vector<G4PhysicalVolumesSearchScene::Findings> VDetectorConstruction::LocatePV(G4VPhysicalVolume* volume)
+{
+	std::vector<G4PhysicalVolumesSearchScene::Findings> findingsVector;
+	if (physiWorld == nullptr) {
+		std::cerr<<"VDetectorConstruction::LocatePV:Error:\n"
+				"\tNULL world volume. This function must be called after or during detector construction in G4VPhysicalVolume::Construct()." << std::endl;
+		return findingsVector;
+	}
+	if (volume == nullptr)
+		return findingsVector;
+	G4PhysicalVolumeModel searchModel(physiWorld); // Unlimited depth.
+	G4ModelingParameters mp; // Default - no culling.
+	searchModel.SetModelingParameters(&mp);
+	G4PhysicalVolumesSearchScene searchScene(&searchModel, volume->GetName());
+	searchModel.DescribeYourselfTo(searchScene); // Initiate search.
+	for (const auto& findings: searchScene.GetFindings())
+		findingsVector.push_back(findings);
+	return findingsVector;
+}
+
+void VDetectorConstruction::SetupTHGEM1Mapping()
+{
+	if (nullptr != gData.THGEM1_mapping)
+		delete gData.THGEM1_mapping;
+	gData.THGEM1_mapping = nullptr;
+	std::vector<G4PhysicalVolumesSearchScene::Findings> cells = LocatePV(phys_THGEM1_cell_LAr);
+	if (cells.size() == 0) {
+		std::cout<<"********************************"<<std::endl;
+		std::cout<<"VDetectorConstruction::SetupTHGEM1Mapping:Warning:\n"
+				"\tTHGEM1 cell is not found. Geometry without THGEM1 mapping is used."<<std::endl;
+		return;
+	}
+	if (cells.size() > 1) {
+		std::cout<<"********************************"<<std::endl;
+		std::cout<<"VDetectorConstruction::SetupTHGEM1Mapping:Warning:\n"
+				"\tfound several cell physical volumes (name \""<<phys_THGEM1_cell_LAr->GetName()<<")\"!"<<std::endl;
+		std::cout<<"\tUsing only the first one."<<std::endl;
+	}
+	std::vector<G4PhysicalVolumesSearchScene::Findings> containers = LocatePV(phys_THGEM1_container);
+	if (containers.size() == 0) {
+		std::cout<<"********************************"<<std::endl;
+		std::cout<<"VDetectorConstruction::SetupTHGEM1Mapping:Warning:\n"
+				"\tTHGEM1 container is not found. Geometry without THGEM1 mapping is used."<<std::endl;
+		return;
+	}
+	if (containers.size() > 1) {
+		std::cout<<"********************************"<<std::endl;
+		std::cout<<"VDetectorConstruction::SetupTHGEM1Mapping:Warning:\n"
+				"\tfound several THGEM containers' physical volumes (name \""<<phys_THGEM1_container->GetName()<<")\"!"<<std::endl;
+		std::cout<<"\tUsing only the first one."<<std::endl;
+	}
+	G4ThreeVector cell_pos = cells[0].fFoundObjectTransformation.getTranslation();
+	G4ThreeVector thgem1_pos = containers[0].fFoundObjectTransformation.getTranslation();
+	G4VSolid* cell_box = phys_THGEM1_cell_LAr->GetLogicalVolume()->GetSolid();
+	G4VSolid* thgem1_box = phys_THGEM1_container->GetLogicalVolume()->GetSolid();
+	G4ThreeVector bMin, bMax;
+	cell_box->BoundingLimits(bMin, bMax);
+	G4ThreeVector cell_sizes = bMax - bMin;
+	thgem1_box->BoundingLimits(bMin, bMax);
+	G4ThreeVector thgem1_sizes = bMax - bMin;
+	gData.THGEM1_mapping = new HexagonalMapping(thgem1_pos, cell_pos, thgem1_sizes, cell_sizes);
+	gData.THGEM1_mapping->AddTrigger(MappingTrigger(phys_THGEM1_cell_LAr, false, "THGEM1_leaving_cell"));
+	gData.THGEM1_mapping->AddTrigger(MappingTrigger(phys_THGEM1_container, true, "THGEM1_entering_container"));
 }
 
 void VDetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elmer simulation
@@ -44,7 +110,7 @@ void VDetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elm
 
   G4Box* solid_THGEM1_cell_LAr = new G4Box("solid_THGEM1_cell_LAr", cell_size_x / 2.0, cell_size_y / 2.0, cell_size_z / 2.0);
   logic_THGEM1_cell_LAr = new G4LogicalVolume(solid_THGEM1_cell_LAr, G4Material::GetMaterial("LAr"), "logic_THGEM1_cell_LAr", 0, 0, 0);
-  G4VPhysicalVolume* phys_THGEM1_cell_LAr = new G4PVPlacement(0, zero, logic_THGEM1_cell_LAr, gPars::det_dims->THGEM1_cell_name,
+  phys_THGEM1_cell_LAr = new G4PVPlacement(0, zero, logic_THGEM1_cell_LAr, "phys_THGEM1_cell",
       logic_THGEM1_cell, false, 0, fCheckOverlaps);
 
   G4Box* solid_THGEM1_diel_box = new G4Box("solid_THGEM1_diel_box", cell_size_x / 2.0, cell_size_y / 2.0, diel_size_z / 2.0);

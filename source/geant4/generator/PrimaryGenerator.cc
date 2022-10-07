@@ -145,19 +145,7 @@ void PrimaryGenerator::GeneratePrimaryVertex(G4Event* event)
   mapping_data.polarization = particle_polarization;
   if (gData.THGEM1_mapping != nullptr && gData.THGEM1_mapping->isValid()) {
     G4VPhysicalVolume* volume = navigator->LocateGlobalPointAndSetup(mapping_data.position);
-    boost::optional<G4PhysicalVolumesSearchScene::Findings> thgem1_PV = FindSinglePV(gPars::det_dims->THGEM1_cell_container_name);
-    if (thgem1_PV) {
-      if (volume == thgem1_PV->fpFoundPV || thgem1_PV->fpFoundPV->GetLogicalVolume()->IsAncestor(volume)) {
-        mapping_data = gData.THGEM1_mapping->MapToCell(mapping_data, false);
-      }
-    }
-    boost::optional<G4PhysicalVolumesSearchScene::Findings> cell_PV = FindSinglePV(gPars::det_dims->THGEM1_cell_name);
-    if (cell_PV) {
-      if (volume == cell_PV->fpFoundPV || cell_PV->fpFoundPV->GetLogicalVolume()->IsAncestor(volume)) {
-        std::cerr<<"PrimaryGenerator::GeneratePrimaryVertex:Error:"<<std::endl;
-        std::cerr<<"\tParticle is generated inside THGEM1 cell! Cell mapping is undefined."<<std::endl;
-      }
-    }
+    mapping_data = gData.THGEM1_mapping->GetNewState(volume, mapping_data);
   }
   G4PrimaryVertex* vertex = new G4PrimaryVertex(mapping_data.position, particle_time);
   G4double mass =  particle_definition->GetPDGMass();

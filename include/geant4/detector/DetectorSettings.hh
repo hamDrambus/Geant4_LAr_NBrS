@@ -48,8 +48,6 @@ public:
 
   static const std::string SiPM_device_name;
   static const std::string PMT_device_name;
-  static const std::string THGEM1_cell_name;
-  static const std::string THGEM1_cell_container_name;
 };
 
 VDetectorDimensions* CreateDetectorSettings(std::string filename);

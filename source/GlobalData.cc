@@ -150,37 +150,8 @@ GlobalData::~GlobalData()
 
 void GlobalData::Initialize(void)
 {
-  SetupTHGEM1Mapping();
   Ar_props.Initialize();
   SetupFieldMap();
-}
-
-void GlobalData::SetupTHGEM1Mapping(void)
-{
-  if (nullptr != THGEM1_mapping)
-    delete THGEM1_mapping;
-  boost::optional<G4PhysicalVolumesSearchScene::Findings> foundCell = FindSinglePV(gPars::det_dims->THGEM1_cell_name);
-  boost::optional<G4PhysicalVolumesSearchScene::Findings> foundTHGEM1 = FindSinglePV(gPars::det_dims->THGEM1_cell_container_name);
-  if (boost::none == foundCell) {
-    std::cerr<<"RunAction::SetupTHGEM1Mapping:Error:"<<std::endl;
-    std::cerr<<"\tTHGEM1 cell is not found. Geometry without THGEM1 mapping is used."<<std::endl;
-    return;
-  }
-  if (boost::none == foundTHGEM1) {
-    std::cerr<<"RunAction::SetupTHGEM1Mapping:Error:"<<std::endl;
-    std::cerr<<"\tTHGEM1 cell container is not found. Geometry without THGEM1 mapping is used."<<std::endl;
-    return;
-  }
-  G4ThreeVector cell_pos = foundCell->fFoundObjectTransformation.getTranslation();
-  G4ThreeVector thgem1_pos = foundTHGEM1->fFoundObjectTransformation.getTranslation();
-  G4VSolid* cell_box = foundCell->fpFoundPV->GetLogicalVolume()->GetSolid();
-  G4VSolid* thgem1_box = foundTHGEM1->fpFoundPV->GetLogicalVolume()->GetSolid();
-  G4ThreeVector bMin, bMax;
-  cell_box->BoundingLimits(bMin, bMax);
-  G4ThreeVector cell_sizes = bMax - bMin;
-  thgem1_box->BoundingLimits(bMin, bMax);
-  G4ThreeVector thgem1_sizes = bMax - bMin;
-  THGEM1_mapping = new HexagonalMapping(thgem1_pos, cell_pos, thgem1_sizes, cell_sizes);
 }
 
 void GlobalData::SetupFieldMap(void)

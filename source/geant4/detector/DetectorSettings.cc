@@ -6,8 +6,6 @@
 
 const std::string VDetectorDimensions::SiPM_device_name = "phys_SiPM";
 const std::string VDetectorDimensions::PMT_device_name = "phys_PMT";
-const std::string VDetectorDimensions::THGEM1_cell_name = "phys_THGEM1_cell";
-const std::string VDetectorDimensions::THGEM1_cell_container_name = "phys_THGEM1_cell_container";
 
 VDetectorDimensions* CreateDetectorSettings(std::string filename)
 {

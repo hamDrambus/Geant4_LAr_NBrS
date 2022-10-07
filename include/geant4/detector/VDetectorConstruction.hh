@@ -25,6 +25,7 @@
 
 #include <utilities/GlobalUtilities.hh>
 #include "GlobalParameters.hh"
+#include "GlobalData.hh"
 
 class VDetectorConstruction : public G4VUserDetectorConstruction
 {
@@ -41,6 +42,9 @@ protected:
 	virtual void defineSurfaces();
 	virtual void SetSizeAndPosition() = 0;
 	virtual void CreateTHGEM1Cell();
+	virtual void SetupTHGEM1Mapping(); //Finds THGEM1 volumes and initializes mapping class gPars::THGEM1_mapping
+
+	std::vector<G4PhysicalVolumesSearchScene::Findings> LocatePV(G4VPhysicalVolume* volume); //must be called after physiWorld is fully constructed
 
   G4RotationMatrix *rotX_90;
   G4RotationMatrix *rotY_90;
@@ -65,6 +69,9 @@ protected:
   G4LogicalVolume*   logic_THGEM1_cell_FR4;
   G4LogicalVolume*   logic_THGEM1_cell_copper;
   G4LogicalVolume*   logic_THGEM1_container;
+
+  G4VPhysicalVolume* phys_THGEM1_cell_LAr;
+	G4VPhysicalVolume* phys_THGEM1_container;
 
   // surfaces
   G4OpticalSurface *AbsorberMaterial;

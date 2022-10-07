@@ -1,5 +1,66 @@
 #include <geant4/HexagonalMapping.hh>
 
+MappingTrigger::MappingTrigger() :
+	is_set(false), trigger_volume(nullptr), is_for_entering(true)
+{}
+
+MappingTrigger::MappingTrigger(G4VPhysicalVolume* volume, bool activate_on_entering, std::string id) :
+	trigger_volume(volume), is_for_entering(activate_on_entering), _id(id)
+{
+	is_set = (trigger_volume != nullptr && !_id.empty());
+}
+
+bool MappingTrigger::IsSatistied(const G4Track& aTrack, const G4Step& aStep) const
+{
+	const G4Step* pStep = &aStep;
+	const G4Step* hStep = G4ParallelWorldProcess::GetHyperStep();
+	if(hStep != nullptr)
+		pStep = hStep;
+
+	if(pStep->GetPostStepPoint()->GetStepStatus() != fGeomBoundary) {
+		return false;
+	}
+
+	G4VPhysicalVolume* prevPVolume = pStep->GetPreStepPoint()->GetPhysicalVolume();
+	G4VPhysicalVolume* postPVolume = pStep->GetPostStepPoint()->GetPhysicalVolume();
+
+	G4ThreeVector position = pStep->GetPostStepPoint()->GetPosition();
+	const G4DynamicParticle* aParticle = aTrack.GetDynamicParticle();
+	G4ThreeVector momentum = aParticle->GetMomentumDirection();
+
+	bool valid;
+	// ID of Navigator which limits step
+	G4int hNavId = G4ParallelWorldProcess::GetHypNavigatorID();
+	auto iNav = G4TransportationManager::GetTransportationManager()->GetActiveNavigatorsIterator();
+	G4ThreeVector globalNormal = (iNav[hNavId])->GetGlobalExitNormal(position, &valid);
+	if(!valid) {
+		G4ExceptionDescription ed;
+		ed << " TeleportationProcess::PostStepDoIt()/MappingTrigger::IsSatistied() "
+			 << " The Navigator reports that it returned an invalid normal" << G4endl;
+		G4Exception(
+			"MappingTrigger::IsSatistied", "MappingTrigger01", EventMustBeAborted, ed,
+			"Invalid Surface Normal - Geometry must return valid surface normal");
+	}
+	if (is_for_entering) {
+		return (postPVolume == trigger_volume
+		  && globalNormal * momentum > 0.0
+		  && !postPVolume->GetLogicalVolume()->IsAncestor(prevPVolume));
+	} else {
+		return (prevPVolume == trigger_volume
+			&& globalNormal * momentum > 0.0
+			&& postPVolume->GetLogicalVolume()->IsAncestor(prevPVolume));
+	}
+}
+
+bool MappingTrigger::IsSatistied(const G4VPhysicalVolume* volume, const HexagonalMappingData& old_state) const
+{
+	if (is_for_entering) {
+		return (volume == trigger_volume || trigger_volume->GetLogicalVolume()->IsAncestor(volume));
+	} else {
+		return (volume == trigger_volume || trigger_volume->GetLogicalVolume()->IsAncestor(volume));
+	}
+}
+
 const G4Transform3D HexagonalMapping::mirror_X = G4ReflectX3D();
 const G4Transform3D HexagonalMapping::mirror_Y = G4ReflectY3D();
 const G4Transform3D HexagonalMapping::mirror_XY = G4ReflectX3D()*G4ReflectY3D();
@@ -193,4 +254,81 @@ HexagonalMappingData HexagonalMapping::MoveFromCell(const HexagonalMappingData& 
   out.momentum = transform * map_info.momentum;
   out.polarization = transform * map_info.polarization;
   return out;
+}
+
+void HexagonalMapping::AddTrigger(MappingTrigger trigger)
+{
+	for (std::size_t i = 0, i_end_ = map_triggers.size(); i!=i_end_; ++i) {
+		if (map_triggers[i]._id == trigger._id) {
+			map_triggers[i] = trigger;
+			return;
+		}
+	}
+	map_triggers.push_back(trigger);
+}
+
+void HexagonalMapping::RemoveTrigger(std::string id)
+{
+	map_triggers.erase(std::remove_if(map_triggers.begin(), map_triggers.end(), [id](const MappingTrigger& t) {return t._id == id;}), map_triggers.end());
+}
+
+void HexagonalMapping::ClearTriggers(void)
+{
+	map_triggers.clear();
+}
+
+HexagonalMappingData HexagonalMapping::GetNewState(const G4Track& aTrack, const G4Step& aStep, const HexagonalMappingData& old_state) const
+{
+	HexagonalMappingData new_state = old_state;
+	bool is_entering = false;
+	bool is_leaving = false;
+	for (std::size_t i = 0, i_end_ = map_triggers.size(); i!=i_end_; ++i) {
+		if (map_triggers[i].IsValid() && map_triggers[i].IsSatistied(aTrack, aStep)) {
+			if (map_triggers[i].is_for_entering)
+				is_entering = true;
+			else
+				is_leaving = true;
+		}
+	}
+	if (is_entering && is_leaving) {
+		std::cerr<<"HexagonalMapping::GetNewState:Error:"<<std::endl;
+		std::cerr<<"\tConditions for both leaving and entering cell are satisfied at the same time.\n"
+				"Most likely caused by wrong geometry/mapping setup.\n"
+				"Not mapping."<<std::endl;
+		return new_state;
+	}
+	if (is_entering)
+		new_state = MapToCell(old_state, true);
+	if (is_leaving)
+		new_state = MapFromCell(old_state, false);
+	return new_state;
+}
+
+HexagonalMappingData HexagonalMapping::GetNewState(const G4VPhysicalVolume* volume, const HexagonalMappingData& old_state) const
+{
+	HexagonalMappingData new_state = old_state;
+	bool is_entering = false;
+	bool is_leaving = false;
+	for (std::size_t i = 0, i_end_ = map_triggers.size(); i!=i_end_; ++i) {
+		if (map_triggers[i].IsValid() && map_triggers[i].IsSatistied(volume, old_state)) {
+			if (map_triggers[i].is_for_entering)
+				is_entering = true;
+			else
+				is_leaving = true;
+		}
+	}
+	if (is_entering && is_leaving) {
+		std::cerr<<"HexagonalMapping::GetNewState:Error:"<<std::endl;
+		std::cerr<<"\tConditions for both leaving and entering cell are satisfied at the same time.\n"
+				"Most likely caused by wrong geometry/mapping setup.\n"
+				"Not mapping."<<std::endl;
+		return new_state;
+	}
+	if (is_entering)
+		new_state = MapToCell(old_state, false);
+	if (is_leaving) {
+		std::cerr<<"HexagonalMapping::GetNewState:Error:"<<std::endl;
+		std::cerr<<"\tParticle is generated inside THGEM1 cell! Cell mapping is undefined."<<std::endl;
+	}
+	return new_state;
 }

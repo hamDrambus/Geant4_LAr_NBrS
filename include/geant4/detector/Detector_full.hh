@@ -46,6 +46,7 @@
 #include "DetectorParameterisation.hh"
 #include "VDetectorConstruction.hh"
 
+// Model of the detector during 2021.11.11 and 2022.02.03 measurements.
 class Detector_full : public VDetectorConstruction
 {
 public:

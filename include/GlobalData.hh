@@ -82,12 +82,11 @@ public:
 
   void Initialize(void);
   void SetupFieldMap(void);
-  void SetupTHGEM1Mapping(void); //Finds THGEM1 volumes and initializes mapping class gPars::THGEM1_mapping
   G4ThreeVector GetFieldAtGlobal(G4ThreeVector position, DriftMedium* &medium, int *status = nullptr); // Not const but thred-safe
   void PlotField(std::string filename, G4ThreeVector line_start, G4ThreeVector line_finish, int Num, std::string name="", double L_fine=0, int Num_fine=0);
   G4ThreeVector GetDriftStartCenter(void) const;
 
-  HexagonalMapping* THGEM1_mapping; // Set after geometry construction in G4RunManager::Initialize(). Thread safe.
+  HexagonalMapping* THGEM1_mapping; // Set during geometry construction in G4RunManager::Initialize()->G4VUserDetectorConstruction::Construct(). Thread safe.
   FieldElmerMap* field_map; // Depends only on gPars::
   DriftMedium* LAr_medium;
   ArgonPropertiesTables Ar_props;

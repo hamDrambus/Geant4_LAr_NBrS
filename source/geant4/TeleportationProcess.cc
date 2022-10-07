@@ -48,11 +48,11 @@ G4VParticleChange* TeleportationProcess::PostStepDoIt(const G4Track& aTrack, con
   }
 
   if (nullptr == gData.THGEM1_mapping) {
-     if(verboseLevel > 1) {
-       G4cout << " No mapping class in global parameters, skipping process." << G4endl;
-     }
-     return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
-   }
+		if(verboseLevel > 1) {
+			G4cout << " No mapping class in global parameters, skipping process." << G4endl;
+		}
+		return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+  }
 
   TrackUserInfo *mapping_data = (TrackUserInfo*) aTrack.GetUserInformation();
   if (nullptr == mapping_data) {
@@ -66,7 +66,6 @@ G4VParticleChange* TeleportationProcess::PostStepDoIt(const G4Track& aTrack, con
   fOldState.momentum = aParticle->GetMomentumDirection();
   fOldState.polarization = aParticle->GetPolarization();
   fOldState.position = pStep->GetPostStepPoint()->GetPosition();
-  fNewState = fOldState;
 
   if(verboseLevel > 1) {
     G4cout << " Old Position: " << fOldState.position << G4endl
@@ -74,30 +73,7 @@ G4VParticleChange* TeleportationProcess::PostStepDoIt(const G4Track& aTrack, con
            << " Old Polarization:       " << fOldState.polarization << G4endl;
   }
 
-  bool valid;
-  // ID of Navigator which limits step
-  G4int hNavId = G4ParallelWorldProcess::GetHypNavigatorID();
-  auto iNav = G4TransportationManager::GetTransportationManager()->GetActiveNavigatorsIterator();
-  G4ThreeVector globalNormal = (iNav[hNavId])->GetGlobalExitNormal(fOldState.position, &valid);
-  if(!valid) {
-    G4ExceptionDescription ed;
-    ed << " TeleportationProcess/PostStepDoIt(): "
-       << " The Navigator reports that it returned an invalid normal" << G4endl;
-    G4Exception(
-      "TeleportationProcess::PostStepDoIt", "TeleportProc01", EventMustBeAborted, ed,
-      "Invalid Surface Normal - Geometry must return valid surface normal");
-  }
-
-  if (prevPVolume->GetName() == gPars::det_dims->THGEM1_cell_name
-      && globalNormal*fOldState.momentum > 0.0
-      && postPVolume->GetLogicalVolume()->IsAncestor(prevPVolume)) {
-    fNewState = gData.THGEM1_mapping->MapFromCell(fOldState, false);
-  }
-  if (postPVolume->GetName() == gPars::det_dims->THGEM1_cell_container_name
-      && globalNormal*fOldState.momentum > 0.0
-      && !postPVolume->GetLogicalVolume()->IsAncestor(prevPVolume)) {
-    fNewState = gData.THGEM1_mapping->MapToCell(fOldState, true);
-  }
+  fNewState = gData.THGEM1_mapping->GetNewState(aTrack, aStep, fOldState);
 
   if (fNewState != fOldState) {
     aParticleChange.ProposeTrackStatus(fStopAndKill);

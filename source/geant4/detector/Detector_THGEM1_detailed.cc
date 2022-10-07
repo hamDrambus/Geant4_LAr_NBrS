@@ -31,7 +31,7 @@ G4VPhysicalVolume * Detector_THGEM1_detailed::Construct()
 	// Create THGEM1
   G4Box* solid_THGEM1_container = new G4Box("solid_THGEM1_container", x_size_THGEM1_container / 2.0, y_size_THGEM1_container / 2.0, z_size_THGEM1_container / 2.0);
   G4LogicalVolume* logic_THGEM1_container = new G4LogicalVolume(solid_THGEM1_container, matLAr, "logic_THGEM1_container", 0, 0, 0);
-  G4VPhysicalVolume* phys_THGEM1_container = new G4PVPlacement(0, position_THGEM1_container, logic_THGEM1_container, gPars::det_dims->THGEM1_cell_container_name,
+  phys_THGEM1_container = new G4PVPlacement(0, position_THGEM1_container, logic_THGEM1_container, "phys_THGEM1_cell_container",
       logicWorld, false, 0, fCheckOverlaps);
 
   // Parameterisation does not work with arbitrary transformations.
@@ -75,6 +75,7 @@ G4VPhysicalVolume * Detector_THGEM1_detailed::Construct()
   logic_THGEM1_container->SetVisAttributes(Invisible);
   logicWorld->SetVisAttributes(Invisible);
 
+  SetupTHGEM1Mapping();
 	return physiWorld;
 }
 
