@@ -138,14 +138,12 @@ void PrimaryGenerator::GeneratePrimaryVertex(G4Event* event)
 	}
 
 	HexagonalMappingData mapping_data;
-  mapping_data.cell_x_ind = -1;
-  mapping_data.cell_y_ind = -1;
   mapping_data.position = particle_position;
   mapping_data.momentum = particle_momentum_direction;
   mapping_data.polarization = particle_polarization;
-  if (gData.THGEM1_mapping != nullptr && gData.THGEM1_mapping->isValid()) {
+  if (gData.mapping_manager.HasMapping()) {
     G4VPhysicalVolume* volume = navigator->LocateGlobalPointAndSetup(mapping_data.position);
-    mapping_data = gData.THGEM1_mapping->GetNewState(volume, mapping_data);
+    mapping_data = gData.mapping_manager.GetNewState(volume, mapping_data);
   }
   G4PrimaryVertex* vertex = new G4PrimaryVertex(mapping_data.position, particle_time);
   G4double mass =  particle_definition->GetPDGMass();

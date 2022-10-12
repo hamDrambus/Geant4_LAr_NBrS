@@ -42,7 +42,7 @@ G4VPhysicalVolume * Detector_THGEM1_detailed::Construct()
 
   // Define one layer as one assembly volume
   G4AssemblyVolume* assemblyTHGEM = new G4AssemblyVolume();
-  HexagonalMapping mapping(position_THGEM1_container, position_SingleTHGEMCell,
+  HexagonalMapping mapping("THGEM1", position_THGEM1_container, position_SingleTHGEMCell,
       G4ThreeVector(x_size_THGEM1_container, y_size_THGEM1_container, z_size_THGEM1_container),
       G4ThreeVector(gPars::det_dims->THGEM1_hole_pitch / 2.0, gPars::det_dims->THGEM1_hole_pitch * sqrt(3) / 2.0, z_size_THGEM1_container));
 

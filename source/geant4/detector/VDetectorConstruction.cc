@@ -46,9 +46,6 @@ std::vector<G4PhysicalVolumesSearchScene::Findings> VDetectorConstruction::Locat
 
 void VDetectorConstruction::SetupTHGEM1Mapping()
 {
-	if (nullptr != gData.THGEM1_mapping)
-		delete gData.THGEM1_mapping;
-	gData.THGEM1_mapping = nullptr;
 	std::vector<G4PhysicalVolumesSearchScene::Findings> cells = LocatePV(phys_THGEM1_cell_LAr);
 	if (cells.size() == 0) {
 		std::cout<<"********************************"<<std::endl;
@@ -84,9 +81,10 @@ void VDetectorConstruction::SetupTHGEM1Mapping()
 	G4ThreeVector cell_sizes = bMax - bMin;
 	thgem1_box->BoundingLimits(bMin, bMax);
 	G4ThreeVector thgem1_sizes = bMax - bMin;
-	gData.THGEM1_mapping = new HexagonalMapping(thgem1_pos, cell_pos, thgem1_sizes, cell_sizes);
-	gData.THGEM1_mapping->AddTrigger(MappingTrigger(phys_THGEM1_cell_LAr, false, "THGEM1_leaving_cell"));
-	gData.THGEM1_mapping->AddTrigger(MappingTrigger(phys_THGEM1_container, true, "THGEM1_entering_container"));
+	HexagonalMapping thgem1_map("THGEM1", thgem1_pos, cell_pos, thgem1_sizes, cell_sizes, true);
+	thgem1_map.AddTrigger(MappingTrigger(phys_THGEM1_cell_LAr, false, "THGEM1_leaving_cell"));
+	thgem1_map.AddTrigger(MappingTrigger(phys_THGEM1_container, true, "THGEM1_entering_container"));
+	gData.mapping_manager.AddMapping(thgem1_map);
 }
 
 void VDetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elmer simulation

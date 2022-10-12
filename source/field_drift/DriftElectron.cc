@@ -90,9 +90,9 @@ void DriftElectron::GetElectronEndpoint(double& x1, double& y1, double& z1,
 bool DriftElectron::DoDriftElectron(const double x0, const double y0,
                                 const double z0, const double t0)
 {
-  if (!gData.THGEM1_mapping || !gData.THGEM1_mapping->isValid()) {
+  if (!gData.mapping_manager.HasFieldMapping()) {
     std::cerr << m_className << "::DriftElectron:\n";
-    std::cerr << "    THGEM1 mapping is not available.\n";
+    std::cerr << "    THGEM1 field mapping is not available.\n";
     return false;
   }
   if (!gData.field_map || !gData.field_map->IsReady()) {

@@ -65,8 +65,9 @@ const G4Transform3D HexagonalMapping::mirror_X = G4ReflectX3D();
 const G4Transform3D HexagonalMapping::mirror_Y = G4ReflectY3D();
 const G4Transform3D HexagonalMapping::mirror_XY = G4ReflectX3D()*G4ReflectY3D();
 
-HexagonalMapping::HexagonalMapping(G4ThreeVector container_pos, G4ThreeVector cell_pos, G4ThreeVector container_sizes, G4ThreeVector cell_sizes) :
-  g_container_pos(container_pos), g_cell_pos(cell_pos)
+HexagonalMapping::HexagonalMapping(std::string name, G4ThreeVector container_pos, G4ThreeVector cell_pos, G4ThreeVector container_sizes,
+		G4ThreeVector cell_sizes, bool associated_with_field_map) :
+  name_id(name), g_container_pos(container_pos), g_cell_pos(cell_pos), has_field_map(associated_with_field_map)
 {
   container_x_size = container_sizes.x();
   container_y_size = container_sizes.y();
@@ -89,11 +90,15 @@ HexagonalMapping::HexagonalMapping(G4ThreeVector container_pos, G4ThreeVector ce
   x_max = cell_x_size * cell_x_num / 2.0;
   y_min = -cell_y_size * cell_y_num / 2.0;
   y_max = cell_y_size * cell_y_num / 2.0;
+
+  if (name_id.empty())
+  	name_id = "default_name";
 }
 
 bool HexagonalMapping::isValid(void) const
 {
-  return (cell_x_num > 0 && cell_y_num > 0 && cell_x_size > 0 && cell_y_size && container_x_size > 0 && container_y_size > 0);
+  return (cell_x_num > 0 && cell_y_num > 0 && cell_x_size > 0 && cell_y_size && container_x_size > 0 && container_y_size > 0)
+  		&& !map_triggers.empty();
 }
 
 int HexagonalMapping::GetNcells(void) const
@@ -189,6 +194,7 @@ HexagonalMappingData HexagonalMapping::MoveToNeighbourCell(const HexagonalMappin
     return MoveFromCell(map_info);
   }
   HexagonalMappingData out = map_info;
+  out.mapping_id = name_id;
   int index_x_delta = 0, index_y_delta = 0;
   G4Transform3D prev_transform = GetCellGlobalPointTransform(map_info.cell_x_ind, map_info.cell_y_ind).inverse();
   G4Vector3D rel_cell_pos = map_info.position - g_cell_pos;
@@ -225,6 +231,7 @@ HexagonalMappingData HexagonalMapping::MapToCell(const HexagonalMappingData& map
   out.cell_x_ind = inds.first;
   out.cell_y_ind = inds.second;
   if (!isInCell(out)) {
+  	out.mapping_id = "";
     return out;
   }
   G4Transform3D transform = GetCellGlobalPointTransform(out.cell_x_ind, out.cell_y_ind);
@@ -241,6 +248,7 @@ HexagonalMappingData HexagonalMapping::MapToCell(const HexagonalMappingData& map
 HexagonalMappingData HexagonalMapping::MoveFromCell(const HexagonalMappingData& map_info) const
 {
   HexagonalMappingData out;
+  out.mapping_id = "";
   out.momentum = map_info.momentum;
   out.polarization = map_info.polarization;
   out.position = G4ThreeVector(- container_x_size / 2.0, - container_y_size / 2.0, - container_z_size / 2.0) + g_container_pos;
@@ -277,58 +285,3 @@ void HexagonalMapping::ClearTriggers(void)
 	map_triggers.clear();
 }
 
-HexagonalMappingData HexagonalMapping::GetNewState(const G4Track& aTrack, const G4Step& aStep, const HexagonalMappingData& old_state) const
-{
-	HexagonalMappingData new_state = old_state;
-	bool is_entering = false;
-	bool is_leaving = false;
-	for (std::size_t i = 0, i_end_ = map_triggers.size(); i!=i_end_; ++i) {
-		if (map_triggers[i].IsValid() && map_triggers[i].IsSatistied(aTrack, aStep)) {
-			if (map_triggers[i].is_for_entering)
-				is_entering = true;
-			else
-				is_leaving = true;
-		}
-	}
-	if (is_entering && is_leaving) {
-		std::cerr<<"HexagonalMapping::GetNewState:Error:"<<std::endl;
-		std::cerr<<"\tConditions for both leaving and entering cell are satisfied at the same time.\n"
-				"Most likely caused by wrong geometry/mapping setup.\n"
-				"Not mapping."<<std::endl;
-		return new_state;
-	}
-	if (is_entering)
-		new_state = MapToCell(old_state, true);
-	if (is_leaving)
-		new_state = MapFromCell(old_state, false);
-	return new_state;
-}
-
-HexagonalMappingData HexagonalMapping::GetNewState(const G4VPhysicalVolume* volume, const HexagonalMappingData& old_state) const
-{
-	HexagonalMappingData new_state = old_state;
-	bool is_entering = false;
-	bool is_leaving = false;
-	for (std::size_t i = 0, i_end_ = map_triggers.size(); i!=i_end_; ++i) {
-		if (map_triggers[i].IsValid() && map_triggers[i].IsSatistied(volume, old_state)) {
-			if (map_triggers[i].is_for_entering)
-				is_entering = true;
-			else
-				is_leaving = true;
-		}
-	}
-	if (is_entering && is_leaving) {
-		std::cerr<<"HexagonalMapping::GetNewState:Error:"<<std::endl;
-		std::cerr<<"\tConditions for both leaving and entering cell are satisfied at the same time.\n"
-				"Most likely caused by wrong geometry/mapping setup.\n"
-				"Not mapping."<<std::endl;
-		return new_state;
-	}
-	if (is_entering)
-		new_state = MapToCell(old_state, false);
-	if (is_leaving) {
-		std::cerr<<"HexagonalMapping::GetNewState:Error:"<<std::endl;
-		std::cerr<<"\tParticle is generated inside THGEM1 cell! Cell mapping is undefined."<<std::endl;
-	}
-	return new_state;
-}

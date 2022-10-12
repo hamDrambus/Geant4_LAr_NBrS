@@ -14,10 +14,11 @@
 // HexagonalMapping.
 class HexagonalMappingData {
 public:
-  HexagonalMappingData() : cell_x_ind(-1), cell_y_ind(-1)
+  HexagonalMappingData() : cell_x_ind(-1), cell_y_ind(-1), mapping_id("")
   {}
   int cell_x_ind;
   int cell_y_ind;
+  std::string mapping_id;
   G4Point3D position;
   G4Vector3D momentum;
   G4Vector3D polarization;
@@ -56,6 +57,7 @@ protected:
 	G4VPhysicalVolume* trigger_volume;
 public:
 	friend class HexagonalMapping;
+	friend class MappingManager;
 };
 
 // Class calculating mapping between position in THGEM1 dummy volume and its single cell in global coordinates.
@@ -69,23 +71,19 @@ public:
 // TODO*: It is possible to add arbitrary rotation of cell and cell container
 class HexagonalMapping {
 public:
-  HexagonalMapping(G4ThreeVector container_pos, G4ThreeVector cell_pos, G4ThreeVector container_sizes, G4ThreeVector cell_sizes);
+	// At the moment only single field map in the program is available and thus only single HexagonalMapping has
+	// associated_with_field_map set to true in MappingManager
+  HexagonalMapping(std::string name, G4ThreeVector container_pos, G4ThreeVector cell_pos, G4ThreeVector container_sizes,
+  		G4ThreeVector cell_sizes, bool associated_with_field_map = false);
 
   // Returns cell indices and position inside cell according to global position
   HexagonalMappingData MapToCell(const HexagonalMappingData& map_info, bool ignore_z = false) const;
   // Returns global position and momentum according to cell indices and position inside cell
   HexagonalMappingData MapFromCell(const HexagonalMappingData& map_info, bool forced = false) const;
-  // Propagates particle to the next cell. Cell is changed when particle hit current cell sides only.
-  //HexagonalMappingData MapToNeighbourCell(const HexagonalMappingData& map_info) const;
 
   void AddTrigger(MappingTrigger trigger);
   void RemoveTrigger(std::string id);
   void ClearTriggers(void);
-  //These two overloaded functions have different logic!
-  //Called in TeleportationProcess (during particle transport)
-  HexagonalMappingData GetNewState(const G4Track& aTrack, const G4Step& aStep, const HexagonalMappingData& old_state) const;
-  //Called in PrimaryGenerator (during particle creation)
-  HexagonalMappingData GetNewState(const G4VPhysicalVolume* volume, const HexagonalMappingData& old_state) const;
 
   bool isValid(void) const;
   int GetNcells(void) const;
@@ -101,6 +99,8 @@ protected:
   HexagonalMappingData MoveFromCell(const HexagonalMappingData& map_info) const;
   bool isInCell(const HexagonalMappingData& map_info) const;
 
+  std::string name_id;
+  bool has_field_map;
   G4ThreeVector g_container_pos;//center of cell container volume (THGEM) in global coordinates
   G4ThreeVector g_cell_pos;//center of cell volume in global coordinates
   double container_x_size;
@@ -121,6 +121,8 @@ protected:
   static const G4Transform3D mirror_X;
   static const G4Transform3D mirror_Y;
   static const G4Transform3D mirror_XY;
+public:
+  friend class MappingManager;
 };
 
 #endif //HEXAGONAL_MAPPING_H_

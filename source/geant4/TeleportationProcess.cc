@@ -47,7 +47,7 @@ G4VParticleChange* TeleportationProcess::PostStepDoIt(const G4Track& aTrack, con
       G4cout << " postPVolume: " << postPVolume->GetName() << G4endl;
   }
 
-  if (nullptr == gData.THGEM1_mapping) {
+  if (!gData.mapping_manager.HasMapping()) {
 		if(verboseLevel > 1) {
 			G4cout << " No mapping class in global parameters, skipping process." << G4endl;
 		}
@@ -73,7 +73,7 @@ G4VParticleChange* TeleportationProcess::PostStepDoIt(const G4Track& aTrack, con
            << " Old Polarization:       " << fOldState.polarization << G4endl;
   }
 
-  fNewState = gData.THGEM1_mapping->GetNewState(aTrack, aStep, fOldState);
+  fNewState = gData.mapping_manager.GetNewState(aTrack, aStep, fOldState);
 
   if (fNewState != fOldState) {
     aParticleChange.ProposeTrackStatus(fStopAndKill);

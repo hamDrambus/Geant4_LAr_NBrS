@@ -132,7 +132,6 @@ void GlobalData::ProgressBarHelper::finish(void)
 
 
 GlobalData::GlobalData() :
-    THGEM1_mapping(nullptr),
     field_map(nullptr),
     LAr_medium(nullptr),
     progress_bar()
@@ -140,8 +139,6 @@ GlobalData::GlobalData() :
 
 GlobalData::~GlobalData()
 {
-  if (nullptr != THGEM1_mapping)
-    delete THGEM1_mapping;
   if (nullptr != field_map)
     delete field_map;
   if (nullptr != LAr_medium)
@@ -252,40 +249,7 @@ G4ThreeVector GlobalData::GetDriftStartCenter(void) const
 
 G4ThreeVector GlobalData::GetFieldAtGlobal(G4ThreeVector position, DriftMedium* &medium, int *status)
 {
-  medium = nullptr;
-  if (nullptr == field_map || !field_map->IsReady()) {
-    std::cerr<<"GlobalData::GetFieldAtGlobal:Error: Field map is not available."<<std::endl;
-    if (nullptr != status)
-      *status = 1;
-    return G4ThreeVector(0, 0, 0);
-  }
-  if (nullptr == THGEM1_mapping || !THGEM1_mapping->isValid()) {
-    std::cerr<<"GlobalData::GetFieldAtGlobal:Error: THGEM1 mapping is not available."<<std::endl;
-    if (nullptr != status)
-      *status = 2;
-    return G4ThreeVector(0, 0, 0);
-  }
-  HexagonalMappingData mapping_data;
-  mapping_data.cell_x_ind = -1;
-  mapping_data.cell_y_ind = -1;
-  mapping_data.position = position;
-  mapping_data.momentum = G4ThreeVector(0, 0, 0);
-  mapping_data.polarization = G4ThreeVector(0, 0, 0);
-  mapping_data = THGEM1_mapping->MapToCell(mapping_data, true);
-  if (!mapping_data.isInCell()) {
-    if (nullptr != status)
-        *status = -6;
-    return mapping_data.momentum;
-  }
-  G4ThreeVector in_mesh_pos = mapping_data.position - gPars::det_dims->THGEM1_single_cell_position + gPars::field_map.elmer_mesh_center;
-  double ex,ey,ez;
-  int status_;
-  field_map->ElectricField(in_mesh_pos.x(),in_mesh_pos.y(),in_mesh_pos.z(),ex,ey,ez,medium, status_);
-  mapping_data.momentum = G4ThreeVector(ex, ey, ez);
-  mapping_data = THGEM1_mapping->MapFromCell(mapping_data, true);
-  if (nullptr != status)
-    *status = status_;
-  return mapping_data.momentum;
+  return mapping_manager.GetFieldAtGlobal(position, medium, status);
 }
 
 void GlobalData::PlotField(std::string filename, G4ThreeVector line_start, G4ThreeVector line_finish, int Num, std::string name, double L_fine, int Num_fine)
@@ -294,8 +258,8 @@ void GlobalData::PlotField(std::string filename, G4ThreeVector line_start, G4Thr
     std::cerr<<"GlobalData::PlotField:Error: Field map is not available. No plotting."<<std::endl;
     return;
   }
-  if (nullptr == THGEM1_mapping || !THGEM1_mapping->isValid()) {
-    std::cerr<<"GlobalData::PlotField:Error: THGEM1 mapping is not available."<<std::endl;
+  if (!mapping_manager.HasFieldMapping()) {
+    std::cerr<<"GlobalData::PlotField:Error: THGEM1 field mapping is not available."<<std::endl;
     return;
   }
   ensure_file(filename);
