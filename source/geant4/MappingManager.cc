@@ -194,7 +194,7 @@ G4ThreeVector MappingManager::GetFieldAtGlobal(G4ThreeVector position, DriftMedi
 				*status = -6;
 		return mapping_data.momentum;
 	}
-	G4ThreeVector in_mesh_pos = mapping_data.position - gPars::det_dims->THGEM1_single_cell_position + gPars::field_map.elmer_mesh_center;
+	G4ThreeVector in_mesh_pos = mapping_data.position - map->g_cell_pos + gPars::field_map.elmer_mesh_center;
 	double ex,ey,ez;
 	int status_;
 	gData.field_map->ElectricField(in_mesh_pos.x(),in_mesh_pos.y(),in_mesh_pos.z(),ex,ey,ez,medium, status_);

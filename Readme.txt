@@ -4,7 +4,7 @@ Dependencies:
 
 Required for the project overall but not used in compilation of C++ code:
 1) CERN ROOT is required to analyze obtained data with root_scripts/*.
-2) FreeCAD or something else is recommended to view VRML2FILE (g4.wrl) visualization output. Otherwise refer to Geant4 visualization (configured from vis.mac)
+2) FreeCAD, view3dscene or something else is recommended to view VRML2FILE (g4.wrl) visualization output. Otherwise refer to Geant4 visualization (configured from vis.mac)
 3) Gmsh v3 is required to create THGEM cell mesh (.geo file->.msh)
 4) Elmer is required to calculate electric field in cell using Gmsh output (.msh + .sif -> .results, .header, .nodes, .elements, .boundary).
 5) gnuplot is recommended to quickly plot some simple files (such as electric fields). There are some funcitons which plot data bt connecting to gnuplot with pipe. Not required for running application.

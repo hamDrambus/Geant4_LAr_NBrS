@@ -81,13 +81,13 @@ void GenPhotonsDirectly::GeneratePrimaries(G4Event* anEvent)
   // Set particle position
   double x, y, z;
   if (mPattern == PatternPhoton::SiPM_shading) { // Square-shaped distribution
-    x = gPars::det_dims->THGEM1_hole_center.x() + gPars::source->xy_radius*(G4UniformRand() - 0.5);
-    y = gPars::det_dims->THGEM1_hole_center.y() + gPars::source->xy_radius*(G4UniformRand() - 0.5);
-    z = gPars::det_dims->THGEM1_hole_center.z() + gPars::source->z_center;
+    x = gPars::det_dims->THGEM_hole_center.x() + gPars::source->xy_radius*(G4UniformRand() - 0.5);
+    y = gPars::det_dims->THGEM_hole_center.y() + gPars::source->xy_radius*(G4UniformRand() - 0.5);
+    z = gPars::det_dims->THGEM_hole_center.z() + gPars::source->z_center;
   } else if (mPattern == PatternPhoton::THGEM1_hole_center) {
-    x = gPars::det_dims->THGEM1_hole_center.x();
-    y = gPars::det_dims->THGEM1_hole_center.y();
-    z = gPars::det_dims->THGEM1_hole_center.z();
+    x = gPars::det_dims->THGEM_hole_center.x();
+    y = gPars::det_dims->THGEM_hole_center.y();
+    z = gPars::det_dims->THGEM_hole_center.z();
   } else if (mPattern == PatternPhoton::EL_gap_center) {
     x = gPars::det_dims->EL_gap_center.x();
     y = gPars::det_dims->EL_gap_center.y();

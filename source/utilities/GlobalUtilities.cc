@@ -176,7 +176,7 @@ void rename_file(std::string origin, std::string destination)
 #else
   ensure_file(destination);
   int code = system(("rm -f \"" + destination + "\"").c_str());
-  code = system(("mv \"" + origin + "\" " + destination).c_str());
+  code = system(("mv \"" + origin + "\" \"" + destination + "\"").c_str());
   if (code) {
     std::cerr << "mv error: " << code << std::endl;
     std::cerr << "Error renaming \""<<origin<<"\" to \""<<destination<<"\"" << std::endl;

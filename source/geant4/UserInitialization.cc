@@ -9,6 +9,10 @@ UserInitialization::UserInitialization(G4RunManager *run_manager) :
     // Create detector depending on settings given
     VDetectorConstruction* detector = nullptr;
     switch(gPars::det_dims->detector_type) {
+    case (VDetectorDimensions::Full_detector_y2022): {
+				detector = new Detector_full_y2022;
+				break;
+			}
     case (VDetectorDimensions::Full_detector): {
       detector = new Detector_full;
       break;

@@ -163,13 +163,27 @@ void GlobalData::SetupFieldMap(void)
   }
   double tolerance = G4GeometryTolerance::GetInstance()->GetSurfaceTolerance();
   double x_min, x_max, y_min, y_max, z_min, z_max;
+  // TODO: connect elmer field map and detector's mapping properly.
+  // Maybe move field loading as a function in Detector construction?
+  // Or use MappingManager's mapping with has_field_map=true?
   field_map->GetBoundingBox(x_min, y_min, z_min, x_max, y_max, z_max);
-  if ((gPars::det_dims->THGEM1_hole_pitch / 2.0 - (x_max- x_min)) > tolerance ||
-      (gPars::det_dims->THGEM1_hole_pitch * std::sqrt(3) / 2.0 - (y_max- y_min)) > tolerance ||
-      (gPars::det_dims->THGEM1_container_width > (z_max- z_min))) {
-    G4Exception("GlobalData::SetupFieldMap: ",
-        "InvalidSetup", FatalException, "Loaded field map has dimensions incomparable to THGEM1 cell.");
-    return;
+  if (gPars::det_dims->detector_type == VDetectorDimensions::Full_detector_y2022) {
+  	DetectorDimsFullY2022 *dims = (DetectorDimsFullY2022*) gPars::det_dims;
+  	if ((dims->THGEM0_hole_pitch / 2.0 - (x_max- x_min)) > tolerance ||
+				(dims->THGEM0_hole_pitch * std::sqrt(3) / 2.0 - (y_max- y_min)) > tolerance ||
+				(dims->THGEM0_container_width > (z_max- z_min))) {
+			G4Exception("GlobalData::SetupFieldMap: ",
+					"InvalidSetup", FatalException, "Loaded field map has dimensions incomparable to THGEM0 cell.");
+			return;
+		}
+  } else {
+		if ((gPars::det_dims->THGEM1_hole_pitch / 2.0 - (x_max- x_min)) > tolerance ||
+				(gPars::det_dims->THGEM1_hole_pitch * std::sqrt(3) / 2.0 - (y_max- y_min)) > tolerance ||
+				(gPars::det_dims->THGEM1_container_width > (z_max- z_min))) {
+			G4Exception("GlobalData::SetupFieldMap: ",
+					"InvalidSetup", FatalException, "Loaded field map has dimensions incomparable to THGEM1 cell.");
+			return;
+		}
   }
   field_map->SetRelativeTolerance(gPars::field_map.mesh_tolerance);
 
@@ -244,6 +258,10 @@ G4ThreeVector GlobalData::GetDriftStartCenter(void) const
     return c;
   double xmin, ymin, zmin, xmax, ymax, zmax;
   field_map->GetBoundingBox(xmin, ymin, zmin, xmax, ymax, zmax);
+  if (gPars::det_dims->detector_type == VDetectorDimensions::Full_detector_y2022) {
+    	DetectorDimsFullY2022 *dims = (DetectorDimsFullY2022*) gPars::det_dims;
+    	return dims->THGEM0_center + G4ThreeVector(0, 0, c.z() + zmin);
+  }
   return gPars::det_dims->THGEM1_center + G4ThreeVector(0, 0, c.z() + zmin);
 }
 

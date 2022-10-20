@@ -23,7 +23,8 @@ public:
   enum DetectorType {
     Full_detector,
     THGEM1_detailed,
-    THGEM1_SiPM_shading
+    THGEM1_SiPM_shading,
+		Full_detector_y2022
   };
   DetectorType detector_type;
 
@@ -37,7 +38,7 @@ public:
 
   // For convenience and/or testing purposes. Set in VDetectorConstruction::SetSizeAndPosition()
   G4ThreeVector THGEM1_single_cell_position;
-  G4ThreeVector THGEM1_hole_center;
+  G4ThreeVector THGEM_hole_center; // may be THGEM1 or THGEM0, depending on where NBrS is expected from.
   G4ThreeVector THGEM1_center;
   G4ThreeVector EL_gap_center;
   G4ThreeVector Cathode_top_center;
@@ -68,6 +69,23 @@ class DetectorDimsTGHEM1Shading : public VDetectorDimensions
 {
 public:
   DetectorDimsTGHEM1Shading() { detector_type = THGEM1_SiPM_shading; }
+};
+
+class DetectorDimsFullY2022 : public VDetectorDimensions
+{
+public:
+	DetectorDimsFullY2022() { detector_type = Full_detector_y2022; }
+	double THGEM0_hole_pitch;
+	double THGEM0_hole_radius;
+	double THGEM0_hole_rim;
+	double THGEM0_dielectric_thickness;
+	double THGEM0_copper_thickness;
+	double THGEM0_width_total;
+	double THGEM0_container_width; //area which triggers mapping to cell when hit. +-0.01 mm from both sides of THGEM1
+
+	// For convenience and/or testing purposes. Set in VDetectorConstruction::SetSizeAndPosition()
+	G4ThreeVector THGEM0_single_cell_position;
+	G4ThreeVector THGEM0_center;
 };
 
 #endif // DetectorSettings_h

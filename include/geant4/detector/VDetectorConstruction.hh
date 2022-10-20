@@ -42,7 +42,7 @@ protected:
 	virtual void defineSurfaces();
 	virtual void SetSizeAndPosition() = 0;
 	virtual void CreateTHGEM1Cell();
-	virtual void SetupTHGEM1Mapping(); //Finds THGEM1 volumes and initializes mapping class gPars::THGEM1_mapping
+	virtual void SetupTHGEMsMapping(); //Finds THGEM1 volumes and initializes mapping class gPars::THGEM1_mapping
 
 	std::vector<G4PhysicalVolumesSearchScene::Findings> LocatePV(G4VPhysicalVolume* volume); //must be called after physiWorld is fully constructed
 
@@ -92,7 +92,7 @@ protected:
   double y_size_THGEM1_container;
   double z_size_THGEM1_container;
 
-  G4ThreeVector position_SingleTHGEMCell; // in world volume
+  G4ThreeVector position_SingleTHGEM1Cell; // in world volume
   G4ThreeVector position_THGEM1_container; // in LAr or world volume
 };
 

@@ -64,7 +64,7 @@ G4VPhysicalVolume * Detector_full::Construct()
 
 	//-------------------------------------------------------------------------------
 	CreateTHGEM1Cell();
-	G4VPhysicalVolume* phys_THGEM1_cell = new G4PVPlacement(0, position_SingleTHGEMCell, logic_THGEM1_cell,
+	G4VPhysicalVolume* phys_THGEM1_cell = new G4PVPlacement(0, position_SingleTHGEM1Cell, logic_THGEM1_cell,
 		"phys_THGEM1_cell_isolated", logicWorld, false, 0, fCheckOverlaps);
 
 	//-------------------------------------------------------------------------------
@@ -384,7 +384,7 @@ G4VPhysicalVolume * Detector_full::Construct()
 
 	logicWorld->SetVisAttributes(gas_VisAtt);
 
-	SetupTHGEM1Mapping();
+	SetupTHGEMsMapping();
 	return physiWorld;
 }
 
@@ -605,7 +605,7 @@ void Detector_full::SetSizeAndPosition()
 	radiusTPB = 35;
 	z_size_TPB = 0.2;
 
-	position_SingleTHGEMCell = G4ThreeVector(150 * mm, 150 * mm, 150 * mm);
+	position_SingleTHGEM1Cell = G4ThreeVector(150 * mm, 150 * mm, 150 * mm);
 
 	position_anode_grid = G4ThreeVector(0, 0, z_anode_grid_center);
 	position_SiPM_container = G4ThreeVector(0, 0, z_SiPM_center);
@@ -679,14 +679,14 @@ void Detector_full::SetSizeAndPosition()
     return;
   }
 
-	gPars::det_dims->THGEM1_hole_center = //x!=0 because x=0 is just across anode wire before SiPM.
+	gPars::det_dims->THGEM_hole_center = //x!=0 because x=0 is just across anode wire before SiPM.
       G4ThreeVector(gPars::det_dims->THGEM1_hole_pitch, 0, z_bottom_THGEM1 + gPars::det_dims->THGEM1_width_total / 2.0);
   gPars::det_dims->EL_gap_center =
       G4ThreeVector(gPars::det_dims->THGEM1_hole_pitch, 0, (z_top_interface_grid + z_bottom_THGEM1) / 2.0);
   gPars::det_dims->Cathode_top_center =
       G4ThreeVector(0, 0, 0);
   gPars::det_dims->THGEM1_center = G4ThreeVector(0, 0, z_bottom_THGEM1 + gPars::det_dims->THGEM1_width_total / 2.0);
-  gPars::det_dims->THGEM1_single_cell_position = position_SingleTHGEMCell;
+  gPars::det_dims->THGEM1_single_cell_position = position_SingleTHGEM1Cell;
   gPars::det_dims->n_PMTs = 4;
   gPars::det_dims->n_SiPMs = Nx_SiPMs * Ny_SiPMs;
 }

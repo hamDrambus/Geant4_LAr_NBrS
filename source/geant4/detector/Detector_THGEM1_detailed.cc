@@ -24,7 +24,7 @@ G4VPhysicalVolume * Detector_THGEM1_detailed::Construct()
 
 	//-------------------------------------------------------------------------------
 	CreateTHGEM1Cell();
-	G4VPhysicalVolume* phys_THGEM1_cell = new G4PVPlacement(0, position_SingleTHGEMCell, logic_THGEM1_cell,
+	G4VPhysicalVolume* phys_THGEM1_cell = new G4PVPlacement(0, position_SingleTHGEM1Cell, logic_THGEM1_cell,
 		"phys_THGEM1_cell_isolated", logicWorld, false, 0, fCheckOverlaps);
 
 	//--------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ G4VPhysicalVolume * Detector_THGEM1_detailed::Construct()
 
   // Define one layer as one assembly volume
   G4AssemblyVolume* assemblyTHGEM = new G4AssemblyVolume();
-  HexagonalMapping mapping("THGEM1", position_THGEM1_container, position_SingleTHGEMCell,
+  HexagonalMapping mapping("THGEM1", position_THGEM1_container, position_SingleTHGEM1Cell,
       G4ThreeVector(x_size_THGEM1_container, y_size_THGEM1_container, z_size_THGEM1_container),
       G4ThreeVector(gPars::det_dims->THGEM1_hole_pitch / 2.0, gPars::det_dims->THGEM1_hole_pitch * sqrt(3) / 2.0, z_size_THGEM1_container));
 
@@ -75,7 +75,7 @@ G4VPhysicalVolume * Detector_THGEM1_detailed::Construct()
   logic_THGEM1_container->SetVisAttributes(Invisible);
   logicWorld->SetVisAttributes(Invisible);
 
-  SetupTHGEM1Mapping();
+  SetupTHGEMsMapping();
 	return physiWorld;
 }
 
@@ -87,13 +87,13 @@ void Detector_THGEM1_detailed::SetSizeAndPosition()
   y_size_THGEM1_container = 5.5 * mm;
   z_size_THGEM1_container = gPars::det_dims->THGEM1_container_width;
 
-  position_SingleTHGEMCell = G4ThreeVector(8 * mm, 8 * mm, 8 * mm);
+  position_SingleTHGEM1Cell = G4ThreeVector(8 * mm, 8 * mm, 8 * mm);
   position_THGEM1_container = G4ThreeVector(0 * mm, 0 * mm, 0 * mm);
 
-  gPars::det_dims->THGEM1_single_cell_position = position_SingleTHGEMCell;
+  gPars::det_dims->THGEM1_single_cell_position = position_SingleTHGEM1Cell;
   gPars::det_dims->n_PMTs = 0;
   gPars::det_dims->n_SiPMs = 0;
-  gPars::det_dims->THGEM1_hole_center = G4ThreeVector(0, 0, 0);
+  gPars::det_dims->THGEM_hole_center = G4ThreeVector(0, 0, 0);
   gPars::det_dims->THGEM1_center = G4ThreeVector(0, 0, 0);
   gPars::det_dims->EL_gap_center = G4ThreeVector(DBL_MAX, DBL_MAX, DBL_MAX);
   gPars::det_dims->Cathode_top_center = G4ThreeVector(DBL_MAX, DBL_MAX, DBL_MAX);

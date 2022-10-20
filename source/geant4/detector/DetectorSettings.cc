@@ -29,6 +29,18 @@ VDetectorDimensions* CreateDetectorSettings(std::string filename)
     } else if (type == "THGEM1 shading") {
       DetectorDimsTGHEM1Shading *settings = new DetectorDimsTGHEM1Shading();
       out = settings;
+    } else if (type == "Full_y2022") {
+    	DetectorDimsFullY2022 *settings = new DetectorDimsFullY2022();
+      out = settings;
+      settings->THGEM0_copper_thickness = det.get<double>("THGEM0_copper_thickness_mm") * mm;
+      settings->THGEM0_hole_radius = det.get<double>("THGEM0_hole_radius_mm") * mm;
+      settings->THGEM0_dielectric_thickness = det.get<double>("THGEM0_dielectric_thickness_mm") * mm;
+      settings->THGEM0_hole_pitch = det.get<double>("THGEM0_hole_pitch_mm") * mm;
+      settings->THGEM0_hole_rim = det.get<double>("THGEM0_hole_rim_mm") * mm;
+
+			// Finalizing
+      settings->THGEM0_width_total = 2*settings->THGEM0_copper_thickness + settings->THGEM0_dielectric_thickness;
+      settings->THGEM0_container_width = settings->THGEM0_width_total + 0.01 * 2; // 0.01 mm from each side. Different value from Elmer simulation
     } else {
       std::cerr<<"Unknown detector type is specified: '"<<type<<"'!"<<std::endl;
       goto fail_load;

@@ -24,7 +24,7 @@ G4VPhysicalVolume * Detector_THGEM1_SiPM_shading::Construct()
 
 	//-------------------------------------------------------------------------------
 	CreateTHGEM1Cell();
-	G4VPhysicalVolume* phys_THGEM1_cell = new G4PVPlacement(0, position_SingleTHGEMCell, logic_THGEM1_cell,
+	G4VPhysicalVolume* phys_THGEM1_cell = new G4PVPlacement(0, position_SingleTHGEM1Cell, logic_THGEM1_cell,
 		"phys_THGEM1_cell_isolated", logicWorld, false, 0, fCheckOverlaps);
 
 	//--------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ G4VPhysicalVolume * Detector_THGEM1_SiPM_shading::Construct()
   logic_THGEM1_container->SetVisAttributes(Invisible);
   logicWorld->SetVisAttributes(Invisible);
 
-  SetupTHGEM1Mapping();
+  SetupTHGEMsMapping();
 	return physiWorld;
 }
 
@@ -94,7 +94,7 @@ void Detector_THGEM1_SiPM_shading::SetSizeAndPosition()
   y_size_THGEM1_container = 5 * cm;
   z_size_THGEM1_container = gPars::det_dims->THGEM1_container_width;
 
-  position_SingleTHGEMCell = G4ThreeVector(4 * cm, 4 * cm, -4 * cm);
+  position_SingleTHGEM1Cell = G4ThreeVector(4 * cm, 4 * cm, -4 * cm);
   position_THGEM1_container = G4ThreeVector(0 * mm, 0 * mm, 0 * mm);
 
   x_size_sensor = 9 * cm;
@@ -103,10 +103,10 @@ void Detector_THGEM1_SiPM_shading::SetSizeAndPosition()
   position_sensor = G4ThreeVector(0 * mm, 0 * mm, z_size_THGEM1_container / 2.0 + 1 * mm);
 
   double z_bottom_THGEM1 = position_THGEM1_container.x() - gPars::det_dims->THGEM1_width_total / 2.0;
-  gPars::det_dims->THGEM1_single_cell_position = position_SingleTHGEMCell;
+  gPars::det_dims->THGEM1_single_cell_position = position_SingleTHGEM1Cell;
   gPars::det_dims->n_PMTs = 0;
   gPars::det_dims->n_SiPMs = 0;
-  gPars::det_dims->THGEM1_hole_center = G4ThreeVector(0, 0, 0);
+  gPars::det_dims->THGEM_hole_center = G4ThreeVector(0, 0, 0);
   gPars::det_dims->THGEM1_center = G4ThreeVector(0, 0, 0);
   gPars::det_dims->EL_gap_center = G4ThreeVector(DBL_MAX, DBL_MAX, DBL_MAX);
   gPars::det_dims->Cathode_top_center = G4ThreeVector(DBL_MAX, DBL_MAX, DBL_MAX);

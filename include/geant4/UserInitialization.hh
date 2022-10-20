@@ -14,6 +14,7 @@
 #include "TrackingAction.hh"
 #include "CleanerWorkerRunManager.hh"
 #include "PhysicsList.hh"
+#include "detector/Detector_full_y2022.hh"
 #include "detector/Detector_full.hh"
 #include "detector/Detector_THGEM1_detailed.hh"
 #include "detector/Detector_THGEM1_SiPM_shading.hh"

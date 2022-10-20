@@ -283,9 +283,6 @@ private:
 	//PMTAnodeGridTracker
 	G4ThreeVector position_PMTAnodeGridTrackerGas_1;
 	G4ThreeVector position_PMTAnodeGridTrackerGasInner_1;
-	G4ThreeVector position_PMTAnodeGridTracker_1;
-	G4ThreeVector position_PMTAnodeGridTracker_2;
-	G4ThreeVector position_PMTAnodeGridTracker_3;
 	G4ThreeVector position_PMTAnodeGridTrackerLiquid_1;
 	G4ThreeVector position_PMTAnodeGridTrackerLiquidInner_1;
 };
