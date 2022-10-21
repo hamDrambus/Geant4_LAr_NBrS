@@ -1,0 +1,89 @@
+<Settings>
+  <!--OPT means value is optional. If it is not specified, the default value/behaviour will be used-->
+  <!--Settings sections do not exactly correspond to gPars:: for convinience here-->
+  <General>
+    <data_path>DATA_PATH</data_path> <!-- Path to data folder relative to binary launch folder. All input data filnames must be relative to it-->
+    <output_folder>OUTPUT_FOLDER</output_folder> <!-- Path to output folder-->
+    <doView>false</doView> <!--OPT use Geant4 visualization (g4_XX.wrl file is created)-->
+    <doViewElectronDrift>false</doViewElectronDrift> <!--OPT display electon drift tracks-->
+    <record_electrons>true</record_electrons> <!--OPT write to file to which electron photon corresponds-->
+    <record_detailed>true</record_detailed> <!--OPT write to file photon information-->
+    <generated_filename>generated.dat</generated_filename> <!--OPT filename for generated photons-->
+    <recorded_filename>recorded.dat</recorded_filename> <!--OPT filename for recorded (detected) photons-->
+    <enable_e_diffusion>false</enable_e_diffusion> <!--OPT-->
+    <thread_number>8</thread_number> <!--OPT-->
+    <photon_max_time_us>3</photon_max_time_us> <!--OPT maximal lifetime of photon. Prevents long loops due to full internal reflections-->
+  </General>
+  <Source>
+    <!-- Only single generator should be specified: NBrS_Generator, PhotonsDirectly or ElectronPattern -->
+    <NBrS_Generator> <!-- generate dirfting electrons and then photons by them -->
+      <N_events>500000</N_events> <!-- Number of events to simulate-->
+      <x_center_mm>0.0</x_center_mm> <!-- Source X position. Relative to THGEM1 center -->
+      <y_center_mm>0.0</y_center_mm> <!-- Source Y position. Relative to THGEM1 center -->
+      <z_center_mm>0.010</z_center_mm> <!-- Source Z position. Relative the lowest point where field map is still present (below THGEM1)-->
+      <xy_radius_mm>7.0</xy_radius_mm> <!-- Source radius/size. Meaning depends on specified pattern-->
+      <z_width_mm>0.0</z_width_mm> <!-- Source width.-->
+      <NBrS_yield_factor>10.0</NBrS_yield_factor> <!--OPT NBrS real yield is multiplied by this value in order to have good number of photons per 1 electron track-->
+    </NBrS_Generator>
+  </Source>
+  <Detector>
+    <DetectorType>Full</DetectorType> <!-- "Full" - full detector, "THGEM1 detailed" - detailed THGEM1 active area, "THGEM1 shading" - SiPM matrix shading by TGHEM1 -->
+    <!-- THGEM CERN 28% -->
+    <THGEM1_copper_thickness_mm>0.03</THGEM1_copper_thickness_mm>
+    <THGEM1_hole_radius_mm>0.25</THGEM1_hole_radius_mm>
+    <THGEM1_dielectric_thickness_mm>0.4</THGEM1_dielectric_thickness_mm>
+    <THGEM1_hole_pitch_mm>0.9</THGEM1_hole_pitch_mm>
+    <THGEM1_hole_rim_mm>0.1</THGEM1_hole_rim_mm>
+    <!-- THGEM Electroconnect 75% -->
+    <!--
+    <THGEM1_copper_thickness_mm>0.03</THGEM1_copper_thickness_mm>
+    <THGEM1_hole_radius_mm>0.5</THGEM1_hole_radius_mm>
+    <THGEM1_dielectric_thickness_mm>0.96</THGEM1_dielectric_thickness_mm>
+    <THGEM1_hole_pitch_mm>1.1</THGEM1_hole_pitch_mm>
+    <THGEM1_hole_rim_mm>0.0</THGEM1_hole_rim_mm>
+    -->
+  </Detector>
+  <FieldMap>
+    <elmer_mesh_folder>MESH_FOLDER</elmer_mesh_folder>
+    <elmer_solution_filename>FIELD_MAP_FILE</elmer_solution_filename>
+    <drift_step_size_um>2.0</drift_step_size_um> <!--Step size during electron drift-->
+
+    <mesh_tolerance>1e-10</mesh_tolerance> <!--OPT-->
+    <max_rel_field_change>0.05</max_rel_field_change> <!--OPT relative field change for a single step must be less than this value during electron drift-->
+  </FieldMap>
+  <DetectorOptics>
+    <FR4_SigmaAlpha_deg>50</FR4_SigmaAlpha_deg>
+    <StainlessSteel_SigmaAlpha_deg>10</StainlessSteel_SigmaAlpha_deg>
+    <Cu_SigmaAlpha_deg>30</Cu_SigmaAlpha_deg>
+    <Wire_SigmaAlpha_deg>5</Wire_SigmaAlpha_deg>
+    <!-- model_25b -->
+    <FR4_reflectivity>0.20</FR4_reflectivity>
+    <!-- https://www.cetem.gov.br/images/congressos/2008/CAC00560008.pdf -->
+    <!-- <FR4_reflectivity>0.05</FR4_reflectivity> -->
+		<!-- Bass M. Handbook of optics, Vol.4 Edition3 -->
+    <Cu_reflectivity>0.36</Cu_reflectivity>
+    <pmma_absorption_length_filename>absorption_length/PMMA_absorption_length_eV_mm.dat</pmma_absorption_length_filename>
+		<pmma_rindex_filename>refractive_index/PMMA_rindex_eV_1.dat</pmma_rindex_filename>
+    <pmma_uv_absorption_length_filename>absorption_length/PMMA_VU_absorption_length_eV_mm.dat</pmma_uv_absorption_length_filename>
+
+    <no_reflections>false</no_reflections> <!--OPT if true, then all non-transparent materials have 0 reflectivity-->
+    <no_diffused_reflections>false</no_diffused_reflections> <!--OPT if true, then all reflections are not diffusial-->
+  </DetectorOptics>
+  <ArgonProperties>
+    <XS_energy_transfer_filename>LAr_XS/XS_energy_transfer_Borisova.txt</XS_energy_transfer_filename>
+    <XS_momentum_transfer_filename>LAr_XS/XS_momentum_transfer_Borisova.txt</XS_momentum_transfer_filename>
+    <atomic_density_cm3>2.10e22</atomic_density_cm3> <!-- OPT by default density at 87.3K & 1 atm is used (2.10e22 cm^-3 doi:10.1209/0295-5075/ac4c03)-->
+    <cache_folder>../../NBrS_THGEM_LAr_v0/data_cache_v2_elastic/</cache_folder> <!--OPT folder containing saved computations-->
+    <LAr_drift_velocity>LAr_drift/LAr_drift_velocity_data.txt</LAr_drift_velocity> <!--OPT In case there is no theoretical values-->
+    <LAr_diffusion_transversal>LAr_drift/LAr_diffusionT_data.txt</LAr_diffusion_transversal> <!--OPT In case there is no theoretical values-->
+    <LAr_diffusion_longitudinal>LAr_drift/LAr_diffusionL_data.txt</LAr_diffusion_longitudinal> <!--OPT In case there is no theoretical values-->
+    <NBrS_formula>ElasticXS</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default) and TransferXS are supported -->
+  </ArgonProperties>
+  <Debug>
+    <check_geometry_overlap>false</check_geometry_overlap> <!--OPT-->
+    <electron_max_time_ns>MAX</electron_max_time_ns> <!--OPT maximal lifetime of photon. Prevents stuck electrons which normally must not happen-->
+    <print_drift_track>false</print_drift_track> <!--OPT print each electron drift track point by point to file-->
+    <teleportation_verbosity>0</teleportation_verbosity> <!--OPT to print HexagonalMapping info-->
+    <Ar_print_calculations>true</Ar_print_calculations> <!--OPT print results of caculating argon properties-->
+  </Debug>
+</Settings>

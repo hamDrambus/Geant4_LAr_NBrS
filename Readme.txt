@@ -46,3 +46,9 @@ Generally speaking simulation is configured from several places:
 UPD: parameters are now set in setting.xml file
 run as:
 ...build/Geant_simulation path/to/settings.xml | tee path/to/log.txt
+
+UPD: There are now bash scripts streamlining simulation process.
+One script calculates electric fields for several THGEM voltages
+Another one then generates several settings files from template that will use those electric fields and run simulation program with the settings.
+
+UPD: results/v11 now has RunSimulation.sh which will automatically build mesh if necessary, calculate electric field and then run simulation with it. 

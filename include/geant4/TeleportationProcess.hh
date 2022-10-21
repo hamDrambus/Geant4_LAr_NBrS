@@ -19,7 +19,7 @@ enum TeleportProcessSubType
 // Simply changing particle position (e.g. in SteppingAction) confuses geant4 and G4Navigator
 // so instead particle is killed and secondary one is created where necessary.
 // Code snippets are taken from G4OpBoundaryProcess (framework) and G4OpWLS (secondary particle creation)
-// TODO*: implement this process in general terms, i.e. via list of abstract mapping classes instead
+// DONE: implement this process in general terms, i.e. via list of abstract mapping classes instead
 // of concrete HexagonalMapping with fixed hard-coded trigger conditions and used volumes.
 class TeleportationProcess : public G4VDiscreteProcess
 {

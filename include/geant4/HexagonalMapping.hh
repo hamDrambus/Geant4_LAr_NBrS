@@ -69,6 +69,7 @@ public:
 //because cell container is always bigger than cell covered area: (n * cell_size <= full_size) because n is an integer.
 // TODO*: Add different symmetry cases: (-,-) (implemented), (+,+), (-,+), (+,-) for (x,y)
 // TODO*: It is possible to add arbitrary rotation of cell and cell container
+// TODO*: General virtual mapping class can be added.
 class HexagonalMapping {
 public:
 	// At the moment only single field map in the program is available and thus only single HexagonalMapping has

@@ -25,8 +25,8 @@
 #include "DriftMedium.hh"
 #include "TetrahedralTree.hh"
 
-//TODO: For speeding up element search use new Garfield++'s TetrahedralTree class.
-//Check it against my approach. It will possibly need to be optimized as well (remove recursion)
+//DONE: For speeding up element search use new Garfield++'s TetrahedralTree class.
+//Checked it against my approach: Garfield's TetrahedralTree code is the most optimal.
 class FieldElmerMap {
 public:
   FieldElmerMap();
