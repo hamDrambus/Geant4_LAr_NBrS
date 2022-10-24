@@ -10,7 +10,7 @@ BinaryElmer = "ElmerGrid"
 BinarySolver = "ElmerSolver"
 # Folder and file are relative to this script
 ElmerFolder = "Elmer_v00.01"
-GeoFile = "v00.01_THGEM1.geo"
+GeoFile = "v00.01_THGEM0.geo"
 
 def do_need_meshing (path):
     file = os.path.join(path, "mesh.boundary")
@@ -65,39 +65,40 @@ def solve_fields(V0, Vth1, recalculateField=False, recalculateMesh=False):
     dir_path = os.path.dirname(path)
     abs_geo_file = os.path.join(dir_path, GeoFile)
     #Detector constants:
-    THGEM1_Rbot = 1.0
-    THGEM1_Rtop = 1.0+8.6
     THGEM1_Rtotal = 1.0+8.6+1.2
+    THGEM1_Rthgem = 1.0+8.6
 
-    R1=80.0
-    R2=40.0
-    R3=10.0
-    R4=600.0
+    R1=60.0
+    R2=80.0
+    R3=260.0
+    R4=240.0
     Rtot = R1 + 3*R2 + R3 + R4
 
     #distances [cm] from THGEM0 electrode to THGEM1 and cathode in the real detector
     EL_GAP_FULL = 2.20
-    ANODE_THGEM1_dz=0.5
+    EL_GAP = 0.60
     DRIFT_L = 4.8
     LAR_EPS = 1.54 #LAr dielectric constant
     #distances from THGEM1 electrode to cathode and anode in Gmsh model #TODO: exctract from geo file
-    CATHODE_dZ = 0.3
-    ANODE_dZ = 0.3
+    CATHODE_dZ = 0.5
+    ANODE_dZ = 0.5
 
     #Calculating potentials for sif file
-    V_top_THGEM1 = Vth1 * THGEM1_Rtop / THGEM1_Rtotal
-    V_bot_THGEM1 = Vth1 * THGEM1_Rbot / THGEM1_Rtotal
-    Edrift = (V_bot_THGEM1 - 1000 * V0 * R4 / Rtot) / EL_GAP_FULL
-    Einduction = - V_top_THGEM1 Vgap / ANODE_THGEM1_dz
-    Vcathode = V_bot_THGEM1 -  Edrift * CATHODE_dZ
-    Vanode = V_top_THGEM1 + Einduction * ANODE_dZ
+    V_top_THGEM0 = 1000 * V0 * R3 / Rtot
+    V_bot_THGEM0 = 0
+    Edrift = (V0 * 1000 * 3 * R2 / Rtot)/DRIFT_L
+    #Vgap in the real detector [V]
+    Vgap = V0 * 1000 * R4 / Rtot + Vth1 * THGEM1_Rthgem / THGEM1_Rtotal
+    Einduction = Vgap / (LAR_EPS * EL_GAP + EL_GAP_FULL - EL_GAP)
+    Vcathode = V_bot_THGEM0 -  Edrift * CATHODE_dZ
+    Vanode = V_top_THGEM0 + Einduction * ANODE_dZ
 
     abs_mesh_folder = create_mesh(abs_geo_file, recalculate=recalculateMesh)
     if abs_mesh_folder is None:
         return None
     print("Mesh folder = \"" + abs_mesh_folder + "\"")
 
-    VERSION = str(round(Vth1)) + "v"
+    VERSION = str(round(V0), 1) + "kv"
     abs_elmer_folder = os.path.join(dir_path, ElmerFolder)
     abs_result_file = os.path.join(abs_elmer_folder, "case_" + VERSION + ".result")
     if not os.path.isfile(abs_result_file) or recalculateField:
@@ -115,8 +116,8 @@ def solve_fields(V0, Vth1, recalculateField=False, recalculateMesh=False):
             l = l.replace('RESULT_FILE', rel_result_file)
             l = l.replace('CATHODE_POTENTIAL', str(Vcathode))
             l = l.replace('ANODE_POTENTIAL', str(Vanode))
-            l = l.replace('TOP_THGEM_POTENTIAL', str(V_top_THGEM1))
-            print(l.replace('BOT_THGEM_POTENTIAL', str(V_bot_THGEM1)), end='')
+            l = l.replace('TOP_THGEM_POTENTIAL', str(V_top_THGEM0))
+            print(l.replace('BOT_THGEM_POTENTIAL', str(V_bot_THGEM0)), end='')
 
         if not os.path.isfile(abs_sif_file):
             print ("ERROR: \""+abs_sif_file+"\" file does not exist. Cannot calculate field map, aborting.")

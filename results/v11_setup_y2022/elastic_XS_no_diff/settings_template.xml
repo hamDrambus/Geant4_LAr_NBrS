@@ -2,8 +2,8 @@
   <!--OPT means value is optional. If it is not specified, the default value/behaviour will be used-->
   <!--Settings sections do not exactly correspond to gPars:: for convinience here-->
   <General>
-    <data_path>../../NBrS_THGEM_LAr_v0/data/</data_path> <!-- Path to data folder. All input data filnames must be relative to it-->
-    <output_folder>../../NBrS_THGEM_LAr_v0/results/v11_setup_y2022/elastic_XS_no_diff/</output_folder> <!-- Path to output folder-->
+    <data_path>DATA_PATH</data_path> <!-- Path to data folder. All input data filnames must be relative to it-->
+    <output_folder>OUTPUT_FOLDER</output_folder> <!-- Path to output folder-->
     <doView>false</doView> <!--OPT use Geant4 visualization (g4_XX.wrl file is created)-->
     <doViewElectronDrift>false</doViewElectronDrift> <!--OPT display electon drift tracks-->
     <record_electrons>true</record_electrons> <!--OPT write to file to which electron photon corresponds-->
@@ -23,7 +23,7 @@
       <z_center_mm>0.010</z_center_mm> <!-- Source Z position. Relative the lowest point where field map is still present (below THGEM1)-->
       <xy_radius_mm>5.0</xy_radius_mm> <!-- Source radius/size. Meaning depends on specified pattern-->
       <z_width_mm>0.0</z_width_mm> <!-- Source width.-->
-      <NBrS_yield_factor>100.0</NBrS_yield_factor> <!--OPT NBrS real yield is multiplied by this value in order to have good number of photons per 1 electron track-->
+      <NBrS_yield_factor>10.0</NBrS_yield_factor> <!--OPT NBrS real yield is multiplied by this value in order to have good number of photons per 1 electron track-->
     </NBrS_Generator>
   </Source>
   <Detector>
@@ -42,8 +42,8 @@
     <THGEM1_hole_rim_mm>0.0</THGEM1_hole_rim_mm>
   </Detector>
   <FieldMap>
-    <elmer_mesh_folder>../results/v11_setup_y2022/v00.01_THGEM0/</elmer_mesh_folder>
-    <elmer_solution_filename>../results/v11_setup_y2022/Elmer_v00.01/case_VOLTAGEv.result</elmer_solution_filename>
+    <elmer_mesh_folder>MESH_FOLDER</elmer_mesh_folder>
+    <elmer_solution_filename>FIELD_MAP_FILE</elmer_solution_filename>
     <drift_step_size_um>2.0</drift_step_size_um> <!--Step size during electron drift-->
 
     <mesh_tolerance>1e-10</mesh_tolerance> <!--OPT-->
