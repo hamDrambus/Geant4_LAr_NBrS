@@ -1,7 +1,7 @@
 // Run .L init.cpp before executing this script
 
 double plot_Npe_spectrum(std::string input_file = "../results/v10.0_elastic/2206V/recorded.dat",
-  bool isPMT = false, double NBrS_yield_factor = 10)
+  bool isPMT = false, double NBrS_yield_factor = 10, bool useAllSiPMs = true)
 {
   gStyle->SetCanvasDefH(800);
 	gStyle->SetCanvasDefW(1000);
@@ -103,8 +103,11 @@ double plot_Npe_spectrum(std::string input_file = "../results/v10.0_elastic/2206
   } else {
     std::cout<<"SiPMs recorded Npe raw = "<<GetNpeSiPMs(plot_info)<<std::endl;
     std::cout<<"Npe for 23 SiPMs = "<<GetNpeSiPMs23(plot_info)<<std::endl;
-    result = GetNpeSiPMs23(plot_info) * QE / plot_info.N_electrons / NBrS_yield_factor;
-    std::cout<<"Average real Npe for 23 SiPMs per 1 e = "<<result <<std::endl;
+    result = (useAllSiPMs ? GetNpeSiPMs(plot_info) : GetNpeSiPMs23(plot_info)) * QE / plot_info.N_electrons / NBrS_yield_factor;
+    if (useAllSiPMs)
+      std::cout<<"Average real Npe for 25 SiPMs per 1 e = "<<result <<std::endl;
+    else
+      std::cout<<"Average real Npe for 23 SiPMs per 1 e = "<<result <<std::endl;
   }
 
   TPaveStats *ps = (TPaveStats*)c_00->GetPrimitive("stats");

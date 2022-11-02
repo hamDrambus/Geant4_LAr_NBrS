@@ -2,7 +2,7 @@
   <!--OPT means value is optional. If it is not specified, the default value/behaviour will be used-->
   <!--Settings sections do not exactly correspond to gPars:: for convinience here-->
   <General>
-    <data_path>DATA_PATH</data_path> <!-- Path to data folder relative to binary launch folder. All input data filnames must be relative to it-->
+    <data_path>DATA_PATH</data_path> <!-- Path to data folder. All input data filnames must be relative to it-->
     <output_folder>OUTPUT_FOLDER</output_folder> <!-- Path to output folder-->
     <doView>false</doView> <!--OPT use Geant4 visualization (g4_XX.wrl file is created)-->
     <doViewElectronDrift>false</doViewElectronDrift> <!--OPT display electon drift tracks-->
@@ -10,7 +10,7 @@
     <record_detailed>true</record_detailed> <!--OPT write to file photon information-->
     <generated_filename>generated.dat</generated_filename> <!--OPT filename for generated photons-->
     <recorded_filename>recorded.dat</recorded_filename> <!--OPT filename for recorded (detected) photons-->
-    <enable_e_diffusion>false</enable_e_diffusion> <!--OPT-->
+    <enable_e_diffusion>true</enable_e_diffusion> <!--OPT-->
     <thread_number>8</thread_number> <!--OPT-->
     <photon_max_time_us>3</photon_max_time_us> <!--OPT maximal lifetime of photon. Prevents long loops due to full internal reflections-->
   </General>
@@ -18,30 +18,28 @@
     <!-- Only single generator should be specified: NBrS_Generator, PhotonsDirectly or ElectronPattern -->
     <NBrS_Generator> <!-- generate dirfting electrons and then photons by them -->
       <N_events>500000</N_events> <!-- Number of events to simulate-->
-      <x_center_mm>0.0</x_center_mm> <!-- Source X position. Relative to THGEM1 center -->
-      <y_center_mm>0.0</y_center_mm> <!-- Source Y position. Relative to THGEM1 center -->
+      <x_center_mm>0.0</x_center_mm> <!-- Source X position. Relative to THGEM center -->
+      <y_center_mm>0.0</y_center_mm> <!-- Source Y position. Relative to THGEM center -->
       <z_center_mm>0.010</z_center_mm> <!-- Source Z position. Relative the lowest point where field map is still present (below THGEM1)-->
-      <xy_radius_mm>7.0</xy_radius_mm> <!-- Source radius/size. Meaning depends on specified pattern-->
+      <xy_radius_mm>5.0</xy_radius_mm> <!-- Source radius/size. Meaning depends on specified pattern-->
       <z_width_mm>0.0</z_width_mm> <!-- Source width.-->
       <NBrS_yield_factor>10.0</NBrS_yield_factor> <!--OPT NBrS real yield is multiplied by this value in order to have good number of photons per 1 electron track-->
     </NBrS_Generator>
   </Source>
   <Detector>
-    <DetectorType>Full</DetectorType> <!-- "Full" - full detector, "THGEM1 detailed" - detailed THGEM1 active area, "THGEM1 shading" - SiPM matrix shading by TGHEM1 -->
+    <DetectorType>Full_y2022</DetectorType> <!-- "Full_y2022" - full detector fall of year 2022 version, "Full" - full detector, "THGEM1 detailed" - detailed THGEM1 active area, "THGEM1 shading" - SiPM matrix shading by TGHEM1 -->
     <!-- THGEM CERN 28% -->
-    <THGEM1_copper_thickness_mm>0.03</THGEM1_copper_thickness_mm>
-    <THGEM1_hole_radius_mm>0.25</THGEM1_hole_radius_mm>
-    <THGEM1_dielectric_thickness_mm>0.4</THGEM1_dielectric_thickness_mm>
-    <THGEM1_hole_pitch_mm>0.9</THGEM1_hole_pitch_mm>
-    <THGEM1_hole_rim_mm>0.1</THGEM1_hole_rim_mm>
+    <THGEM0_copper_thickness_mm>0.03</THGEM0_copper_thickness_mm>
+    <THGEM0_hole_radius_mm>0.25</THGEM0_hole_radius_mm>
+    <THGEM0_dielectric_thickness_mm>0.4</THGEM0_dielectric_thickness_mm>
+    <THGEM0_hole_pitch_mm>0.9</THGEM0_hole_pitch_mm>
+    <THGEM0_hole_rim_mm>0.1</THGEM0_hole_rim_mm>
     <!-- THGEM Electroconnect 75% -->
-    <!--
     <THGEM1_copper_thickness_mm>0.03</THGEM1_copper_thickness_mm>
     <THGEM1_hole_radius_mm>0.5</THGEM1_hole_radius_mm>
     <THGEM1_dielectric_thickness_mm>0.96</THGEM1_dielectric_thickness_mm>
     <THGEM1_hole_pitch_mm>1.1</THGEM1_hole_pitch_mm>
     <THGEM1_hole_rim_mm>0.0</THGEM1_hole_rim_mm>
-    -->
   </Detector>
   <FieldMap>
     <elmer_mesh_folder>MESH_FOLDER</elmer_mesh_folder>

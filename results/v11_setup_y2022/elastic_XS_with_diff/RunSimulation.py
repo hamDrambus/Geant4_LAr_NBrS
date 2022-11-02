@@ -19,8 +19,8 @@ Binary = "../../../../NBrS_THGEM_LAr_v0-build/RelWithDebInfo/Geant_simulation"
 DataPath = "../../../data"
 RecalculateField = False
 RecalculateMesh = False
-V0s = [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
-Vt1s = [6180, 5993, 5728, 5297, 4856, 4413, 3972, 3531, 3090, 2648, 2206, 1765]
+V0s = [11.0, 12.0, 13.0, 14.0, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5]
+Vt1s = [2025, 2250, 2250, 1688, 1238, 1238, 1238, 1238, 917, 563, 338, 0]
 
 # returns binary absolute path, settings absolute path and log file absolute path (str1, str2, str3)
 def prepare_settings(V0, Vth1):
@@ -42,7 +42,7 @@ def prepare_settings(V0, Vth1):
         return None
     RecalculateMesh = False # Mesh needs to be recalulated only once
 
-    suffix = str(round(Vth1)) + "V"
+    suffix = str(round(V0, 1)) + "kV"
     abs_output_path = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), suffix))
     os.makedirs(abs_output_path, exist_ok=True)
     abs_settings = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), "settings_" + suffix + ".xml"))
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         abs_binary_path = os.path.dirname(files[0])
         binary = os.path.basename(files[0])
         binary = os.path.join("./", binary)
-        
+
         p1 = subprocess.Popen([binary, files[1]], stdout=PIPE, stderr=subprocess.STDOUT, cwd=abs_binary_path)
         p2 = subprocess.Popen(["tee", files[2]], stdin=p1.stdout)
         p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.

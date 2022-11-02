@@ -11,6 +11,13 @@ enum PlotParameter
   gammaNProfile
 };
 
+std::string dbl_to_str (double val, int precision)
+{
+	std::stringstream ss;
+	ss<<std::fixed<<std::setprecision(precision)<<val;
+	return ss.str();
+}
+
 double ev_to_nm(double energy) {
   return 1239.84198 / energy;
 }

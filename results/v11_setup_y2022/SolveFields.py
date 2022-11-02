@@ -98,7 +98,7 @@ def solve_fields(V0, Vth1, recalculateField=False, recalculateMesh=False):
         return None
     print("Mesh folder = \"" + abs_mesh_folder + "\"")
 
-    VERSION = str(round(V0), 1) + "kv"
+    VERSION = str(round(V0, 1)) + "kv"
     abs_elmer_folder = os.path.join(dir_path, ElmerFolder)
     abs_result_file = os.path.join(abs_elmer_folder, "case_" + VERSION + ".result")
     if not os.path.isfile(abs_result_file) or recalculateField:

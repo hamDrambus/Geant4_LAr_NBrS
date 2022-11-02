@@ -81,16 +81,16 @@ def solve_fields(V0, Vth1, recalculateField=False, recalculateMesh=False):
     DRIFT_L = 4.8
     LAR_EPS = 1.54 #LAr dielectric constant
     #distances from THGEM1 electrode to cathode and anode in Gmsh model #TODO: exctract from geo file
-    CATHODE_dZ = 0.3
-    ANODE_dZ = 0.3
+    CATHODE_dZ = 0.5
+    ANODE_dZ = 0.5
 
     #Calculating potentials for sif file
     V_top_THGEM1 = Vth1 * THGEM1_Rtop / THGEM1_Rtotal
     V_bot_THGEM1 = Vth1 * THGEM1_Rbot / THGEM1_Rtotal
-    Edrift = (V_bot_THGEM1 - 1000 * V0 * R4 / Rtot) / EL_GAP_FULL
-    Einduction = - V_top_THGEM1 Vgap / ANODE_THGEM1_dz
+    Edrift = (V_bot_THGEM1 + 1000 * V0 * R4 / Rtot) / EL_GAP_FULL
+    Einduction = V_top_THGEM1 / ANODE_THGEM1_dz
     Vcathode = V_bot_THGEM1 -  Edrift * CATHODE_dZ
-    Vanode = V_top_THGEM1 + Einduction * ANODE_dZ
+    Vanode = V_top_THGEM1 - Einduction * ANODE_dZ
 
     abs_mesh_folder = create_mesh(abs_geo_file, recalculate=recalculateMesh)
     if abs_mesh_folder is None:

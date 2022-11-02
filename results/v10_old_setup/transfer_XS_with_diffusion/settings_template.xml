@@ -10,7 +10,7 @@
     <record_detailed>true</record_detailed> <!--OPT write to file photon information-->
     <generated_filename>generated.dat</generated_filename> <!--OPT filename for generated photons-->
     <recorded_filename>recorded.dat</recorded_filename> <!--OPT filename for recorded (detected) photons-->
-    <enable_e_diffusion>false</enable_e_diffusion> <!--OPT-->
+    <enable_e_diffusion>true</enable_e_diffusion> <!--OPT-->
     <thread_number>8</thread_number> <!--OPT-->
     <photon_max_time_us>3</photon_max_time_us> <!--OPT maximal lifetime of photon. Prevents long loops due to full internal reflections-->
   </General>
@@ -73,11 +73,11 @@
     <XS_energy_transfer_filename>LAr_XS/XS_energy_transfer_Borisova.txt</XS_energy_transfer_filename>
     <XS_momentum_transfer_filename>LAr_XS/XS_momentum_transfer_Borisova.txt</XS_momentum_transfer_filename>
     <atomic_density_cm3>2.10e22</atomic_density_cm3> <!-- OPT by default density at 87.3K & 1 atm is used (2.10e22 cm^-3 doi:10.1209/0295-5075/ac4c03)-->
-    <cache_folder>../../NBrS_THGEM_LAr_v0/data_cache_v2_elastic/</cache_folder> <!--OPT folder containing saved computations-->
+    <cache_folder>../../NBrS_THGEM_LAr_v0/data_cache_v2_transfer/</cache_folder> <!--OPT folder containing saved computations-->
     <LAr_drift_velocity>LAr_drift/LAr_drift_velocity_data.txt</LAr_drift_velocity> <!--OPT In case there is no theoretical values-->
     <LAr_diffusion_transversal>LAr_drift/LAr_diffusionT_data.txt</LAr_diffusion_transversal> <!--OPT In case there is no theoretical values-->
     <LAr_diffusion_longitudinal>LAr_drift/LAr_diffusionL_data.txt</LAr_diffusion_longitudinal> <!--OPT In case there is no theoretical values-->
-    <NBrS_formula>ElasticXS</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default) and TransferXS are supported -->
+    <NBrS_formula>TransferXS</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default) and TransferXS are supported -->
   </ArgonProperties>
   <Debug>
     <check_geometry_overlap>false</check_geometry_overlap> <!--OPT-->

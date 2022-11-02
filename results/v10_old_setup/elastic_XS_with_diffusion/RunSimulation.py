@@ -2,6 +2,7 @@
 import sys
 import os
 import subprocess
+from subprocess import PIPE
 import shutil
 import fileinput
 
@@ -18,10 +19,10 @@ Binary = "../../../../NBrS_THGEM_LAr_v0-build/RelWithDebInfo/Geant_simulation"
 DataPath = "../../../data"
 RecalculateField = False
 RecalculateMesh = False
-V0s = [11.0, 12.0, 13.0, 14.0, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5]
-Vt1s = [2025, 2250, 2250, 1688, 1238, 1238, 1238, 1238, 917, 563, 338, 0]
+V0s = [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+Vt1s = [6180, 5993, 5728, 5297, 4856, 4413, 3972, 3531, 3090, 2648, 2206, 1765]
 
-# return binary absolute path and settings absolute path (str1, str2)
+# returns binary absolute path, settings absolute path and log file absolute path (str1, str2, str3)
 def prepare_settings(V0, Vth1):
     path = os.path.abspath(__file__)
     dir_path = os.path.dirname(path)
@@ -39,18 +40,20 @@ def prepare_settings(V0, Vth1):
     field_map_files = SolveFields.solve_fields(V0, Vth1, recalculateField=RecalculateField, recalculateMesh=RecalculateMesh)
     if field_map_files is None:
         return None
-    RecalculateMesh = False # Mesd needs to be recalulated only once
+    RecalculateMesh = False # Mesh needs to be recalulated only once
 
-    abs_output_path = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), str(round(V0), 1) + "kV"))
-    abs_settings = os.path.normpath(os.path.join(abs_output_path, "settings_"+str(round(V0), 1) + "kV.xml"))
+    suffix = str(round(Vth1)) + "V"
+    abs_output_path = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), suffix))
+    os.makedirs(abs_output_path, exist_ok=True)
+    abs_settings = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), "settings_" + suffix + ".xml"))
     shutil.copy2(abs_set_templ, abs_settings)
     abs_data_path = os.path.normpath(os.path.join(dir_path, DataPath))
     rel_data_path = os.path.relpath(abs_data_path, abs_binary_path) # data path/folder is relative to folder from with binary is to be executed!
     rel_data_path = rel_data_path + "/" # Folders are stored with '/' in my c++ program
-
-    rel_output_path = os.path.relpath(abs_output_path, abs_data_path) # The rest of folders in settings are relative to data folder
+    rel_output_path = os.path.relpath(abs_output_path, abs_binary_path) # output path/folder is relative to folder from which binary is to be executed!
     rel_output_path = rel_output_path + "/"
-    rel_mesh_path = os.path.relpath(field_map_files[0], abs_data_path)
+
+    rel_mesh_path = os.path.relpath(field_map_files[0], abs_data_path) # The rest of folders in settings are relative to data folder
     rel_mesh_path = rel_mesh_path + "/"
     rel_field_map_file = os.path.relpath(field_map_files[1], abs_data_path)
 
@@ -59,7 +62,8 @@ def prepare_settings(V0, Vth1):
         l = l.replace('OUTPUT_FOLDER', rel_output_path)
         l = l.replace('MESH_FOLDER', rel_mesh_path)
         print(l.replace('FIELD_MAP_FILE', rel_field_map_file), end='')
-    return (abs_binary, abs_settings)
+    abs_logfile = os.path.join(abs_output_path, "Log.txt")
+    return (abs_binary, abs_settings, abs_logfile)
 
 
 if __name__ == "__main__":
@@ -69,7 +73,7 @@ if __name__ == "__main__":
     for i in range(min(len(V0s), len(Vt1s))):
         print ("****************************************************************")
         print ("****************************************************************")
-        print ("Starting simulating V0 = " + V0s[i] + ", Vthgem = " + Vt1s[i])
+        print ("Starting simulating V0 = " + str(round(V0s[i], 1)) + ", Vthgem = " + str(round(Vt1s[i])) )
         print ("****************************************************************")
         print ("****************************************************************")
         files = prepare_settings(V0s[i], Vt1s[i])
@@ -78,17 +82,21 @@ if __name__ == "__main__":
         abs_binary_path = os.path.dirname(files[0])
         binary = os.path.basename(files[0])
         binary = os.path.join("./", binary)
-        completed_process = subprocess.run([binary, files[1]], check=False, cwd=abs_binary_path)
-        if completed_process.returncode != 0:
+        
+        p1 = subprocess.Popen([binary, files[1]], stdout=PIPE, stderr=subprocess.STDOUT, cwd=abs_binary_path)
+        p2 = subprocess.Popen(["tee", files[2]], stdin=p1.stdout)
+        p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+        p2.communicate()
+        if not p1.returncode is None:
             print ("****************************************************************")
             print ("****************************************************************")
-            print("ERROR while running " + binary + ". Skipping V0= " + V0s[i] + ", Vthgem1= " + Vt1s[i])
+            print("ERROR while running " + binary + ". Skipping V0= " + str(round(V0s[i], 1)) + ", Vthgem= " + str(round(Vt1s[i])) )
             print ("****************************************************************")
             print ("****************************************************************")
             continue
         print ("****************************************************************")
         print ("****************************************************************")
-        print ("Ended simulating V0 = " + V0s[i] + ," Vthgem = " + Vt1s[i])
+        print ("Ended simulating V0 = " + str(round(V0s[i], 1)) + ", Vthgem = " + str(round(Vt1s[i])) )
         print ("****************************************************************")
         print ("****************************************************************")
     print("End of RunSimulation.py")
