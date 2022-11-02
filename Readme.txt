@@ -7,7 +7,8 @@ Required for the project overall but not used in compilation of C++ code:
 2) FreeCAD, view3dscene or something else is recommended to view VRML2FILE (g4.wrl) visualization output. Otherwise refer to Geant4 visualization (configured from vis.mac)
 3) Gmsh v3 is required to create THGEM cell mesh (.geo file->.msh)
 4) Elmer is required to calculate electric field in cell using Gmsh output (.msh + .sif -> .results, .header, .nodes, .elements, .boundary).
-5) gnuplot is recommended to quickly plot some simple files (such as electric fields). There are some funcitons which plot data by connecting to gnuplot with pipe. Not required for running the application.
+5) Python3 is required to run simulation scripts (RunSimulation.py) which streamline the workflow. In particlular, they invoke Gmsh and Elmer if correct script set-up and input files are used. After electric fields are calculated, settings.xml is automatically gererated using the field maps files from template settings and c++ geant4 simulation is finally run using it. The scripts are very readable and thus new simulation cases can be added as needed.
+6) gnuplot is recommended to quickly plot some simple files (such as electric fields). There are some funcitons which plot data by connecting to gnuplot with pipe. Not required for running the application.
 
 =================================================
 To compile Geant4 code run cmake to create makefile:
@@ -27,8 +28,22 @@ Open in eclipse as File->Improt->General->Existing project in folder->browse to 
 Note that Eclipse console is somewhat buggy. Because of that, progress bars behave incorrectly. To remedy this there are tow options:
 1) debug application as a remote, i.e. launch it in native terminal and attach debugger to it from eclipse after. This requires pause at the start of the program so it not optimal.
 2) Another option is to configure gbd (debugger) and and launcher to use native terminal instead. On ubuntu this is done using tty devices (emulated as text files). In Debug Configuration->Common set Input and Output files to open terminal's device file (e.g. /dev/pts/1), which can be obtained from open terminal by running 'tty'. In this case this terminal will be connected to and intercepted by Eclipse.
+
 =================================================
-How to run simulation
+How to run simulation from scratch (github):
+	1) Install required and recommended dependencies.
+	2) Load the code and compile it using CMake or Eclipse.
+	3) python3 project_folder/results/v*/*/RunSimulation.py
+	4) Process results using project_folder/root_scripts/*. E.g:
+		cd project_folder/root_scripts
+		root -l
+		.L init.cpp
+		.L plot_Npe_spectrum.cpp
+		.x print_Npe_vs_V.cpp
+	Alternatively, log files generated during execution RunSimulation.py can be used directly by hand.
+
+=================================================
+Setting up the simulation
 
 Generally speaking simulation is configured from several places:
 1) GlobalParamters (gPars::) is responsible for straightforward program setups such as filenames, some detector dimesnsions (which can't be fully arbitrary), number of events to simulate, and some debug/output options. UPD: Detector demensions and some global parameters related to them are now stored in DetectorSettings class.
@@ -41,15 +56,16 @@ Generally speaking simulation is configured from several places:
 
 1) and 2) are easiest to change without breaking anything and are supposed to be chagned most often.
 3) is requried if physical properties must be changed.
-4) is requried for field maps. Must be done for newly loaded project.
+4) is requried for field maps. Must be adjusted/set for newly loaded project.
 5) is for new geometries (new detector versions).
 6) is primarily for testing. Or for some completely new simulation.
 
-UPD: parameters are now set in setting.xml file
-run as:
+UPD: parameters are now set in settings.xml file.
+Thus program must be run as:
 ...build/RelWithDebInfo/Geant_simulation path/to/settings.xml | tee path/to/log.txt
+If no parameter is passed, then "settings.xml" is expected to be present in the current directory
 
-UPD: There are now bash scripts streamlining simulation process.
+UPD: There are now python scripts streamlining simulation process.
 One script calculates electric fields for several THGEM voltages
 Another one then generates several settings files from template that will use those electric fields and run simulation program with the settings.
 

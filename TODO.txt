@@ -2,3 +2,6 @@
 2) Npe x-y experiment vs theory distribution 
 3) (In code) Multiple THGEM mappings and single field map implementation is a little wonky at the moment: GlobalData behavior (loading field map) is dependent on selected detector type explicitly in the code. Also, when calculating electric field at global point, dummy HexagonalMapping class is created.
 4) Proper logging in python scripts (separate log for meshing, field calculations and geant4 simulation as well as python's script itself)
+5) .py all testing
+6) Create install_all.py for full project set-up: dependency installation, environment set-up and build.
+So that [load the code]->[run install_all.py]->[run results/*/RunSimulation.py]->[analyze results] can be done without thinking/remembering what is happening at all. Although CMake does make compilation or Eclipse set-up quite simple at the moment.
