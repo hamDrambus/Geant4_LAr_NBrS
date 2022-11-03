@@ -22,6 +22,7 @@
 
 ## Highlights
 
+* The author and the original project is [here](https://github.com/p-ranav/indicators)
 * Thread-safe progress bars and spinners
 * Header-only library. Grab a copy of `include/indicators`. 
 * Single-header version in `single_include/indicators`.

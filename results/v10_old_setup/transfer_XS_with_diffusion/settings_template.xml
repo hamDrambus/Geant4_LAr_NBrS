@@ -65,6 +65,10 @@
     <pmma_absorption_length_filename>absorption_length/PMMA_absorption_length_eV_mm.dat</pmma_absorption_length_filename>
 		<pmma_rindex_filename>refractive_index/PMMA_rindex_eV_1.dat</pmma_rindex_filename>
     <pmma_uv_absorption_length_filename>absorption_length/PMMA_VU_absorption_length_eV_mm.dat</pmma_uv_absorption_length_filename>
+    <TPB_rindex_filename>WLS/TPB_in_polystyrene/Refractive_index.dat</TPB_rindex_filename>
+    <TPB_abs_length_filename>WLS/TPB_in_polystyrene/Absorption_length.dat</TPB_abs_length_filename>
+    <TPB_efficiency_filename>WLS/TPB_in_polystyrene/Efficiency.dat</TPB_efficiency_filename>
+    <TPB_emission_spectrum_filename>WLS/TPB_in_polystyrene/Emission_spectrum.dat</TPB_emission_spectrum_filename>
 
     <no_reflections>false</no_reflections> <!--OPT if true, then all non-transparent materials have 0 reflectivity-->
     <no_diffused_reflections>false</no_diffused_reflections> <!--OPT if true, then all reflections are not diffusial-->

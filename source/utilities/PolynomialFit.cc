@@ -112,7 +112,7 @@ void DataVector::initialize(std::vector<double> &xx, std::vector<double> &yy, st
 	});
 }
 
-void DataVector::insert(double x, double y) //do not disrupt order
+void DataVector::insert(double x, double y) //does not disrupt order
 {
 	std::size_t sz = xys.size();
 	if (0 == sz) {

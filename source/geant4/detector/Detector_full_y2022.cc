@@ -646,7 +646,7 @@ void Detector_full_y2022::SetSizeAndPosition()
 	// TPB (WLS) on the inside of the insulator box.
 	// To avoid splitting TPB cylinder into liquid and gas part, TPB is inserted into the insulator box
 	TPB_radius = 70 * mm / 2.0;
-	TPB_thickness = 100 * um;
+	TPB_thickness = 0.4 * mm; // See Borisova's dissertation
 	double TPB_x_pos = insulator_box_inner_size_xy / 2.0 + TPB_thickness / 2.0;
 	position_TPB_0 = G4ThreeVector(-TPB_x_pos, 0, PMT_z_pos - insulator_box_size_z / 2.0 + Cathode_size_z);
 	position_TPB_1 = G4ThreeVector(TPB_x_pos, 0, PMT_z_pos - insulator_box_size_z / 2.0 + Cathode_size_z);

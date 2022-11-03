@@ -72,6 +72,10 @@ namespace gPars
       det_opt.pmma_absorption_length_filename = optics.get<std::string>("pmma_absorption_length_filename");
       det_opt.pmma_rindex_filename = optics.get<std::string>("pmma_rindex_filename");
       det_opt.pmma_uv_absorption_length_filename = optics.get<std::string>("pmma_uv_absorption_length_filename");
+      det_opt.TPB_rindex_filename = optics.get<std::string>("TPB_rindex_filename");
+      det_opt.TPB_abs_length_filename = optics.get<std::string>("TPB_abs_length_filename");
+      det_opt.TPB_efficiency_filename = optics.get<std::string>("TPB_efficiency_filename");
+      det_opt.TPB_emission_spectrum_filename = optics.get<std::string>("TPB_emission_spectrum_filename");
 
       general.no_reflections = optics.get<bool>("no_reflections", false);
       general.no_diffused_reflections = optics.get<bool>("no_diffused_reflections", false);

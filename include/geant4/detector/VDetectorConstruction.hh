@@ -38,6 +38,8 @@ public:
 	virtual G4VPhysicalVolume* Construct() override = 0;
 
 protected:
+	DataVector convert_lambda_to_E(DataVector &in) const;
+
 	virtual void defineMaterials();
 	virtual void defineSurfaces();
 	virtual void SetSizeAndPosition() = 0;

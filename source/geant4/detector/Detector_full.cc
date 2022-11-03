@@ -603,7 +603,7 @@ void Detector_full::SetSizeAndPosition()
 
 	//TPB
 	radiusTPB = 35;
-	z_size_TPB = 0.2;
+	z_size_TPB = 0.4 * mm; // See Borisova's dissertation
 
 	position_SingleTHGEM1Cell = G4ThreeVector(150 * mm, 150 * mm, 150 * mm);
 

@@ -73,6 +73,10 @@ namespace gPars
 		std::string pmma_absorption_length_filename;
 		std::string pmma_rindex_filename;
 		std::string pmma_uv_absorption_length_filename;
+		std::string TPB_rindex_filename;
+		std::string TPB_abs_length_filename;
+		std::string TPB_efficiency_filename;
+		std::string TPB_emission_spectrum_filename;
 	};
 
 	enum NBrSFormula {

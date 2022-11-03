@@ -24,6 +24,17 @@ VDetectorConstruction::~VDetectorConstruction()
 	delete rotZ_270;
 }
 
+DataVector VDetectorConstruction::convert_lambda_to_E(DataVector &in) const
+{
+	DataVector out = in; // To copy interpolation order, etc.
+	out.clear();
+	for (std::size_t i = 0, i_end_ = in.size(); i!=i_end_; ++i) {
+		double lambda = hc / in[i].first;
+		out.insert(lambda, in[i].second);
+	}
+	return out;
+}
+
 std::vector<G4PhysicalVolumesSearchScene::Findings> VDetectorConstruction::LocatePV(G4VPhysicalVolume* volume)
 {
 	std::vector<G4PhysicalVolumesSearchScene::Findings> findingsVector;
@@ -365,16 +376,22 @@ void VDetectorConstruction::defineMaterials()
 	// TPB
 	matTPB = new G4Material("TPB", 1.18*g / cm3, 3);
 	matTPB->AddElement(C, 5); matTPB->AddElement(O, 2); matTPB->AddElement(H, 8);
-	const int numentries_TPB = 6;
-	G4double photonEnergyTPB[] = { 0.1*eV, 1240.0 / 411.0 *eV, 1240.0 / 409.0 *eV, 1240.0 / 401.0 *eV, 1240.0 / 399.0 *eV, 10.0*eV };
-	G4double RIndexTPB[] = { 1.23, 1.23, 1.23, 1.23, 1.23, 1.23 };
-	G4double AbsTPB[] = { 10 * m, 10.0 * m, 10.0 * m, 0.001 * mm, 0.001 * mm, 10 * m };
-	G4double EmissionTPB[] = { 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 };
+	DataVector TPB_rindex_data(gPars::det_opt.TPB_rindex_filename);
+	TPB_rindex_data.scaleX(nm); TPB_rindex_data = convert_lambda_to_E(TPB_rindex_data);
+	DataVector TPB_absorption_data(gPars::det_opt.TPB_abs_length_filename);
+	TPB_absorption_data.scaleX(nm); TPB_absorption_data.scaleY(mm);
+	TPB_absorption_data = convert_lambda_to_E(TPB_absorption_data);
+	DataVector TPB_emission_data(gPars::det_opt.TPB_emission_spectrum_filename);
+	TPB_emission_data.scaleX(nm); TPB_emission_data = convert_lambda_to_E(TPB_emission_data);
+	DataVector TPB_efficiency_data(gPars::det_opt.TPB_efficiency_filename);
+	TPB_efficiency_data.scaleX(nm); TPB_efficiency_data = convert_lambda_to_E(TPB_efficiency_data);
+
 	G4MaterialPropertiesTable* tableTPB = new G4MaterialPropertiesTable();
-	tableTPB->AddProperty("RINDEX", photonEnergyTPB, RIndexTPB, numentries_TPB);
-	tableTPB->AddProperty("WLSABSLENGTH", photonEnergyTPB, AbsTPB, numentries_TPB);
-	tableTPB->AddProperty("WLSCOMPONENT", photonEnergyTPB, EmissionTPB, numentries_TPB);
-	tableTPB->AddConstProperty("WLSTIMECONSTANT", 0.5*ns);
+	tableTPB->AddProperty("RINDEX", TPB_rindex_data.get_Xs(), TPB_rindex_data.get_Ys());
+	tableTPB->AddProperty("WLSABSLENGTH", TPB_absorption_data.get_Xs(), TPB_absorption_data.get_Ys());
+	tableTPB->AddProperty("WLSCOMPONENT", TPB_emission_data.get_Xs(), TPB_emission_data.get_Ys());
+	tableTPB->AddProperty("WLSMEANNUMBERPHOTONS", TPB_efficiency_data.get_Xs(), TPB_efficiency_data.get_Ys());
+	tableTPB->AddConstProperty("WLSTIMECONSTANT", 0.1*ns);
 	matTPB->SetMaterialPropertiesTable(tableTPB);
 	//------------------------------
 	// PMMA_UV
