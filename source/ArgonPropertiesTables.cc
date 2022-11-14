@@ -283,7 +283,7 @@ DataVector ArgonPropertiesTables::CalcElectronDistribution(double field) const /
   out.setOrder(1); out.setNused(2); // Linear interpolation (energy points are quite dense).
   DataVector f_tmp = out; // To calculate normalization.
   const double delta = 2.0 * gPars::Ar_props.m_to_M;
-  const double eV_to_vel = 1.0 / eV * e_SI / e_mass_SI;
+  const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
   const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
   const double eq_10_coeff = 1.5 * e_mass_SI / e_SI / e_SI / field_SI / field_SI;
@@ -345,7 +345,7 @@ void ArgonPropertiesTables::CalcDriftVelocity(void)
 double ArgonPropertiesTables::CalcDriftVelocity(double field) const
 { //eq. 11 in Borisova2021 (doi:doi:10.1209/0295-5075/ac4c03)
   const double delta = 2.0 * gPars::Ar_props.m_to_M;
-  const double eV_to_vel = 1.0 / eV * e_SI / e_mass_SI;
+  const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
   const double sqrt_vel = sqrt(joule * eV_to_vel);
   const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
@@ -404,7 +404,7 @@ DataVector ArgonPropertiesTables::CalcFDistribution(double field) const
 
   // It is always good to reduce number of multiplications inside loops. So constant factors are cached.
   const double delta = 2.0 * gPars::Ar_props.m_to_M;
-  const double eV_to_vel = 1.0 / eV * e_SI / e_mass_SI;
+  const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
   const double sqrt_vel = sqrt(joule * eV_to_vel);
   const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
@@ -517,7 +517,7 @@ DataVector ArgonPropertiesTables::CalcDiffXS_ElasticFormula(double field) const
   if (interval_photon_En.NumOfIndices() <= 0)
     return out;
   const double delta = 2.0 * gPars::Ar_props.m_to_M;
-  const double eV_to_vel = 1.0 / eV * e_SI / e_mass_SI;
+  const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
   const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
   const double eq_6_coeff = 8.0 / 3.0 * Ar_density * (classic_electr_radius/m) / (hc/(m*joule)) * sqrt(2.0 / e_mass_SI)
@@ -569,7 +569,7 @@ DataVector ArgonPropertiesTables::CalcDiffXS_TransferFormula(double field) const
   if (interval_photon_En.NumOfIndices() <= 0)
     return out;
   const double delta = 2.0 * gPars::Ar_props.m_to_M;
-  const double eV_to_vel = 1.0 / eV * e_SI / e_mass_SI;
+  const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
   const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
   const double eq_6_coeff = 8.0 / 3.0 * Ar_density * (classic_electr_radius/m) / (hc/(m*joule)) * sqrt(2.0 / e_mass_SI)
@@ -635,7 +635,7 @@ double ArgonPropertiesTables::CalcDiffusionT(double field) const
 {
   //eq. 4 in Atrazhev1985 (doi:10.1088/0022-3719/18/6/015)
   const double delta = 2.0 * gPars::Ar_props.m_to_M;
-  const double eV_to_vel = 1.0 / eV * e_SI / e_mass_SI;
+  const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
   const double sqrt_vel = sqrt(joule * eV_to_vel);
   const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
@@ -694,7 +694,7 @@ double ArgonPropertiesTables::CalcDiffusionL(double field) const
   // Or in latex format:
   // D_{||} = D_{0} - \frac{2}{3m} \int_{0}^{\infty}\left( \frac{\epsilon^{3/2}}{\nu_{m}(\epsilon)} \frac{d F (\epsilon)}{d \epsilon} + \frac{3mW}{2e\mathscr{E}} \sqrt{\epsilon} F(\epsilon) \right) d \epsilon
   const double delta = 2.0 * gPars::Ar_props.m_to_M;
-  const double eV_to_vel = 1.0 / eV * e_SI / e_mass_SI;
+  const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
   const double sqrt_vel = sqrt(joule * eV_to_vel);
   const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
