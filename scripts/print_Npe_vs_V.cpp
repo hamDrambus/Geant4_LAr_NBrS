@@ -12,7 +12,7 @@ void print_Npe_vs_V (void)
   7300, 7600, 7900, 8100, 8400, 8700, 9000};
   //std::vector<double> Vs = {11.0, 12.0, 13.0, 14.0, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5};
   std::sort(Vs.begin(), Vs.end());
-  std::string folder = "../results/v10_old_setup/transfer_XS_more_fields/";
+  std::string folder = "../results/v12_THGEM1_BoyleXS/transfer_XS_with_diffusion/";
   double NBrS_yield_factor = 10;
   bool is_23_SiPMS = true;
   std::vector<std::string> inputs;

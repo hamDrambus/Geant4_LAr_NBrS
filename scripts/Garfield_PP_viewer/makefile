@@ -1,15 +1,12 @@
-OBJDIR = $(GARFIELD_HOME)/Object
-SRCDIR = $(GARFIELD_HOME)/Source
-INCDIR = $(GARFIELD_HOME)/Include
-HEEDDIR = $(GARFIELD_HOME)/Heed
-LIBDIR = $(GARFIELD_HOME)/Library
+INCDIR = $(GARFIELD_HOME)/include/Garfield
+LIBDIR = $(GARFIELD_HOME)/lib
 TARNAME = Cell_v00
 
 # Compiler flags
 CFLAGS = -Wall -Wextra -Wno-long-long \
 	`root-config --cflags` \
 	-O3 -fno-common -c \
-	-I$(INCDIR) -I$(HEEDDIR)
+	-I$(INCDIR)
 
 # Debug flags
 #CFLAGS += -g

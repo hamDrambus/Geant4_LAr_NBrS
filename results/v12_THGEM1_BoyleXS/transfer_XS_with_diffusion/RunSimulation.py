@@ -19,8 +19,11 @@ Binary = "../../../../NBrS_THGEM_LAr_v0-build/RelWithDebInfo/Geant_simulation"
 DataPath = "../../../data"
 RecalculateField = False
 RecalculateMesh = False
-V0s = [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
-Vt1s = [6180, 5993, 5728, 5297, 4856, 4413, 3972, 3531, 3090, 2648, 2206, 1765]
+Vt1s = [200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, \
+1600, 1765, 1900, 2100, 2206, 2400, 2648, 2800, 3090, 3150, 3300, 3531, 3700, 3972, \
+4200, 4413, 4600, 4856, 5050, 5297, 5500, 5728, 5993, 6180, 6400, 6600, 6800, 7000, \
+7300, 7600, 7900, 8100, 8400, 8700, 9000]
+V0s = [20.0 for i in range(len(Vt1s))]
 
 # returns binary absolute path, settings absolute path and log file absolute path (str1, str2, str3)
 def prepare_settings(V0, Vth1):
@@ -82,7 +85,7 @@ if __name__ == "__main__":
         abs_binary_path = os.path.dirname(files[0])
         binary = os.path.basename(files[0])
         binary = os.path.join("./", binary)
-        
+
         p1 = subprocess.Popen([binary, files[1]], stdout=PIPE, stderr=subprocess.STDOUT, cwd=abs_binary_path)
         p2 = subprocess.Popen(["tee", files[2]], stdin=p1.stdout)
         p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.

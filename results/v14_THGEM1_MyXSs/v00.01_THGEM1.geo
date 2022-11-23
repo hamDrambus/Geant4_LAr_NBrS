@@ -1,7 +1,7 @@
 // Gmsh project created on Wed Nov 10 11:47:30 2021
 //All sizes are in mm
-cathode_z = 3; //from cathode to bottom THGEM electrode
-anode_z = 3; //from cathode to top THGEM electrode
+cathode_z = 5; //from cathode to bottom THGEM electrode
+anode_z = 5; //from cathode to top THGEM electrode
 dielec = 0.4; //total dielectric thickness
 electrode = 0.03; //electrode thickness
 rim = 0.1;
@@ -352,26 +352,36 @@ Surface Loop(4) = {22, 21, 26, 20, 25, 23, 24, 19};
 Volume(4) = {4};
 
 Field[1] = Box;
-Field[1].VIn = 0.1;
+Field[1].VIn = 0.10;
 Field[1].VOut = 10;
 Field[1].XMax = 1;
 Field[1].XMin = -1;
 Field[1].YMax = 1;
 Field[1].YMin = -1;
-Field[1].ZMax = 5;
-Field[1].ZMin = -5;
+Field[1].ZMax = 50;
+Field[1].ZMin = -50;
 //+
 Field[2] = Box;
-Field[2].VIn = 0.01;
+Field[2].VIn = 0.015;
 Field[2].VOut = 10;
 Field[2].XMax = 1;
 Field[2].XMin = -1;
 Field[2].YMax = 1;
 Field[2].YMin = -1;
-Field[2].ZMax = 0.5;
-Field[2].ZMin = -0.5;
+Field[2].ZMax = 0.3;
+Field[2].ZMin = -0.3;
 //+
-Field[3] = Min;
-Field[3].FieldsList = {1, 2};
+Field[3] = Box;
+Field[3].VIn = 0.03;
+Field[3].VOut = 10;
+Field[3].XMax = 1;
+Field[3].XMin = -1;
+Field[3].YMax = 1;
+Field[3].YMin = -1;
+Field[3].ZMax = 0.5;
+Field[3].ZMin = -0.5;
 
-Background Field = 3;
+Field[4] = Min;
+Field[4].FieldsList = {1, 2, 3};
+
+Background Field = 4;

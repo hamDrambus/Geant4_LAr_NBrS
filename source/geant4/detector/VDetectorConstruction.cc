@@ -390,7 +390,8 @@ void VDetectorConstruction::defineMaterials()
 	tableTPB->AddProperty("RINDEX", TPB_rindex_data.get_Xs(), TPB_rindex_data.get_Ys());
 	tableTPB->AddProperty("WLSABSLENGTH", TPB_absorption_data.get_Xs(), TPB_absorption_data.get_Ys());
 	tableTPB->AddProperty("WLSCOMPONENT", TPB_emission_data.get_Xs(), TPB_emission_data.get_Ys());
-	tableTPB->AddProperty("WLSMEANNUMBERPHOTONS", TPB_efficiency_data.get_Xs(), TPB_efficiency_data.get_Ys());
+	//->AddProperty("WLSMEANNUMBERPHOTONS", TPB_efficiency_data.get_Xs(), TPB_efficiency_data.get_Ys());
+	tableTPB->AddConstProperty("WLSMEANNUMBERPHOTONS", 0.5); // TODO: implement WLS process with dependence of WLS efficiency on incident photon's energy
 	tableTPB->AddConstProperty("WLSTIMECONSTANT", 0.1*ns);
 	matTPB->SetMaterialPropertiesTable(tableTPB);
 	//------------------------------

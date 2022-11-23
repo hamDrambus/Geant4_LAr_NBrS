@@ -121,8 +121,10 @@ void ArgonPropertiesTables::Initialize(void)
   min_field = interval_field_drift.min();
 
   sfc = gPars::Ar_props.distributions_energy_step_factor;
-  interval_XS = IntegrationInterval(0 * eV, 1 * eV, sfc * 0.04 * eV);
-  interval_XS += IntegrationInterval(1 * eV, 20 * eV, sfc * 0.4 * eV);
+  interval_XS = IntegrationInterval(0 * eV, 0.001 * eV, sfc * 0.0002 * eV);
+  interval_XS += IntegrationInterval(0 * eV, 0.01 * eV, sfc * 0.001 * eV);
+  interval_XS += IntegrationInterval(0.01 * eV, 1 * eV, sfc * 0.04 * eV);
+  interval_XS += IntegrationInterval(1 * eV, 30 * eV, sfc * 0.4 * eV);
 
   sfc = gPars::Ar_props.spectra_step_factor;
   interval_photon_En = IntegrationInterval(hc / (1000 * nm), hc / (50 * nm), sfc * 0.2 * 0.02 * eV); // from 50 to 1000 nm photons
@@ -408,7 +410,7 @@ DataVector ArgonPropertiesTables::CalcFDistribution(double field) const
   const double sqrt_vel = sqrt(joule * eV_to_vel);
   const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
-  const double eq_5_coeff = 3.0/2.0 * e_mass_SI / e_SI / field_SI * (drift_velocity(field) * s / m);
+  const double eq_5_coeff = 1.5 * e_mass_SI / e_SI / field_SI * (drift_velocity(field) * s / m);
 
   double integral = 0.0;
   double En_prev = range.Value(0) / joule;
@@ -633,25 +635,21 @@ void ArgonPropertiesTables::CalcDiffusionT(void)
 
 double ArgonPropertiesTables::CalcDiffusionT(double field) const
 {
-  //eq. 4 in Atrazhev1985 (doi:10.1088/0022-3719/18/6/015)
+  //eq. 4 in Atrazhev1985 (doi:10.1088/0022-3719/18/6/015), rewritten without nu_m
   const double delta = 2.0 * gPars::Ar_props.m_to_M;
-  const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
-  const double sqrt_vel = sqrt(joule * eV_to_vel);
   const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
-  const double eq_4_coeff = 2.0 / 3.0 / e_mass_SI;
+  const double eq_4_coeff = sqrt(2.0) / 3.0 / sqrt(e_mass_SI) / Ar_density;
 
   double integral = 0.0;
   IntegrationRange range = GetIntervalElectronDistributions(field) + interval_XS;
-  range.Trim(interval_XS.min(), GetIntervalElectronDistributions(field).max()); // To avoid singularity at 0
+  range.Trim(0, GetIntervalElectronDistributions(field).max()); // To avoid singularity at 0
   double En_prev = range.Value(0) / joule; // Distribution energy is in SI, interval_XS is in Gean4 units
   double Y_prev = 0; // Y == value under integral
   for (std::size_t i = 0, i_end_ = range.NumOfIndices(); i!=i_end_; ++i) {
     double En = range.Value(i); // in Geant4 units
-    double nu_m_sqrtE = Ar_density * (XS_momentum_transfer(En) / (m*m)) * sqrt_vel;// eq. 8 in Borisova2021 / sqrt(E). In SI.
-    //nu_m is divided by sqrt(E) to avoid division by 0 below! Take note of units.
     double En_SI = En / joule; // Must be in SI in integral.
-    double Y = En_SI / nu_m_sqrtE * electron_distributions(field, En_SI);
+    double Y = En_SI / (XS_momentum_transfer(En) / (m*m)) * electron_distributions(field, En_SI);
     integral += 0.5 * (Y + Y_prev) * (En_SI - En_prev);
     En_prev = En_SI;
     Y_prev = Y;
@@ -771,7 +769,7 @@ void ArgonPropertiesTables::PlotInputXSs(void) const
       <<"set output '"+gPars::Ar_props.cache_folder+"electron_Ar_XSs.png'"<<std::endl
       <<"set grid"<<std::endl
       <<"set logscale xy"<<std::endl
-      <<"set xrange[0.01:12]"<<std::endl
+      <<"set xrange[0.001:50]"<<std::endl
       <<"set xlabel \"Electron energy [eV]\""<<std::endl
       <<"set yrange [1e-17:1e-14]"<<std::endl
       <<"set ylabel \"Cross-section [cm^{2}]"<<std::endl <<std::endl;

@@ -5,3 +5,5 @@
 5) .py all testing
 6) Create install_all.py for full project set-up: dependency installation, environment set-up and build.
 So that [load the code]->[run install_all.py]->[run results/*/RunSimulation.py]->[analyze results] can be done without thinking/remembering what is happening at all. Although CMake does make compilation or Eclipse set-up quite simple at the moment.
+7) Fix bug in Garfield++ ComponentElmer::ElectricField(x,y,z,ex,ey,ez,m,status) (most likely in ComponentFieldMap::MapCoordinates or less likely in ComponentFieldMap::FindElement13's conditions) which results in inconsistent fields at the edge of THGEM cell. Ask for pull request as well.  
+

@@ -1,6 +1,6 @@
 Header
   CHECK KEYWORDS Warn
-  Mesh DB "../v00.02_THGEM1" "."
+  Mesh DB "MESH_FOLDER" "."
   Include Path "."
   Results Directory "."
 End
@@ -14,8 +14,8 @@ Simulation
   Output Intervals = 1
   Timestepping Method = BDF
   BDF Order = 1
-  Solver Input File = case_CASE_VERSION.sif
-  Output File = case_CASE_VERSION.result
+  Solver Input File = "CASE_FILE"
+  Output File = "RESULT_FILE"
   #Post File = case.vtu
 End
 

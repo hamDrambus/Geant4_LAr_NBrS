@@ -4,9 +4,6 @@ namespace Garfield {
 Mat_Vd_const::Mat_Vd_const(double V_d): Medium(), V_drift(V_d)
 {
   m_className="Material_Vd_const";
-  m_hasElectronVelocityE = true;
-  m_hasElectronDiffLong = true;
-  m_hasElectronDiffTrans = true;
   m_driftable = true;
 }
 
@@ -19,9 +16,7 @@ bool Mat_Vd_const::ElectronVelocity(const double ex, const double ey,
                                 double& vy, double& vz)
 {
   vx=vy=vz=0.0;
-  if (!m_hasElectronVelocityE) return false;
-  if (!((0==bx)&&(0==by)&&(0==bz)))
-  {
+  if (!((0==bx)&&(0==by)&&(0==bz))) {
      std::cerr<<"Magnetic field is not supported"<<std::endl;
      return false;
   }
@@ -38,17 +33,11 @@ bool Mat_Vd_const::ElectronDiffusion(const double ex, const double ey,
                                  const double by, const double bz, double& dl,
                                  double& dt)
 {
-  dt=dl=0.0;
-  if (!m_hasElectronDiffLong) return false;
-  if (!m_hasElectronDiffTrans) return false;
-
-  if (!((0==bx)&&(0==by)&&(0==bz)))
-  {
+  dt = dl = 0.0;
+  if (!((0==bx)&&(0==by)&&(0==bz))) {
      std::cerr<<"Magnetic field is not supported"<<std::endl;
      return false;
   }
-  dl = 0;
-  dt = 0;
   return true;
 }
 }

@@ -1,7 +1,7 @@
 // Gmsh project created on Wed Nov 10 11:47:30 2021
 //All sizes are in mm
-cathode_z = 3; //from cathode to bottom THGEM electrode
-anode_z = 3; //from cathode to top THGEM electrode
+cathode_z = 5; //from cathode to bottom THGEM electrode
+anode_z = 5; //from cathode to top THGEM electrode
 dielec = 0.4; //total dielectric thickness
 electrode = 0.03; //electrode thickness
 rim = 0.1;
@@ -358,8 +358,8 @@ Field[1].XMax = 1;
 Field[1].XMin = -1;
 Field[1].YMax = 1;
 Field[1].YMin = -1;
-Field[1].ZMax = 5;
-Field[1].ZMin = -5;
+Field[1].ZMax = 50;
+Field[1].ZMin = -50;
 //+
 Field[2] = Box;
 Field[2].VIn = 0.015;

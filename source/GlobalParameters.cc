@@ -121,6 +121,10 @@ namespace gPars
       det_opt.pmma_absorption_length_filename = general.data_path+det_opt.pmma_absorption_length_filename;
       det_opt.pmma_rindex_filename = general.data_path+det_opt.pmma_rindex_filename;
       det_opt.pmma_uv_absorption_length_filename = general.data_path+det_opt.pmma_uv_absorption_length_filename;
+      det_opt.TPB_abs_length_filename = general.data_path+det_opt.TPB_abs_length_filename;
+      det_opt.TPB_efficiency_filename = general.data_path+det_opt.TPB_efficiency_filename;
+      det_opt.TPB_emission_spectrum_filename = general.data_path+det_opt.TPB_emission_spectrum_filename;
+      det_opt.TPB_rindex_filename = general.data_path+det_opt.TPB_rindex_filename;
 
       Ar_props.XS_energy_transfer_filename = general.data_path + Ar_props.XS_energy_transfer_filename;
       Ar_props.XS_momentum_transfer_filename = general.data_path + Ar_props.XS_momentum_transfer_filename;
