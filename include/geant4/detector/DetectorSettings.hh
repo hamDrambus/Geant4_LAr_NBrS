@@ -29,8 +29,9 @@ public:
   DetectorType detector_type;
 
   double THGEM1_hole_pitch;
-  double THGEM1_hole_radius;
-  double THGEM1_hole_rim;
+	double THGEM1_hole_radius; // at the ends of dielectric hole.
+	double THGEM1_hole_rim; // Copper hole' r = THGEM1_hole_radius + THGEM1_hole_rim
+  double THGEM1_dielectric_radius; // at hole center. By default is the same as THGEM1_hole_radius-THGEM1_hole_rim
   double THGEM1_dielectric_thickness;
   double THGEM1_copper_thickness;
   double THGEM1_width_total;
@@ -76,12 +77,15 @@ class DetectorDimsFullY2022 : public VDetectorDimensions
 public:
 	DetectorDimsFullY2022() { detector_type = Full_detector_y2022; }
 	double THGEM0_hole_pitch;
-	double THGEM0_hole_radius;
-	double THGEM0_hole_rim;
+	double THGEM0_hole_radius; // at the ends of dielectric hole.
+	double THGEM0_hole_rim; // Copper hole' r = THGEM0_hole_radius + THGEM0_hole_rim
+	double THGEM0_dielectric_radius; // at hole center. By default is the same as THGEM0_hole_radius-THGEM0_hole_rim
 	double THGEM0_dielectric_thickness;
 	double THGEM0_copper_thickness;
 	double THGEM0_width_total;
 	double THGEM0_container_width; //area which triggers mapping to cell when hit. +-0.01 mm from both sides of THGEM1
+	bool is_NBrS_in_THGEM0;
+	bool has_WLS;
 
 	// For convenience and/or testing purposes. Set in VDetectorConstruction::SetSizeAndPosition()
 	G4ThreeVector THGEM0_single_cell_position;

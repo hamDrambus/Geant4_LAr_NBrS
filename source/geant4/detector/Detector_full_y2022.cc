@@ -7,66 +7,6 @@ Detector_full_y2022::Detector_full_y2022() :
 Detector_full_y2022::~Detector_full_y2022()
 {}
 
-void Detector_full_y2022::CreateTHGEM1Cell()
-{
-	double cell_size_x = gPars::det_dims->THGEM1_hole_pitch / 2.0;
-	double cell_size_y = cell_size_x * std::sqrt(3.0);
-	double cell_size_z = gPars::det_dims->THGEM1_container_width;
-	double diel_size_z = gPars::det_dims->THGEM1_dielectric_thickness;
-	double radius = gPars::det_dims->THGEM1_hole_radius;
-	double radius_cu = radius + gPars::det_dims->THGEM1_hole_rim;
-	double cu_size_z = gPars::det_dims->THGEM1_copper_thickness;
-
-	G4ThreeVector zero(0.0, 0.0, 0.0);
-	G4ThreeVector hole_1_pos(cell_size_x / 2.0, cell_size_y / 2.0, 0.0);
-	G4ThreeVector hole_2_pos(-cell_size_x / 2.0, -cell_size_y / 2.0, 0.0);
-	G4ThreeVector cu_top_pos(0.0, 0.0, diel_size_z / 2.0 + cu_size_z / 2.0);
-	G4ThreeVector cu_bot_pos(0.0, 0.0, -diel_size_z / 2.0 - cu_size_z / 2.0);
-
-	G4Box* solid_THGEM1_cell_isolation = new G4Box("solid_THGEM1_cell_isolation", cell_size_x, cell_size_y, cell_size_z); //so that cell is in the same material
-	logic_THGEM1_cell = new G4LogicalVolume(solid_THGEM1_cell_isolation, matGas, "logic_THGEM1_cell_isolation", 0, 0, 0);
-
-	G4Box* solid_THGEM1_cell_LAr = new G4Box("solid_THGEM1_cell_LAr", cell_size_x / 2.0, cell_size_y / 2.0, cell_size_z / 2.0);
-	logic_THGEM1_cell_LAr = new G4LogicalVolume(solid_THGEM1_cell_LAr, matGas, "logic_THGEM1_cell_LAr", 0, 0, 0);
-	phys_THGEM1_cell_LAr = new G4PVPlacement(0, zero, logic_THGEM1_cell_LAr, "phys_THGEM1_cell",
-			logic_THGEM1_cell, false, 0, fCheckOverlaps);
-
-	G4Box* solid_THGEM1_diel_box = new G4Box("solid_THGEM1_diel_box", cell_size_x / 2.0, cell_size_y / 2.0, diel_size_z / 2.0);
-	G4Tubs* solid_THGEM1_diel_hole1 = new G4Tubs("solid_THGEM1_diel_hole", 0, radius, diel_size_z / 1.9, 177.*deg, 273.*deg);
-	G4Tubs* solid_THGEM1_diel_hole2 = new G4Tubs("solid_THGEM1_diel_hole", 0, radius, diel_size_z / 1.9, -3.*deg, 93.*deg);
-	G4SubtractionSolid* solid_THGEM1_diel_tmp = new G4SubtractionSolid("solid_THGEM1_diel_tmp", solid_THGEM1_diel_box, solid_THGEM1_diel_hole1, 0, hole_1_pos);
-	G4SubtractionSolid* solid_THGEM1_diel = new G4SubtractionSolid("solid_THGEM1_diel", solid_THGEM1_diel_tmp, solid_THGEM1_diel_hole2, 0, hole_2_pos);
-	logic_THGEM1_cell_FR4 = new G4LogicalVolume(solid_THGEM1_diel, matFR4, "logic_THGEM1_cell_FR4", 0, 0, 0);
-	G4VPhysicalVolume* phys_THGEM1_cell_FR4 = new G4PVPlacement(0, zero, logic_THGEM1_cell_FR4, "phys_THGEM1_cell_FR4",
-			logic_THGEM1_cell_LAr, false, 0, fCheckOverlaps);
-
-	G4Box* solid_THGEM1_cu_box = new G4Box("solid_THGEM1_cu_box", cell_size_x / 2.0, cell_size_y / 2.0, cu_size_z / 2.0);
-	G4Tubs* solid_THGEM1_cu_hole1 = new G4Tubs("solid_THGEM1_cu_hole", 0, radius_cu, cu_size_z / 1.9, 177.*deg, 273.*deg);
-	G4Tubs* solid_THGEM1_cu_hole2 = new G4Tubs("solid_THGEM1_cu_hole", 0, radius_cu, cu_size_z / 1.9, -3.*deg, 93.*deg);
-	G4SubtractionSolid* solid_THGEM1_cu_tmp = new G4SubtractionSolid("solid_THGEM1_cu_tmp", solid_THGEM1_cu_box, solid_THGEM1_cu_hole1, 0, hole_1_pos);
-	G4SubtractionSolid* solid_THGEM1_cu = new G4SubtractionSolid("solid_THGEM1_cu", solid_THGEM1_cu_tmp, solid_THGEM1_cu_hole2, 0, hole_2_pos);
-	logic_THGEM1_cell_copper = new G4LogicalVolume(solid_THGEM1_cu, matFR4, "logic_THGEM1_cell_copper", 0, 0, 0);
-	G4VPhysicalVolume* phys_THGEM1_cell_copper_top = new G4PVPlacement(0, cu_top_pos, logic_THGEM1_cell_copper, "phys_THGEM1_cell_copper_top",
-			logic_THGEM1_cell_LAr, false, 0, fCheckOverlaps);
-	G4VPhysicalVolume* phys_THGEM1_cell_copper_bot = new G4PVPlacement(0, cu_bot_pos, logic_THGEM1_cell_copper, "phys_THGEM1_cell_copper_bot",
-			logic_THGEM1_cell_LAr, false, 0, fCheckOverlaps);
-
-	//--------------------------------------------------------------------------------
-	// Setting visualization
-	G4VisAttributes Invisible(G4Colour(1, 1, 1, 0.0));
-	Invisible.SetVisibility(false);
-	G4VisAttributes AlmostInvisible(G4Colour(0.6, 0.6, 1.0, 0.05));
-	G4VisAttributes LAr_VisAtt(G4Colour(0.6, 0.6, 1.0, 0.0));
-	G4VisAttributes FR4_VisAtt(G4Colour(0.8, 0.85, 0.11, 0.8));
-	G4VisAttributes Cu_VisAtt(G4Colour(0.8, 0.45, 0.2, 0.9));
-
-	// Separate THGEM hole
-	logic_THGEM1_cell_copper->SetVisAttributes(Cu_VisAtt);
-	logic_THGEM1_cell_LAr->SetVisAttributes(Invisible);
-	logic_THGEM1_cell_FR4->SetVisAttributes(FR4_VisAtt);
-	logic_THGEM1_cell->SetVisAttributes(AlmostInvisible);
-}
-
 void Detector_full_y2022::CreateTHGEM0Cell()
 {
 	DetectorDimsFullY2022 *dims = (DetectorDimsFullY2022*) gPars::det_dims;
@@ -75,6 +15,7 @@ void Detector_full_y2022::CreateTHGEM0Cell()
 	double cell_size_z = dims->THGEM0_container_width;
 	double diel_size_z = dims->THGEM0_dielectric_thickness;
 	double radius = dims->THGEM0_hole_radius;
+	double radius_center = gPars::det_dims->THGEM1_dielectric_radius;
 	double radius_cu = radius + dims->THGEM0_hole_rim;
 	double cu_size_z = dims->THGEM0_copper_thickness;
 
@@ -93,10 +34,23 @@ void Detector_full_y2022::CreateTHGEM0Cell()
 			logic_THGEM0_cell, false, 0, fCheckOverlaps);
 
 	G4Box* solid_THGEM0_diel_box = new G4Box("solid_THGEM0_diel_box", cell_size_x / 2.0, cell_size_y / 2.0, diel_size_z / 2.0);
-	G4Tubs* solid_THGEM0_diel_hole1 = new G4Tubs("solid_THGEM0_diel_hole", 0, radius, diel_size_z / 1.9, 177.*deg, 273.*deg);
-	G4Tubs* solid_THGEM0_diel_hole2 = new G4Tubs("solid_THGEM0_diel_hole", 0, radius, diel_size_z / 1.9, -3.*deg, 93.*deg);
-	G4SubtractionSolid* solid_THGEM0_diel_tmp = new G4SubtractionSolid("solid_THGEM0_diel_tmp", solid_THGEM0_diel_box, solid_THGEM0_diel_hole1, 0, hole_1_pos);
-	G4SubtractionSolid* solid_THGEM0_diel = new G4SubtractionSolid("solid_THGEM0_diel", solid_THGEM0_diel_tmp, solid_THGEM0_diel_hole2, 0, hole_2_pos);
+	double z_epsilon = 1.01; //solid which is subtracted must be larger than (not have coincidental faces with) parent solid.
+	// Otherwise G4SubtractionSolid's visualization breaks. It may break with this approach anyway. It also depends on the absolute scale.
+	// This is ONLY visualization issue. Error looks like:
+	// ERROR: G4VSceneHandler::RequestPrimitives
+	// Polyhedron not available for solid_THGEM1_diel
+	//
+	double r_epsilon = radius_center + (radius - radius_center) * z_epsilon;
+	if (r_epsilon < 0) { // Although radius must always be > radius_center in GEMs simply due to their manufacture process.
+		r_epsilon = 0;
+		z_epsilon = radius_center / (radius_center - radius);
+	}
+	double Zs[] = {-diel_size_z / 2.0 * z_epsilon, 0, diel_size_z / 2.0 * z_epsilon};
+	double Rs[] = {r_epsilon, radius_center, r_epsilon};
+	G4GenericPolycone* solid_diel_hole1 = new G4GenericPolycone("solid_diel_hole1", 177.*deg, 273.*deg, 3, Rs, Zs);
+	G4GenericPolycone* solid_diel_hole2 = new G4GenericPolycone("solid_diel_hole2", -3.*deg, 93.*deg, 3, Rs, Zs);
+	G4SubtractionSolid* solid_THGEM0_diel_tmp = new G4SubtractionSolid("solid_THGEM0_diel_tmp", solid_THGEM0_diel_box, solid_diel_hole1, 0, hole_1_pos);
+	G4SubtractionSolid* solid_THGEM0_diel = new G4SubtractionSolid("solid_THGEM0_diel", solid_THGEM0_diel_tmp, solid_diel_hole2, 0, hole_2_pos);
 	logic_THGEM0_cell_FR4 = new G4LogicalVolume(solid_THGEM0_diel, matFR4, "logic_THGEM0_cell_FR4", 0, 0, 0);
 	G4VPhysicalVolume* phys_THGEM0_cell_FR4 = new G4PVPlacement(0, zero, logic_THGEM0_cell_FR4, "phys_THGEM0_cell_FR4",
 			logic_THGEM0_cell_LAr, false, 0, fCheckOverlaps);
@@ -121,6 +75,11 @@ void Detector_full_y2022::CreateTHGEM0Cell()
 	G4VisAttributes FR4_VisAtt(G4Colour(0.8, 0.85, 0.11, 0.8));
 	G4VisAttributes Cu_VisAtt(G4Colour(0.8, 0.45, 0.2, 0.9));
 
+	Invisible.SetForceWireframe(true);
+	Cu_VisAtt.SetForceWireframe(true);
+	FR4_VisAtt.SetForceWireframe(true);
+	//FR4_VisAtt.SetForceLineSegmentsPerCircle(200);
+	AlmostInvisible.SetForceWireframe(true);
 	// Separate THGEM hole
 	logic_THGEM0_cell_copper->SetVisAttributes(Cu_VisAtt);
 	logic_THGEM0_cell_LAr->SetVisAttributes(Invisible);
@@ -339,14 +298,16 @@ G4VPhysicalVolume * Detector_full_y2022::Construct()
 	// Create TPB inside the insulator box
 	G4Tubs* solid_TPB = new G4Tubs("solid_TPB", 0, TPB_radius, TPB_thickness / 2.0, 0.*deg, 360.*deg);
 	G4LogicalVolume* logic_TPB = new G4LogicalVolume(solid_TPB, matTPB, "logic_TPB", 0, 0, 0);
-	G4VPhysicalVolume* phys_TPB0 = new G4PVPlacement(rotY_90, position_TPB_0, logic_TPB, "phys_TPB0",
-		logic_Insulator_box, false, 0, fCheckOverlaps);
-	G4VPhysicalVolume* phys_TPB1 = new G4PVPlacement(rotY_90, position_TPB_1, logic_TPB, "phys_TPB1",
-		logic_Insulator_box, false, 1, fCheckOverlaps);
-	G4VPhysicalVolume* phys_TPB2 = new G4PVPlacement(rotX_90, position_TPB_2, logic_TPB, "phys_TPB2",
-		logic_Insulator_box, false, 2, fCheckOverlaps);
-	G4VPhysicalVolume* phys_TPB3 = new G4PVPlacement(rotX_90, position_TPB_3, logic_TPB, "phys_TPB3",
-		logic_Insulator_box, false, 3, fCheckOverlaps);
+	if (dims->has_WLS) {
+		G4VPhysicalVolume* phys_TPB0 = new G4PVPlacement(rotY_90, position_TPB_0, logic_TPB, "phys_TPB0",
+			logic_Insulator_box, false, 0, fCheckOverlaps);
+		G4VPhysicalVolume* phys_TPB1 = new G4PVPlacement(rotY_90, position_TPB_1, logic_TPB, "phys_TPB1",
+			logic_Insulator_box, false, 1, fCheckOverlaps);
+		G4VPhysicalVolume* phys_TPB2 = new G4PVPlacement(rotX_90, position_TPB_2, logic_TPB, "phys_TPB2",
+			logic_Insulator_box, false, 2, fCheckOverlaps);
+		G4VPhysicalVolume* phys_TPB3 = new G4PVPlacement(rotX_90, position_TPB_3, logic_TPB, "phys_TPB3",
+			logic_Insulator_box, false, 3, fCheckOverlaps);
+	}
 
 	//--------------------------------------------------------------------------------
 	// Create PMTs
@@ -689,6 +650,7 @@ void Detector_full_y2022::SetSizeAndPosition()
 
 void Detector_full_y2022::SetupTHGEMsMapping()
 {
+	DetectorDimsFullY2022 *dims = (DetectorDimsFullY2022*) gPars::det_dims;
 	std::vector<G4PhysicalVolumesSearchScene::Findings> cells = LocatePV(phys_THGEM1_cell_LAr);
 	std::vector<G4PhysicalVolumesSearchScene::Findings> containers = LocatePV(phys_THGEM1_container);
 	if (cells.size() == 0) {
@@ -726,7 +688,7 @@ void Detector_full_y2022::SetupTHGEMsMapping()
 		G4ThreeVector cell_sizes = bMax - bMin;
 		thgem1_box->BoundingLimits(bMin, bMax);
 		G4ThreeVector thgem1_sizes = bMax - bMin;
-		HexagonalMapping thgem1_map("THGEM1", thgem1_pos, cell_pos, thgem1_sizes, cell_sizes, false);
+		HexagonalMapping thgem1_map("THGEM1", thgem1_pos, cell_pos, thgem1_sizes, cell_sizes, !dims->is_NBrS_in_THGEM0);
 		thgem1_map.AddTrigger(MappingTrigger(phys_THGEM1_cell_LAr, false, "THGEM1_leaving_cell"));
 		thgem1_map.AddTrigger(MappingTrigger(phys_THGEM1_container, true, "THGEM1_entering_container"));
 		gData.mapping_manager.AddMapping(thgem1_map);
@@ -769,7 +731,7 @@ second:
 		G4ThreeVector cell_sizes = bMax - bMin;
 		thgem0_box->BoundingLimits(bMin, bMax);
 		G4ThreeVector thgem0_sizes = bMax - bMin;
-		HexagonalMapping thgem0_map("THGEM0", thgem0_pos, cell_pos, thgem0_sizes, cell_sizes, true);
+		HexagonalMapping thgem0_map("THGEM0", thgem0_pos, cell_pos, thgem0_sizes, cell_sizes, dims->is_NBrS_in_THGEM0);
 		thgem0_map.AddTrigger(MappingTrigger(phys_THGEM0_cell_LAr, false, "THGEM0_leaving_cell"));
 		thgem0_map.AddTrigger(MappingTrigger(phys_THGEM0_container, true, "THGEM0_entering_container"));
 		gData.mapping_manager.AddMapping(thgem0_map);

@@ -18,6 +18,8 @@
 #include <G4OpticalSurface.hh>
 #include <G4VisAttributes.hh>
 #include <G4Colour.hh>
+#include <G4Polycone.hh>
+#include <G4GenericPolycone.hh>
 #include <G4RegionStore.hh>
 #include <G4PVPlacement.hh>
 #include <G4SubtractionSolid.hh>

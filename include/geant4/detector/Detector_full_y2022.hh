@@ -61,7 +61,6 @@ public:
 
 private:
 	virtual void SetSizeAndPosition() override;
-	virtual void CreateTHGEM1Cell() override;
 	virtual void CreateTHGEM0Cell();
 	virtual void SetupTHGEMsMapping() override; //Finds THGEM1 and THGEM0 volumes and initializes mapping class gPars::THGEM1_mapping
 

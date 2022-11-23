@@ -37,10 +37,17 @@ VDetectorDimensions* CreateDetectorSettings(std::string filename)
       settings->THGEM0_dielectric_thickness = det.get<double>("THGEM0_dielectric_thickness_mm") * mm;
       settings->THGEM0_hole_pitch = det.get<double>("THGEM0_hole_pitch_mm") * mm;
       settings->THGEM0_hole_rim = det.get<double>("THGEM0_hole_rim_mm") * mm;
+      settings->THGEM0_dielectric_radius = det.get<double>("THGEM0_dielectric_radius_mm", (settings->THGEM0_hole_radius - settings->THGEM0_hole_rim) / mm) * mm;
+      settings->is_NBrS_in_THGEM0 = det.get<bool>("is_NBrS_in_THGEM0", true);
+      settings->has_WLS = det.get<bool>("has_WLS", true);
 
 			// Finalizing
       settings->THGEM0_width_total = 2*settings->THGEM0_copper_thickness + settings->THGEM0_dielectric_thickness;
       settings->THGEM0_container_width = settings->THGEM0_width_total + 0.01 * 2; // 0.01 mm from each side. Different value from Elmer simulation
+      if (settings->THGEM0_dielectric_radius <= 0) {
+      	std::cerr<<"THGEM0 has negative or zero radius of dielectric hole! r = "<<settings->THGEM0_dielectric_radius<<std::endl;
+      	goto fail_load;
+      }
     } else {
       std::cerr<<"Unknown detector type is specified: '"<<type<<"'!"<<std::endl;
       goto fail_load;
@@ -51,11 +58,15 @@ VDetectorDimensions* CreateDetectorSettings(std::string filename)
     out->THGEM1_dielectric_thickness = det.get<double>("THGEM1_dielectric_thickness_mm") * mm;
     out->THGEM1_hole_pitch = det.get<double>("THGEM1_hole_pitch_mm") * mm;
     out->THGEM1_hole_rim = det.get<double>("THGEM1_hole_rim_mm") * mm;
+    out->THGEM1_dielectric_radius = det.get<double>("THGEM1_dielectric_radius_mm", (out->THGEM1_hole_radius - out->THGEM1_hole_rim) / mm) * mm;
 
     // Finalizing
     out->THGEM1_width_total = 2*out->THGEM1_copper_thickness + out->THGEM1_dielectric_thickness;
     out->THGEM1_container_width = out->THGEM1_width_total + 0.01 * 2; // 0.01 mm from each side. Different value from Elmer simulation
-
+    if (out->THGEM1_dielectric_radius <= 0) {
+			std::cerr<<"THGEM1 has negative or zero radius of dielectric hole! r = "<<out->THGEM1_dielectric_radius<<std::endl;
+			goto fail_load;
+		}
   } catch (ptree_bad_path& e) {
     std::cout << "CreateDetectorSettings: ptree_bad_path exception:" << std::endl;
     std::cout << e.what() << std::endl;
