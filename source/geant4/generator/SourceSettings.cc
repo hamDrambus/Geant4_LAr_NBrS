@@ -19,28 +19,28 @@ VSourceSettings* CreateSourceSettings(std::string filename)
   ptree pt;
   try {
     read_xml(filename, pt);
-    ptree src = pt.get_child("Settings.Source.NBrS_Generator");
-    if (src.size()) {
+    boost::optional<ptree&> src = pt.get_child_optional("Settings.Source.NBrS_Generator");
+    if (src) {
       SettingsNBrSGenerator *settings = new SettingsNBrSGenerator();
       out = settings;
-      settings->NBrS_yield_factor = src.get<double>("NBrS_yield_factor", 1.0);
+      settings->NBrS_yield_factor = src->get<double>("NBrS_yield_factor", 1.0);
       goto read_common;
     }
-    src = pt.get_child("Settings.Source.PhotonsDirectly");
-    if (src.size()) {
+    src = pt.get_child_optional("Settings.Source.PhotonsDirectly");
+    if (src) {
       SettingsDirectPhotons *settings = new SettingsDirectPhotons();
       out = settings;
-      settings->energy_spectrum_filename = src.get<std::string>("energy_spectrum_filename", "");
+      settings->energy_spectrum_filename = src->get<std::string>("energy_spectrum_filename", "");
       if (settings->energy_spectrum_filename.empty()) { // Spectrum not specified, use fixed energy
-        settings->energy = src.get<double>("energy_line_eV") * eV;
+        settings->energy = src->get<double>("energy_line_eV") * eV;
       } else {
         settings->energy_spectrum.read(gPars::general.data_path+settings->energy_spectrum_filename);
         if (!settings->energy_spectrum.isValid()) {
           std::cerr<<"CreateSourceSettings: Error: energy spectrum is invalid. Attempting to load fixed energy." <<std::endl;
-          settings->energy = src.get<double>("energy_line_eV") * eV;
+          settings->energy = src->get<double>("energy_line_eV") * eV;
         }
       }
-      std::string pattern = src.get<std::string>("Pattern");
+      std::string pattern = src->get<std::string>("Pattern");
       if (pattern == "THGEM1_hole_center") {
         settings->pattern = GenPhotonsDirectly::THGEM1_hole_center;
       } else if (pattern == "EL_gap_center") {
@@ -57,15 +57,15 @@ VSourceSettings* CreateSourceSettings(std::string filename)
         G4Exception("CreateSourceSettings: ",
             "InvalidSetup", FatalException, ("Invalid Settings.Source.PhotonsDirectly.Pattern '" + pattern + "' in settings.").c_str());
       }
-      settings->angle = src.get<double>("angle_to_z_deg", 0) * deg;
+      settings->angle = src->get<double>("angle_to_z_deg", 0) * deg;
       goto read_common;
     }
-    src = pt.get_child("Settings.Source.ElectronPattern");
-    if (src.size()) {
+    src = pt.get_child_optional("Settings.Source.ElectronPattern");
+    if (src) {
       SettingsElectronPattern *settings = new SettingsElectronPattern();
       out = settings;
       //, RandomSquare, UniformLineX, UniformLineY, UniformSquareGrid, Uniform1Ring, Uniform2Rings, Uniform3Rings
-      std::string pattern = src.get<std::string>("Pattern");
+      std::string pattern = src->get<std::string>("Pattern");
       if (pattern == "RandomCircle") {
         settings->pattern = GenElectronsPatterns::RandomCircle;
       } else if (pattern == "UniformLineX") {
@@ -90,12 +90,12 @@ VSourceSettings* CreateSourceSettings(std::string filename)
     goto fail_load;
    read_common:
     // Common settings
-    out->N_events = src.get<unsigned int>("N_events");
-    out->x_center = src.get<double>("x_center_mm") * mm;
-    out->y_center = src.get<double>("y_center_mm") * mm;
-    out->z_center = src.get<double>("z_center_mm") * mm;
-    out->xy_radius = src.get<double>("xy_radius_mm") * mm;
-    out->z_width = src.get<double>("z_width_mm") * mm;
+    out->N_events = src->get<unsigned int>("N_events");
+    out->x_center = src->get<double>("x_center_mm") * mm;
+    out->y_center = src->get<double>("y_center_mm") * mm;
+    out->z_center = src->get<double>("z_center_mm") * mm;
+    out->xy_radius = src->get<double>("xy_radius_mm") * mm;
+    out->z_width = src->get<double>("z_width_mm") * mm;
 
   } catch (ptree_bad_path& e) {
     std::cout << "CreateSourceSettings: ptree_bad_path exception:" << std::endl;

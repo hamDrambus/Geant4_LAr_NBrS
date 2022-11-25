@@ -24,7 +24,7 @@ RecalculateMesh = False
 #620, 739, 760, 785, 800, 831, 850, 877, 900, 923, 950, 1000, 1050, 1100]
 DSs = [0.05, 0.1, 0.2, 0.3, 1.0, 2.0, 4.0, 7.0, 10.0]
 V0s = [20.0 for i in range(len(DSs))]
-Vt1s = [20.0 for i in range(len(DSs))]
+Vt1s = [923 for i in range(len(DSs))]
 
 # returns binary absolute path, settings absolute path and log file absolute path (str1, str2, str3)
 def prepare_settings(V0, Vth1, DS):
@@ -46,7 +46,7 @@ def prepare_settings(V0, Vth1, DS):
         return None
     RecalculateMesh = False # Mesh needs to be recalulated only once
 
-    suffix = "{:.2f}".format(DS) + "um"
+    suffix = "{:3.0f}".format(Vth1) +"V_" + "{:.2f}".format(DS) + "um"
     abs_output_path = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), suffix))
     os.makedirs(abs_output_path, exist_ok=True)
     abs_settings = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), "settings_" + suffix + ".xml"))
