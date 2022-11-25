@@ -17,7 +17,7 @@
   <Source>
     <!-- Only single generator should be specified: NBrS_Generator, PhotonsDirectly or ElectronPattern -->
     <NBrS_Generator> <!-- generate dirfting electrons and then photons by them -->
-      <N_events>500000</N_events> <!-- Number of events to simulate-->
+      <N_events>100000</N_events> <!-- Number of events to simulate-->
       <x_center_mm>0.0</x_center_mm> <!-- Source X position. Relative to THGEM1 center -->
       <y_center_mm>0.0</y_center_mm> <!-- Source Y position. Relative to THGEM1 center -->
       <z_center_mm>0.010</z_center_mm> <!-- Source Z position. Relative the lowest point where field map is still present (below THGEM1)-->

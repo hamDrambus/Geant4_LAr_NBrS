@@ -385,3 +385,14 @@ Field[4] = Min;
 Field[4].FieldsList = {1, 2, 3};
 
 Background Field = 4;
+
+Mesh.MeshSizeFromPoints = 0;
+Mesh.MeshSizeFromCurvature = 0;
+Mesh.MeshSizeExtendFromBoundary = 0;
+Mesh.ElementOrder = 2;
+Mesh.HighOrderFixBoundaryNodes = 1;
+Mesh.HighOrderOptimize = 2;
+Mesh.HighOrderThresholdMin = 0.1; // default
+Mesh.HighOrderThresholdMax = 2.0; // default
+Mesh.OptimizeThreshold = 0.1;
+Mesh.SaveAll = 1;

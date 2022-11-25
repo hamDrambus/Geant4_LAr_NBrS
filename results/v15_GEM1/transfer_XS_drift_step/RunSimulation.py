@@ -46,7 +46,7 @@ def prepare_settings(V0, Vth1, DS):
         return None
     RecalculateMesh = False # Mesh needs to be recalulated only once
 
-    suffix = str(round(DS), 2) + "um"
+    suffix = "{:.2f}".format(DS) + "um"
     abs_output_path = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), suffix))
     os.makedirs(abs_output_path, exist_ok=True)
     abs_settings = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), "settings_" + suffix + ".xml"))
@@ -65,7 +65,7 @@ def prepare_settings(V0, Vth1, DS):
         l = line.replace('DATA_PATH', rel_data_path) # binary is executed from its folder
         l = l.replace('OUTPUT_FOLDER', rel_output_path)
         l = l.replace('MESH_FOLDER', rel_mesh_path)
-        l = l.replace('DRIFT_STEP', str(round(DS, 2)))
+        l = l.replace('DRIFT_STEP', "{:.2f}".format(DS))
         print(l.replace('FIELD_MAP_FILE', rel_field_map_file), end='')
     abs_logfile = os.path.join(abs_output_path, "Log.txt")
     return (abs_binary, abs_settings, abs_logfile)
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     for i in range(min(len(V0s), len(Vt1s))):
         print ("****************************************************************")
         print ("****************************************************************")
-        print ("Starting simulating V0 = " + str(round(V0s[i], 1)) + ", Vthgem = " + str(round(Vt1s[i])) + ", Drift_step = " + str(round(DSs[i], 2)) )
+        print ("Starting simulating V0 = " + str(round(V0s[i], 1)) + ", Vthgem = " + str(round(Vt1s[i])) + ", Drift_step = " + "{:.2f}".format(DSs[i]) )
         print ("****************************************************************")
         print ("****************************************************************")
         files = prepare_settings(V0s[i], Vt1s[i], DSs[i])
@@ -95,13 +95,13 @@ if __name__ == "__main__":
         if not p1.returncode is None:
             print ("****************************************************************")
             print ("****************************************************************")
-            print("ERROR while running " + binary + ". Skipping V0= " + str(round(V0s[i], 1)) + ", Vthgem= " + str(round(Vt1s[i])) + ", Drift_step = " + str(round(DSs[i], 2)) )
+            print("ERROR while running " + binary + ". Skipping V0= " + str(round(V0s[i], 1)) + ", Vthgem= " + str(round(Vt1s[i])) + ", Drift_step = " + "{:.2f}".format(DSs[i]) )
             print ("****************************************************************")
             print ("****************************************************************")
             continue
         print ("****************************************************************")
         print ("****************************************************************")
-        print ("Ended simulating V0 = " + str(round(V0s[i], 1)) + ", Vthgem = " + str(round(Vt1s[i])) + ", Drift_step = " + str(round(DSs[i], 2)) )
+        print ("Ended simulating V0 = " + str(round(V0s[i], 1)) + ", Vthgem = " + str(round(Vt1s[i])) + ", Drift_step = " + "{:.2f}".format(DSs[i]) )
         print ("****************************************************************")
         print ("****************************************************************")
     print("End of RunSimulation.py")

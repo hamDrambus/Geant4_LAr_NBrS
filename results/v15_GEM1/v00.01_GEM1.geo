@@ -248,7 +248,7 @@ Volume(4) = {4};
 
 //+
 Field[1] = Box;
-Field[1].VIn = 0.005;
+Field[1].VIn = 0.003;
 Field[1].VOut = 10.0;
 Field[1].XMax = 0.1;
 Field[1].XMin = -0.1;
@@ -258,14 +258,14 @@ Field[1].ZMax = 0.08;
 Field[1].ZMin = -0.08;
 //+
 Field[2] = Box;
-Field[2].VIn = 0.01;
+Field[2].VIn = 0.008;
 Field[2].VOut = 10.0;
 Field[2].XMax = 0.1;
 Field[2].XMin = -0.1;
 Field[2].YMax = 0.1;
 Field[2].YMin = -0.1;
-Field[2].ZMax = 0.15;
-Field[2].ZMin = -0.15;
+Field[2].ZMax = 0.19;
+Field[2].ZMin = -0.19;
 //+
 Field[3] = Box;
 Field[3].VIn = 0.03;
@@ -280,4 +280,15 @@ Field[3].ZMin = -5.0;
 Field[4] = Min;
 Field[4].FieldsList = {1, 2, 3};
 Background Field = 4;
+
+Mesh.MeshSizeFromPoints = 0;
+Mesh.MeshSizeFromCurvature = 0;
+Mesh.MeshSizeExtendFromBoundary = 0;
+Mesh.ElementOrder = 2;
+Mesh.HighOrderFixBoundaryNodes = 1;
+Mesh.HighOrderOptimize = 2;
+Mesh.HighOrderThresholdMin = 0.1; // default
+Mesh.HighOrderThresholdMax = 2.0; // default
+Mesh.OptimizeThreshold = 0.1;
+Mesh.SaveAll = 1;
 

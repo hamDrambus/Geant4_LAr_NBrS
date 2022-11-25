@@ -5,7 +5,7 @@ Dependencies:
 Required for the project overall but not used in compilation of C++ code:
 1) CERN ROOT is strongly recommended to analyze obtained data with root_scripts/*. Alternatively, it can be done by hand using text output of Geant4_simulation (do note QE and PDE issue discussed below).
 2) FreeCAD, view3dscene or something else is recommended to view VRML2FILE (g4.wrl) visualization output. Otherwise refer to Geant4 visualization (configured from vis.mac)
-3) Gmsh v3 is required to create THGEM cell mesh (.geo file->.msh)
+3) Gmsh v4 is required to create THGEM cell mesh (.geo file->.msh). Gmsh v3 does not have mesh options setups from .geo file (could not find its documentation) so it won't work properly.
 4) Elmer is required to calculate electric fields in cell using Gmsh output (.msh + .sif -> .results, .header, .nodes, .elements, .boundary).
 5) Python3 is strongly recommended to run simulation scripts (RunSimulation.py) which streamline the workflow. In particular, they invoke Gmsh and Elmer if correct script set-up and input files are used. After electric fields are calculated, settings.xml is automatically generated from template settings using the field maps files. Finally, c++ geant4 simulation is run using generated field maps and settings. The scripts are very readable and thus new simulation cases can be added as needed.
 6) gnuplot is recommended to quickly plot some simple files (such as electric fields). There are some functions in the c++ program which plot data by connecting to gnuplot with pipe. Not required for running the application.

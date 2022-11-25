@@ -636,8 +636,13 @@ void Detector_full_y2022::SetSizeAndPosition()
 
   dims->THGEM1_center = G4ThreeVector(0, 0, THGEM1_bottom_z + gPars::det_dims->THGEM1_width_total / 2.0);
 
-  dims->THGEM_hole_center = //x!=0 because x=0 is just across anode wire before SiPM.
-      G4ThreeVector(dims->THGEM0_hole_pitch, 0, interface_grid_top_z - dims->THGEM0_width_total / 2.0);
+  if (dims->is_NBrS_in_THGEM0) {
+		dims->THGEM_hole_center = //x!=0 because x=0 is just across anode wire before SiPM.
+				G4ThreeVector(dims->THGEM0_hole_pitch, 0, interface_grid_top_z - dims->THGEM0_width_total / 2.0);
+  } else {
+		dims->THGEM_hole_center = //x!=0 because x=0 is just across anode wire before SiPM.
+				G4ThreeVector(dims->THGEM1_hole_pitch, 0, THGEM1_bottom_z + gPars::det_dims->THGEM1_width_total / 2.0);
+  }
   dims->THGEM0_center = G4ThreeVector(0, 0, interface_grid_top_z - dims->THGEM0_width_total / 2.0);
 
 	dims->EL_gap_center = G4ThreeVector(dims->THGEM1_hole_pitch, 0, (interface_grid_top_z + THGEM1_bottom_z) / 2.0);

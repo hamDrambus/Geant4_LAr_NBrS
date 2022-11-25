@@ -5,7 +5,7 @@ import subprocess
 import shutil
 import fileinput
 
-BinaryGmsh = "~/Software/Gmsh_v3/gmsh-3.0.6-Linux64/bin/gmsh"
+BinaryGmsh = "~/Software/Gmsh_v4.11.0/bin/gmsh"
 BinaryElmer = "ElmerGrid"
 BinarySolver = "ElmerSolver"
 # Folder and file are relative to this script
@@ -37,8 +37,8 @@ def create_mesh(abs_geo_file, recalculate=False):
         if not os.path.isfile(abs_geo_file):
             print ("ERROR: \""+abs_geo_file+"\" file does not exist")
             return None
-        print("Executing \"" + abs_binary_gmsh + "\" "+ abs_geo_file + " -3 -order 2 -format msh")
-        completed_process = subprocess.run([abs_binary_gmsh, abs_geo_file, "-3", "-order", "2", "-format", "msh"], \
+        print("Executing \"" + abs_binary_gmsh + "\" "+ abs_geo_file + " -3 -order 2 -format msh22")
+        completed_process = subprocess.run([abs_binary_gmsh, abs_geo_file, "-3", "-order", "2", "-format", "msh22"], \
             check=False)
         if completed_process.returncode != 0:
             print("ERROR while running Gmsh. Mesh not created, aborting.")

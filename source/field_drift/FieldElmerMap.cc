@@ -896,6 +896,11 @@ int FieldElmerMap::Coordinates13(double x, double y, double z, double& t1,
     return 0;
   }
 
+  // (Mine)
+  //t1 = std::min(std::max(t1, 0.0), 1.0);
+  //t2 = std::min(std::max(t2, 0.0), 1.0);
+  //t3 = std::min(std::max(t3, 0.0), 1.0);
+  //t4 = std::min(std::max(t4, 0.0), 1.0);
   // Start iteration.
   double td1 = t1, td2 = t2, td3 = t3, td4 = t4;
   const Element & element = elements[imap];
