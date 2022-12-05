@@ -253,8 +253,6 @@ void GlobalData::SetupFieldMap(void)
         diff_longitudinal = new DataVector(*(diff_transversal= &Ar_props.drift_diffusion_T));
     }
   }
-  RecalculateDiffusion(*diff_longitudinal, *velocity);
-  RecalculateDiffusion(*diff_transversal, *velocity);
   LAr_medium = new DriftMedium("LAr", *velocity, *diff_longitudinal, *diff_transversal);
   LAr_medium->SetDriftable(true);
   field_map->SetMedium(0, LAr_medium);
@@ -347,12 +345,3 @@ void GlobalData::PlotField(std::string filename, G4ThreeVector line_start, G4Thr
   flll.close();
 }
 
-void GlobalData::RecalculateDiffusion(DataVector& diffusion, DataVector& velocity)
-{
-  if (!diffusion.isValid() || !velocity.isValid()) {
-    std::cerr<<"GlobalData::RecalculateDiffusion: Invalid data."<<std::endl;
-  }
-  for (std::size_t i = 0, i_end_ = diffusion.size(); i!=i_end_; ++i) {
-    diffusion[i].second = std::sqrt(2.0 * diffusion[i].second / velocity(diffusion[i].first));
-  }
-}

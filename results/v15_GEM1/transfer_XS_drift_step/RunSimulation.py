@@ -22,7 +22,7 @@ RecalculateMesh = False
 #Vt1s = [80, 90, 100, 110, 120, 130, 139, 160, 185, 200, 231, 250, 277, 300, 323, \
 #350, 369, 390, 416, 450, 462, 480, 508, 525, 554, 580, 600, 620, 646, 670, 693, \
 #620, 739, 760, 785, 800, 831, 850, 877, 900, 923, 950, 1000, 1050, 1100]
-DSs = [0.05, 0.1, 0.2, 0.3, 1.0, 2.0, 4.0, 7.0, 10.0]
+DSs = [0.05, 0.1, 0.2, 0.3, 0.4, 0.6, 1.0, 2.0, 4.0, 7.0, 10.0]
 V0s = [20.0 for i in range(len(DSs))]
 Vt1s = [923 for i in range(len(DSs))]
 
@@ -46,7 +46,7 @@ def prepare_settings(V0, Vth1, DS):
         return None
     RecalculateMesh = False # Mesh needs to be recalulated only once
 
-    suffix = "{:3.0f}".format(Vth1) +"V_" + "{:.2f}".format(DS) + "um"
+    suffix = "NoDiff_NoElim_"+"{:3.0f}".format(Vth1) +"V_" + "{:.2f}".format(DS) + "um"
     abs_output_path = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), suffix))
     os.makedirs(abs_output_path, exist_ok=True)
     abs_settings = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), "settings_" + suffix + ".xml"))

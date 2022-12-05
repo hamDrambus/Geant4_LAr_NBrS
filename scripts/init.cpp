@@ -11,6 +11,11 @@ enum PlotParameter
   gammaNProfile
 };
 
+const int SiPM_n_rows = 5;
+const double SiPM_size = 6; // mm
+const double SiPM_pitch = 10; // mm
+const double SiPM_matrix_center_x = 0, SiPM_matrix_center_y = 0; // mm
+
 std::string dbl_to_str (double val, int precision)
 {
 	std::stringstream ss;
@@ -53,6 +58,57 @@ int SiPM_index_to_channel (int index) {
     return index_to_ch[index];
   }
   return -1;
+}
+
+// prunes list of channels to uniques and only those that exist
+std::vector<int> SiPM_valid_channels_only (std::vector<int> channels) {
+  std::sort(channels.begin(), channels.end());
+  auto last = std::unique(channels.begin(), channels.end());
+  channels.erase(last, channels.end());
+  std::vector<int> valid_channels;
+  for (std::size_t i = 0; i < SiPM_n_rows*SiPM_n_rows; ++i) {
+    int channel = SiPM_index_to_channel(i);
+    if (channel < 0)
+      continue;
+    for (int ch : channels) {
+      if (ch == channel) {
+        valid_channels.push_back(channel);
+        break;
+      }
+    }
+  }
+  return valid_channels;
+}
+
+// Returns distatance from (0, 0) to SiPM #channel
+double SiPM_channel_R(int channel) {
+  int index = -1;
+  for (std::size_t i = 0; i < SiPM_n_rows*SiPM_n_rows; ++i) {
+    if (channel == SiPM_index_to_channel(i)) {
+      index = i;
+      break;
+    }
+  }
+  if (index < 0)
+    return -1.0;
+  // Same as in source/geant4/detector/DetectorParameterisation.cpp (DetectorParameterisation::ComputeTransformation)
+  double X_position = (-SiPM_n_rows / 2.0 + index % SiPM_n_rows + 0.5) * SiPM_pitch;
+	double Y_position = (-SiPM_n_rows / 2.0 + (index / SiPM_n_rows) % SiPM_n_rows + 0.5) * SiPM_pitch;
+  return sqrt(X_position*X_position + Y_position*Y_position);
+}
+
+std::vector<int> SiPM_equidistant_channels(int channel) {
+  std::vector<int> out;
+  double R = SiPM_channel_R(channel);
+  if (R < 0)
+    return out;
+  for (std::size_t i = 0; i < SiPM_n_rows*SiPM_n_rows; ++i) {
+    int ch = SiPM_index_to_channel(i);
+    double r = SiPM_channel_R(ch);
+    if (fabs(r-R) < 0.0001 * SiPM_pitch)
+      out.push_back(ch);
+  }
+  return out;
 }
 
 class ElectronInfo {
@@ -141,11 +197,12 @@ bool SelectSiPMs (ElectronInfo& electron, PhotonInfo& photon)
   return true;
 }
 
+bool SelectAll (ElectronInfo& electron, PhotonInfo& photon)
+{
+  return true;
+}
+
 int PhotonToChannel (ElectronInfo& electron, PhotonInfo& photon) {
-  const int SiPM_n_rows = 5;
-  const double SiPM_size = 6; // mm
-  const double SiPM_pitch = 10; // mm
-  const double SiPM_matrix_center_x = 0, SiPM_matrix_center_y = 0; // mm
   const double max_XY = 0.5 * (SiPM_n_rows * SiPM_pitch);
   const double PMMA_plate_center_z = 78.15;
 
@@ -224,12 +281,10 @@ double PickValue(PlotParameter par, const ElectronInfo& electron, const PhotonIn
     if (photon.pos_x > 75 || photon.pos_x < -75 || photon.pos_y > 75 || photon.pos_y < -75) {
       return -DBL_MAX; // Hit PMT
     }
-    double size_SiPM = 6.0; // [mm]
-	  double SiPM_spacing = 10; // [mm]
-    int x_index = (int) (photon.pos_x)/(SiPM_spacing/2.0);
-    int y_index = (int) (photon.pos_y)/(SiPM_spacing/2.0);
-    double x_pos = SiPM_spacing*x_index;
-    double y_pos = SiPM_spacing*y_index;
+    int x_index = (int) (photon.pos_x)/(SiPM_pitch/2.0);
+    int y_index = (int) (photon.pos_y)/(SiPM_pitch/2.0);
+    double x_pos = SiPM_pitch*x_index;
+    double y_pos = SiPM_pitch*y_index;
     return std::sqrt(x_pos*x_pos + y_pos*y_pos);
   }
   default:
@@ -468,24 +523,36 @@ int GetNpePMTraw (PlotInfo& plot_info) {
 int GetNpePMTavg (PlotInfo& plot_info) {
   std::size_t PMT3 = GetNpeCh(plot_info, 0) + GetNpeCh(plot_info, 2) + GetNpeCh(plot_info, 3);
   double grid_fraction = (double) GetNpeCh(plot_info, 1) * 3.0 / PMT3;
+  if (PMT3==0)
+    grid_fraction = 1.0;
   std::size_t out = std::round((PMT3 * grid_fraction + GetNpeCh(plot_info, 1)) / 4.0);
   return out;
 }
 
 int GetNpeSiPMs (PlotInfo& plot_info) {
   std::size_t out = 0;
-  for (int i = 0; i != 25; ++i) {
+  for (int i = 0; i != SiPM_n_rows*SiPM_n_rows; ++i) {
     out += GetNpeCh(plot_info, SiPM_index_to_channel(i));
   }
   return out;
 }
 
-int GetNpeSiPMs23 (PlotInfo& plot_info) {
-  std::size_t SiPM43_avg = GetNpeCh(plot_info, 43) + GetNpeCh(plot_info, 55) + GetNpeCh(plot_info, 35) +
-      GetNpeCh(plot_info, 33) + GetNpeCh(plot_info, 49) + GetNpeCh(plot_info, 37) + GetNpeCh(plot_info, 57) +
-      GetNpeCh(plot_info, 59);
-  std::size_t SiPM44_avg = GetNpeCh(plot_info, 44) + GetNpeCh(plot_info, 42) + GetNpeCh(plot_info, 32) + GetNpeCh(plot_info, 34);
+int GetNpeSiPMsSome (PlotInfo& plot_info, std::vector<int> exclude_ch) {
   std::size_t out = GetNpeSiPMs(plot_info);
-  out -= std::round(SiPM43_avg/8.0 + SiPM44_avg/4.0);
+  exclude_ch = SiPM_valid_channels_only(exclude_ch);
+  double rem = 0;
+  for (int channel : exclude_ch) {
+    std::vector<int> chs = SiPM_equidistant_channels(channel);
+    double average = 0;
+    for (int ch : chs)
+      average += GetNpeCh(plot_info, ch);
+    rem += average/chs.size();
+  }
+  out -= std::round(rem);
   return out;
+}
+
+int GetNpeSiPMs23 (PlotInfo& plot_info) {
+  std::vector<int> exclude_chs = {44, 43};
+  return GetNpeSiPMsSome(plot_info, exclude_chs);
 }

@@ -44,14 +44,21 @@
 using namespace Garfield;
 
 // Garfield sizes are in cm
-#define _X_SIZE 0.0035
-#define _Y_SIZE 0.00606217783
-#define _Z_CATHODE -0.103
-#define _Z_ANODE 0.103
+//Thin GEM (standard)
+//#define _X_SIZE 0.0035
+//#define _Y_SIZE 0.00606217783
+//#define _Z_CATHODE -0.103
+//#define _Z_ANODE 0.103
 #define _TIME_STEP 0.2
-#define MESH_ std::string("../../results/v15_GEM1/v00.01_GEM1/")
-#define RESULT_ std::string("../../results/v15_GEM1/Elmer_v00.01/case_505v.result")
-#define RESULT_FOLDER std::string("../../results/v15_GEM1/Elmer_v00.01/")
+//28% CERN THGEM
+#define _X_SIZE 0.0225
+#define _Y_SIZE 0.038971143170
+#define _Z_CATHODE -0.503
+#define _Z_ANODE 0.503
+
+#define MESH_ std::string("../../results/v16_old_setup_via_new_class/v00.02_THGEM1/")
+#define RESULT_ std::string("../../results/v16_old_setup_via_new_class/Elmer_v00.02/case_5500v.result")
+#define RESULT_FOLDER std::string("../../results/v16_old_setup_via_new_class/Elmer_v00.02/")
 
 void ensure_file(std::string fname); //makes sure file can be created later on
 void ensure_folder(std::string folder);
@@ -387,7 +394,7 @@ int main(int argc, char * argv[]) {
 	  ComponentElmer* fm = LoadFieldMap(MESH_, RESULT_);
 		if (nullptr == fm)
 			return -1;
-	  plot_field(fm,"v15.00.01_GEM1/center_axis_field_505v.txt",_X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_CATHODE,_X_SIZE * 0.999999,_Y_SIZE * 0.999999, _Z_ANODE, 3000, "axis z");
+	  plot_field(fm,"../../results/v16_old_setup_via_new_class/center_axis_field_5500v.txt",_X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_CATHODE,_X_SIZE * 0.999999,_Y_SIZE * 0.999999, _Z_ANODE, 3000, "axis z");
 		PointE3D pt_max = find_max_E_along_line(fm, _X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_CATHODE, _X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_ANODE, 3000);
 		std::cout<<"Max field is "<<pt_max.E <<" V/cm at z = "<< pt_max.z * 10 << " mm"<<std::endl;
 		//THGEM_transparency(fm, 1000, true);
@@ -395,14 +402,13 @@ int main(int argc, char * argv[]) {
 		DriftLinesXZ(fm, 60);
 	}
 	if (false) {
-		std::vector<double> Vs = {20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, \
-			160, 176, 190, 210, 220, 240, 265, 280, 309, 315, 330, 353, 370, 397, \
-			420, 441, 460, 485, 505, 529, 550, 572, 599, 618, 640, 660, 680, 700, \
-			730, 760, 790, 810, 840, 870, 900};
-		std::string plot_file = "v15.00.01/hole_field_vs_Vgem.txt";
+		std::vector<double> Vs = {80, 90, 100, 110, 120, 130, 139, 160, 185, 200, 231, 250, 277, 300, 323, \
+		350, 369, 390, 416, 450, 462, 480, 508, 525, 554, 580, 600, 620, 646, 670, 693, \
+		620, 739, 760, 785, 800, 831, 850, 877, 900, 923, 950, 1000, 1050, 1100};
+		std::string plot_file = "../../tests/15_field_calculation_thin_GEM/hole_field_vs_Vdivider.txt";
 		ensure_file(plot_file);
 		std::ofstream str(plot_file, std::ios_base::trunc);
-		str<<"Vgem[V]\tEmax[V/cm]\tE at hole center[V/cm]"<<std::endl;
+		str<<"Vdivider[V]\tEmax[kV/cm]\tE at hole center[kV/cm]"<<std::endl;
 		for (std::size_t i = 0; i!=Vs.size(); ++i) {
 			std::string fieldmap = RESULT_FOLDER + "case_"+dbl_to_str(Vs[i], 0) +"v.result";
 			ComponentElmer* fm = LoadFieldMap(MESH_, fieldmap);
@@ -412,7 +418,7 @@ int main(int argc, char * argv[]) {
 			}
 			PointE3D pt_max = find_max_E_along_line(fm, _X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_CATHODE*0.2, _X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_ANODE*0.2, 2000);
 			double E_center = E_at_hole_center(fm);
-			str<<Vs[i]<<"\t"<<pt_max.E<<"\t"<<E_center<<std::endl;
+			str<<Vs[i]<<"\t"<<pt_max.E/1000.0<<"\t"<<E_center/1000.0<<std::endl;
 			delete fm;
 		}
 		str.close();

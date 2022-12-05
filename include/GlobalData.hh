@@ -90,11 +90,6 @@ public:
   FieldElmerMap* field_map; // Depends only on gPars::
   DriftMedium* LAr_medium;
   ArgonPropertiesTables Ar_props;
-
-protected:
-  // Diffusion coefficients are in mm^2/ns but need to be in mm^(1/2) in ElectronDrift
-  // Similar situation was in Garfield++
-  static void RecalculateDiffusion(DataVector& diffusion, DataVector& velocity);
 };
 
 extern GlobalData gData;

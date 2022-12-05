@@ -260,10 +260,11 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
 
     // Draw a random diffusion direction in the particle frame.
     if (m_useDiffusion) {
-      d = sqrt(v * delta);
-      dx = d * CLHEP::RandGaussQ::shoot(0., dl);
-      dy = d * CLHEP::RandGaussQ::shoot(0., dt);
-      dz = d * CLHEP::RandGaussQ::shoot(0., dt);
+      double diff_l = sqrt(2 * delta * dl);
+      double diff_t = sqrt(2 * delta * dt);
+      dx = CLHEP::RandGaussQ::shoot(0., diff_l);
+      dy = CLHEP::RandGaussQ::shoot(0., diff_t);
+      dz = CLHEP::RandGaussQ::shoot(0., diff_t);
     }
     if (m_debug) {
       std::cout << m_className << "::DriftLine:\n";

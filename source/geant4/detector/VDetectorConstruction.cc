@@ -135,10 +135,11 @@ void VDetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elm
   	r_epsilon = 0;
   	z_epsilon = radius_center / (radius_center - radius);
   }
-  double Zs[] = {-diel_size_z / 2.0 * z_epsilon, 0, diel_size_z / 2.0 * z_epsilon};
+	double Zs[] = {-diel_size_z / 2.0 * z_epsilon, 0, diel_size_z / 2.0 * z_epsilon};
 	double Rs[] = {r_epsilon, radius_center, r_epsilon};
-  G4GenericPolycone* solid_diel_hole1 = new G4GenericPolycone("solid_diel_hole1", 177.*deg, 273.*deg, 3, Rs, Zs);
-  G4GenericPolycone* solid_diel_hole2 = new G4GenericPolycone("solid_diel_hole2", -3.*deg, 93.*deg, 3, Rs, Zs);
+	double rs[] = {0, 0, 0};
+	G4Polycone* solid_diel_hole1 = new G4Polycone("solid_diel_hole1", 177.*deg, 273.*deg, 3, Zs, rs, Rs);
+	G4Polycone* solid_diel_hole2 = new G4Polycone("solid_diel_hole2", -3.*deg, 93.*deg, 3, Zs, rs, Rs);
   G4SubtractionSolid* solid_THGEM1_diel_tmp = new G4SubtractionSolid("solid_THGEM1_diel_tmp", solid_THGEM1_diel_box, solid_diel_hole1, 0, hole_1_pos);
 	G4SubtractionSolid* solid_THGEM1_diel = new G4SubtractionSolid("solid_THGEM1_diel", solid_THGEM1_diel_tmp, solid_diel_hole2, 0, hole_2_pos);
   logic_THGEM1_cell_FR4 = new G4LogicalVolume(solid_THGEM1_diel, matFR4, "logic_THGEM1_cell_FR4", 0, 0, 0);

@@ -15,7 +15,7 @@ void Detector_full_y2022::CreateTHGEM0Cell()
 	double cell_size_z = dims->THGEM0_container_width;
 	double diel_size_z = dims->THGEM0_dielectric_thickness;
 	double radius = dims->THGEM0_hole_radius;
-	double radius_center = gPars::det_dims->THGEM1_dielectric_radius;
+	double radius_center = dims->THGEM0_dielectric_radius;
 	double radius_cu = radius + dims->THGEM0_hole_rim;
 	double cu_size_z = dims->THGEM0_copper_thickness;
 
@@ -47,8 +47,9 @@ void Detector_full_y2022::CreateTHGEM0Cell()
 	}
 	double Zs[] = {-diel_size_z / 2.0 * z_epsilon, 0, diel_size_z / 2.0 * z_epsilon};
 	double Rs[] = {r_epsilon, radius_center, r_epsilon};
-	G4GenericPolycone* solid_diel_hole1 = new G4GenericPolycone("solid_diel_hole1", 177.*deg, 273.*deg, 3, Rs, Zs);
-	G4GenericPolycone* solid_diel_hole2 = new G4GenericPolycone("solid_diel_hole2", -3.*deg, 93.*deg, 3, Rs, Zs);
+	double rs[] = {0, 0, 0};
+	G4Polycone* solid_diel_hole1 = new G4Polycone("solid_diel_hole1", 177.*deg, 273.*deg, 3, Zs, rs, Rs);
+	G4Polycone* solid_diel_hole2 = new G4Polycone("solid_diel_hole2", -3.*deg, 93.*deg, 3, Zs, rs, Rs);
 	G4SubtractionSolid* solid_THGEM0_diel_tmp = new G4SubtractionSolid("solid_THGEM0_diel_tmp", solid_THGEM0_diel_box, solid_diel_hole1, 0, hole_1_pos);
 	G4SubtractionSolid* solid_THGEM0_diel = new G4SubtractionSolid("solid_THGEM0_diel", solid_THGEM0_diel_tmp, solid_diel_hole2, 0, hole_2_pos);
 	logic_THGEM0_cell_FR4 = new G4LogicalVolume(solid_THGEM0_diel, matFR4, "logic_THGEM0_cell_FR4", 0, 0, 0);
@@ -476,7 +477,7 @@ void Detector_full_y2022::SetSizeAndPosition()
   double THGEMs_active_size_xy = 100 * mm; //see Download:\DetectorPhotos\2021\THGEM_Electroconnect
   double EL_gap_thickness = 6 * mm; // Must be positive (double phase). Counted from THGEM1's real bottom
 	double interface_grid_top_z = LAr_drift_width + dims->THGEM0_width_total;
-	double THGEM1_bottom_z = interface_grid_top_z + max_EL_gap_thickness; //=71.4
+	double THGEM1_bottom_z = interface_grid_top_z + max_EL_gap_thickness; //=71.0
 	LAr_inner_size_z = interface_grid_top_z + (max_EL_gap_thickness - EL_gap_thickness) + Cathode_size_z;
 	double LAr_inner_ref_z = -LAr_inner_size_z / 2.0 + Cathode_size_z; // global 0 in LAr_innner reference frame.
 	double LAr_level = interface_grid_top_z + (max_EL_gap_thickness - EL_gap_thickness);

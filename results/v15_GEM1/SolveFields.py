@@ -77,10 +77,10 @@ def solve_fields(V0, Vth1, recalculateField=False, recalculateMesh=False):
 
     #distances [cm] from THGEM0 electrode to THGEM1 and cathode in the real detector
     EL_GAP_FULL = 2.20
-    ANODE_THGEM1_dz=0.1
+    ANODE_THGEM1_dz=0.5
     DRIFT_L = 4.8
     LAR_EPS = 1.54 #LAr dielectric constant
-    #distances from THGEM1 electrode to cathode and anode in Gmsh model #TODO: exctract from geo file
+    #distances [cm] from THGEM1 electrode to cathode and anode in Gmsh model #TODO: exctract from geo file
     CATHODE_dZ = 0.1
     ANODE_dZ = 0.1
 

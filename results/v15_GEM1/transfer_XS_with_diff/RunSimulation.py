@@ -85,7 +85,7 @@ if __name__ == "__main__":
         abs_binary_path = os.path.dirname(files[0])
         binary = os.path.basename(files[0])
         binary = os.path.join("./", binary)
-        """
+
         p1 = subprocess.Popen([binary, files[1]], stdout=PIPE, stderr=subprocess.STDOUT, cwd=abs_binary_path)
         p2 = subprocess.Popen(["tee", files[2]], stdin=p1.stdout)
         p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
@@ -97,7 +97,7 @@ if __name__ == "__main__":
             print ("****************************************************************")
             print ("****************************************************************")
             continue
-        """
+
         print ("****************************************************************")
         print ("****************************************************************")
         print ("Ended simulating V0 = " + str(round(V0s[i], 1)) + ", Vthgem = " + str(round(Vt1s[i])) )
