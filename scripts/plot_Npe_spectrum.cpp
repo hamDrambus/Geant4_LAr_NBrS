@@ -121,7 +121,7 @@ QE_result plot_Npe_spectrum(std::string input_file = "../results/v10.0_elastic/2
       gPad->GetUxmax(), gPad->GetUymax(), Y2_axis_range.first, Y2_axis_range.second, 510, "+L");
       double title_offset = axis->GetTitleOffset() + 0.1;
       axis->ImportAxisAttributes(frame_00->GetYaxis());
-      axis->SetTitle("SiPM PDE [%]");
+      axis->SetTitle("SiPM PDE (%)");
       axis->SetTitleOffset(title_offset);
       axis->Draw();
     }

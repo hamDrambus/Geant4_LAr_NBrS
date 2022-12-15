@@ -65,6 +65,8 @@ namespace gPars
 
 	struct DetectorOptics {
 		double FR4_SigmaAlpha;
+		double LAr_SigmaAlpha;
+		double PMMA_SigmaAlpha;
 		double StainlessSteel_SigmaAlpha;
 		double Cu_SigmaAlpha;
 		double Wire_SigmaAlpha;

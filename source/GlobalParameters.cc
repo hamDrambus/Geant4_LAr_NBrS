@@ -64,6 +64,8 @@ namespace gPars
       {
       ptree optics = pt.get_child("Settings.DetectorOptics");
       det_opt.FR4_SigmaAlpha = optics.get<double>("FR4_SigmaAlpha_deg") * deg;
+      det_opt.LAr_SigmaAlpha = optics.get<double>("LAr_SigmaAlpha_deg", 0) * deg;
+      det_opt.PMMA_SigmaAlpha = optics.get<double>("PMMA_SigmaAlpha_deg", 0) * deg;
       det_opt.StainlessSteel_SigmaAlpha = optics.get<double>("StainlessSteel_SigmaAlpha_deg") * deg;
       det_opt.Cu_SigmaAlpha = optics.get<double>("Cu_SigmaAlpha_deg") * deg;
       det_opt.Wire_SigmaAlpha = optics.get<double>("Wire_SigmaAlpha_deg") * deg;
@@ -205,6 +207,8 @@ namespace gPars
 
     if (general.no_diffused_reflections) {
       det_opt.FR4_SigmaAlpha = 0.0;
+      det_opt.LAr_SigmaAlpha = 0.0;
+      det_opt.PMMA_SigmaAlpha = 0.0;
       det_opt.StainlessSteel_SigmaAlpha = 0.0;
       det_opt.Cu_SigmaAlpha = 0.0;
       det_opt.Wire_SigmaAlpha = 0.0;

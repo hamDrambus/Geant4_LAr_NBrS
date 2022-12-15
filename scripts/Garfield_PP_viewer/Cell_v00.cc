@@ -56,9 +56,10 @@ using namespace Garfield;
 #define _Z_CATHODE -0.503
 #define _Z_ANODE 0.503
 
-#define MESH_ std::string("../../results/v16_old_setup_via_new_class/v00.02_THGEM1/")
-#define RESULT_ std::string("../../results/v16_old_setup_via_new_class/Elmer_v00.02/case_5500v.result")
-#define RESULT_FOLDER std::string("../../results/v16_old_setup_via_new_class/Elmer_v00.02/")
+//2D and 3D can be viewed with the same code due to selected geometries!
+#define MESH_ std::string("../../results/v10_old_setup/v00.01_THGEM1/")
+#define RESULT_ std::string("../../results/v10_old_setup/Elmer_v00.01/case_5180v.result")
+#define RESULT_FOLDER std::string("../../results/v10_old_setup/Elmer_v00.01/")
 
 void ensure_file(std::string fname); //makes sure file can be created later on
 void ensure_folder(std::string folder);
@@ -394,12 +395,14 @@ int main(int argc, char * argv[]) {
 	  ComponentElmer* fm = LoadFieldMap(MESH_, RESULT_);
 		if (nullptr == fm)
 			return -1;
-	  plot_field(fm,"../../results/v16_old_setup_via_new_class/center_axis_field_5500v.txt",_X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_CATHODE,_X_SIZE * 0.999999,_Y_SIZE * 0.999999, _Z_ANODE, 3000, "axis z");
+	  plot_field(fm,"../../results/v10_old_setup/center_axis_field_5180v.txt",_X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_CATHODE,_X_SIZE * 0.999999,_Y_SIZE * 0.999999, _Z_ANODE, 3000, "axis z");
 		PointE3D pt_max = find_max_E_along_line(fm, _X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_CATHODE, _X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_ANODE, 3000);
-		std::cout<<"Max field is "<<pt_max.E <<" V/cm at z = "<< pt_max.z * 10 << " mm"<<std::endl;
+		std::cout<<"Max field is "<<pt_max.E/1000 <<" kV/cm at z = "<< pt_max.z * 10 << " mm"<<std::endl;
+		double E_center = E_at_hole_center(fm);
+		std::cout<<"E at hole center = "<<E_center/1000 <<" kV/cm"<<std::endl;
 		//THGEM_transparency(fm, 1000, true);
 	  AvalancheMC_My *aval = new AvalancheMC_My();
-		DriftLinesXZ(fm, 60);
+		DriftLinesXZ(fm, 30);
 	}
 	if (false) {
 		std::vector<double> Vs = {80, 90, 100, 110, 120, 130, 139, 160, 185, 200, 231, 250, 277, 300, 323, \

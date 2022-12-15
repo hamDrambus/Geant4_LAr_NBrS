@@ -71,7 +71,7 @@
     <TPB_emission_spectrum_filename>WLS/TPB_in_polystyrene/Emission_spectrum.dat</TPB_emission_spectrum_filename>
 
     <no_reflections>false</no_reflections> <!--OPT if true, then all non-transparent materials have 0 reflectivity-->
-    <no_diffused_reflections>false</no_diffused_reflections> <!--OPT if true, then all reflections are not diffusial-->
+    <no_diffused_reflections>true</no_diffused_reflections> <!--OPT if true, then all reflections are not diffusial-->
   </DetectorOptics>
   <ArgonProperties>
     <XS_energy_transfer_filename>LAr_XS/XS_energy_transfer_Borisova_corrected.txt</XS_energy_transfer_filename>

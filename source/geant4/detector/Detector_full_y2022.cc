@@ -364,6 +364,9 @@ G4VPhysicalVolume * Detector_full_y2022::Construct()
 	G4LogicalSkinSurface* anode_grid_frame = new G4LogicalSkinSurface("anode_grid_frame_sur", logic_anode_grid_frame, FR4_unified);
 	G4LogicalSkinSurface* anode_grid_wire = new G4LogicalSkinSurface("anode_grid_wire_sur", logic_anode_wire, Anode_wire_unified);
 
+	G4LogicalSkinSurface* PMMA_plate = new G4LogicalSkinSurface("PMMA_plate", logic_PMMA_plate, PMMA_OpticalSurface);
+	G4LogicalSkinSurface* PMMA_box = new G4LogicalSkinSurface("PMMA_box", logic_Insulator_box, PMMA_OpticalSurface);
+
 	// THGEM1
 	G4LogicalSkinSurface* THGEM1_cell_cu = new G4LogicalSkinSurface("THGEM1_cell_cu_surface", logic_THGEM1_cell_copper, Cu_THGEM);
   G4LogicalSkinSurface* THGEM1_cell_FR4 = new G4LogicalSkinSurface("THGEM1_cell_FR4_surface", logic_THGEM1_cell_FR4, FR4_unified);

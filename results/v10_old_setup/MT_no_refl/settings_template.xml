@@ -70,7 +70,7 @@
     <TPB_efficiency_filename>WLS/TPB_in_polystyrene/Efficiency.dat</TPB_efficiency_filename>
     <TPB_emission_spectrum_filename>WLS/TPB_in_polystyrene/Emission_spectrum.dat</TPB_emission_spectrum_filename>
 
-    <no_reflections>false</no_reflections> <!--OPT if true, then all non-transparent materials have 0 reflectivity-->
+    <no_reflections>true</no_reflections> <!--OPT if true, then all non-transparent materials have 0 reflectivity-->
     <no_diffused_reflections>false</no_diffused_reflections> <!--OPT if true, then all reflections are not diffusial-->
   </DetectorOptics>
   <ArgonProperties>

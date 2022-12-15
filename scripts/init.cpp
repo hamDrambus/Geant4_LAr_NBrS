@@ -80,8 +80,7 @@ std::vector<int> SiPM_valid_channels_only (std::vector<int> channels) {
   return valid_channels;
 }
 
-// Returns distatance from (0, 0) to SiPM #channel
-double SiPM_channel_R(int channel) {
+std::pair<double, double> SiPM_channel_XY(int channel) {
   int index = -1;
   for (std::size_t i = 0; i < SiPM_n_rows*SiPM_n_rows; ++i) {
     if (channel == SiPM_index_to_channel(i)) {
@@ -90,11 +89,19 @@ double SiPM_channel_R(int channel) {
     }
   }
   if (index < 0)
-    return -1.0;
+    return std::pair<double, double>(DBL_MAX, DBL_MAX);
   // Same as in source/geant4/detector/DetectorParameterisation.cpp (DetectorParameterisation::ComputeTransformation)
   double X_position = (-SiPM_n_rows / 2.0 + index % SiPM_n_rows + 0.5) * SiPM_pitch;
 	double Y_position = (-SiPM_n_rows / 2.0 + (index / SiPM_n_rows) % SiPM_n_rows + 0.5) * SiPM_pitch;
-  return sqrt(X_position*X_position + Y_position*Y_position);
+  return std::pair<double, double>(X_position, Y_position);
+}
+
+// Returns distatance from (0, 0) to SiPM #channel
+double SiPM_channel_R(int channel) {
+  std::pair<double, double> xy = SiPM_channel_XY(channel);
+  if (xy.first == DBL_MAX || xy.second == DBL_MAX)
+    return -1.0;
+  return sqrt(xy.first*xy.first + xy.second*xy.second);
 }
 
 std::vector<int> SiPM_equidistant_channels(int channel) {
@@ -136,6 +143,8 @@ public:
   PhotonInfo() : energy(0), pos_x(0), pos_y(0), pos_z(0),
     time(0), mom_x(0), mom_y(0), mom_z(0) {}
 };
+
+int PhotonToChannel (const ElectronInfo& electron, const PhotonInfo& photon);
 
 class ExperimentalXY {
 public:
@@ -179,9 +188,9 @@ std::string strtoken(std::string &in, std::string break_symbs)
   return out;
 }
 
-typedef bool (*Selector)(ElectronInfo& electron, PhotonInfo& photon); // Add to plot if true
+typedef bool (*Selector)(const ElectronInfo& electron, const PhotonInfo& photon, const void* info); // Add to plot if true
 
-bool SelectPMTs (ElectronInfo& electron, PhotonInfo& photon)
+bool SelectPMTs (const ElectronInfo& electron, const PhotonInfo& photon, const void* info)
 {
   if (photon.pos_x > 75 || photon.pos_x < -75 || photon.pos_y > 75 || photon.pos_y < -75) {
     return true;
@@ -189,7 +198,7 @@ bool SelectPMTs (ElectronInfo& electron, PhotonInfo& photon)
   return false;
 }
 
-bool SelectSiPMs (ElectronInfo& electron, PhotonInfo& photon)
+bool SelectSiPMs (const ElectronInfo& electron, const PhotonInfo& photon, const void* info)
 {
   if (photon.pos_x > 75 || photon.pos_x < -75 || photon.pos_y > 75 || photon.pos_y < -75) {
     return false;
@@ -197,16 +206,25 @@ bool SelectSiPMs (ElectronInfo& electron, PhotonInfo& photon)
   return true;
 }
 
-bool SelectAll (ElectronInfo& electron, PhotonInfo& photon)
+bool SelectAll (const ElectronInfo& electron, const PhotonInfo& photon, const void* info)
 {
   return true;
 }
 
-int PhotonToChannel (ElectronInfo& electron, PhotonInfo& photon) {
+bool SelectChannel (const ElectronInfo& electron, const PhotonInfo& photon, const void* info)
+{
+  if (nullptr == info)
+    return false;
+  int channel = *((const int*) info);
+  int ch = PhotonToChannel(electron, photon);
+  return ch >= 0 && ch == channel;
+}
+
+int PhotonToChannel (const ElectronInfo& electron, const PhotonInfo& photon) {
   const double max_XY = 0.5 * (SiPM_n_rows * SiPM_pitch);
   const double PMMA_plate_center_z = 78.15;
 
-  if (SelectPMTs(electron, photon)) { // channels as in geant4
+  if (SelectPMTs(electron, photon, nullptr)) { // channels as in geant4
     if (photon.pos_x > 75 && photon.pos_y < 75 && photon.pos_y > -75)
       return 1;
     if (photon.pos_x < -75 && photon.pos_y < 75 && photon.pos_y > -75)
@@ -216,7 +234,7 @@ int PhotonToChannel (ElectronInfo& electron, PhotonInfo& photon) {
     if (photon.pos_y > 75 && photon.pos_x < 75 && photon.pos_x > -75)
       return 3;
   }
-  if (SelectSiPMs(electron, photon)) { // channels as in experiment
+  if (SelectSiPMs(electron, photon, nullptr)) { // channels as in experiment
     if (!((photon.pos_y - SiPM_matrix_center_y) > max_XY || (photon.pos_y - SiPM_matrix_center_y) < -max_XY
         || (photon.pos_x - SiPM_matrix_center_x)> max_XY || (photon.pos_x - SiPM_matrix_center_x) < -max_XY
         || photon.pos_z < PMMA_plate_center_z)) {
@@ -234,6 +252,7 @@ struct PlotInfo {
   PlotParameter plot_par_x;
   PlotParameter plot_par_y;
   Selector selection;
+  void * selection_info;
   std::map<int, long int> Npes; //per channel. ch 0-3 - PMTs, ch 32-63 - SiPMs
   unsigned int N_electrons;
 };
@@ -278,14 +297,12 @@ double PickValue(PlotParameter par, const ElectronInfo& electron, const PhotonIn
     return std::asin(mom_xy/mom);
   }
   case PlotParameter::gammaNProfile: { //returns distance from hit SiPM to SiPM-matrix center
-    if (photon.pos_x > 75 || photon.pos_x < -75 || photon.pos_y > 75 || photon.pos_y < -75) {
+    if (!SelectSiPMs(electron, photon, nullptr))
       return -DBL_MAX; // Hit PMT
-    }
-    int x_index = (int) (photon.pos_x)/(SiPM_pitch/2.0);
-    int y_index = (int) (photon.pos_y)/(SiPM_pitch/2.0);
-    double x_pos = SiPM_pitch*x_index;
-    double y_pos = SiPM_pitch*y_index;
-    return std::sqrt(x_pos*x_pos + y_pos*y_pos);
+    int channel = PhotonToChannel(electron, photon);
+    if (channel < 10)
+      return -DBL_MAX;
+    return SiPM_channel_R(channel);
   }
   default:
     return -DBL_MAX;
@@ -301,7 +318,7 @@ void FillHist(PlotInfo& plot_info, ElectronInfo& electron, PhotonInfo& photon)
   }
   ++plot_info.Npes[ch];
 
-  if (plot_info.selection==NULL || plot_info.selection(electron, photon)) {
+  if (plot_info.selection==NULL || plot_info.selection(electron, photon, plot_info.selection_info)) {
     if (PlotParameter::None == plot_info.plot_par_x)
       plot_info.plot_par_x = plot_info.plot_par_y;
     if (PlotParameter::None == plot_info.plot_par_x)
@@ -387,13 +404,19 @@ bool FileToHist(PlotInfo& plot_info, std::ifstream &str)
     } catch (std::out_of_range &e) {
 			std::cerr << "FileToHist: Invalid data on line " << line_n << std::endl;
 			std::cerr << e.what() << std::endl;
+      str.clear();
+      str.seekg(0, ios::beg);
 			return false;
 		} catch (std::exception &e) {
 			std::cerr << "FileToHist: Unforeseen exception on line " << line_n << std::endl;
 			std::cerr << e.what() << std::endl;
+      str.clear();
+      str.seekg(0, ios::beg);
 			return false;
 		}
 	}
+  str.clear(); // return stream to initial state so it can be read with FileToHist multiple times.
+  str.seekg(0, ios::beg);
   return true;
 }
 
@@ -459,6 +482,28 @@ TGraph* GraphFromData(ExperimentalXY* data, double scaleX = 1.0, double scaleY =
 		for (Int_t i = 0; i != size; ++i) {
 			xs[i] = data->Xs[i] * scaleX;
 			ys[i] = data->Ys[i] * scaleY;
+		}
+		out = new TGraph(size, xs, ys);
+		delete [] xs;
+		delete [] ys;
+	}
+  return out;
+}
+
+TGraph* GraphFromData(std::vector<double> &unsorted_xs, std::vector<double> &unsorted_ys, double scaleX = 1.0, double scaleY = 1.0) {
+  TGraph* out = nullptr;
+  std::size_t size = std::min(unsorted_xs.size(), unsorted_ys.size());
+  std::vector<std::pair<double, double>> xys;
+  for (std::size_t i = 0; i!=size; ++i)
+    xys.push_back(std::pair<double, double>(unsorted_xs[i], unsorted_ys[i]));
+  std::sort(xys.begin(), xys.end(), [](const std::pair<double, double> &l, const std::pair<double, double> &r) -> bool { return l.first < r.first; });
+	Double_t *xs = NULL, *ys = NULL;
+	if (size > 0) {
+		xs = new Double_t[size];
+		ys = new Double_t[size];
+		for (Int_t i = 0; i != size; ++i) {
+			xs[i] = xys[i].first * scaleX;
+			ys[i] = xys[i].second * scaleY;
 		}
 		out = new TGraph(size, xs, ys);
 		delete [] xs;

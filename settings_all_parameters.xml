@@ -88,6 +88,8 @@
     <StainlessSteel_SigmaAlpha_deg>10</StainlessSteel_SigmaAlpha_deg>
     <Cu_SigmaAlpha_deg>30</Cu_SigmaAlpha_deg>
     <Wire_SigmaAlpha_deg>5</Wire_SigmaAlpha_deg>
+    <LAr_SigmaAlpha_deg>5</LAr_SigmaAlpha_deg> <!-- OPT, default is 0 -->
+    <PMMA_SigmaAlpha_deg>5</PMMA_SigmaAlpha_deg> <!-- OPT, default is 0 -->
     <!-- model_25b -->
     <FR4_reflectivity>0.20</FR4_reflectivity>
     <!-- https://www.cetem.gov.br/images/congressos/2008/CAC00560008.pdf -->

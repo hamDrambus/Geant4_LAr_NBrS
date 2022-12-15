@@ -19,12 +19,12 @@ Binary = "../../../../NBrS_THGEM_LAr_v0-build/RelWithDebInfo/Geant_simulation"
 DataPath = "../../../data"
 RecalculateField = False
 RecalculateMesh = False
-#V0s = [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
 Vt1s = [200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, \
-1600, 1765, 1900, 2100, 2206, 2400, 2648, 2800, 3090, 3150, 3300, 3531, 3700, 3972, \
-4200, 4413, 4600, 4856, 5050, 5297, 5500, 5728, 5993, 6180, 6400, 6600, 6800, 7000, \
-7300, 7600, 7900, 8100, 8400, 8700, 9000]
-#Vt1s = [200]
+1600, 1900, 2100, 2400, 2800, 3150, 3300, 3700, 4200, 4600, 5050, 5500, 6400, 6600, \
+6800, 7000, 7400, 7800, 8200, 8600, 9200]
+Vt1s = Vt1s + [1765, 2206, 2648, 3090, 3531, 3972, 4413, 4856, 5297, 5738, 5993, 6180] # Voltages for 220203 experiment
+Vt1s = Vt1s + [1762, 2644, 3525, 3966, 4847, 5288, 5728, 6169] # Voltages for 220804 experiment
+Vt1s = sorted(list(set(Vt1s)))
 V0s = [20.0 for i in range(len(Vt1s))]
 
 # returns binary absolute path, settings absolute path and log file absolute path (str1, str2, str3)

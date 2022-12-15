@@ -300,12 +300,13 @@ G4VPhysicalVolume * Detector_full::Construct()
 	G4LogicalSkinSurface* anode_grid_frame = new G4LogicalSkinSurface("anode_grid_frame_sur", logic_anode_grid_frame, FR4_unified);
 	G4LogicalSkinSurface* anode_grid_wire = new G4LogicalSkinSurface("anode_grid_wire_sur", logic_anode_wire, Anode_wire_unified);
 
+	G4LogicalSkinSurface* PMMA_plate = new G4LogicalSkinSurface("PMMA_plate", logic_PMMA_plate, PMMA_OpticalSurface);
+	G4LogicalSkinSurface* PMMA_box = new G4LogicalSkinSurface("PMMA_box", logic_Insulator_box, PMMA_OpticalSurface);
 	// Interface grid
 	G4LogicalBorderSurface* phys_LAr_inner2Interface_grid = new G4LogicalBorderSurface("phys_LAr_inner2Interface_grid", phys_LAr_inner, phys_interface_grid, /*AbsorberMaterial*/ FR4_unified);
 	G4LogicalBorderSurface* tracker_Interface_grid2wire = new G4LogicalBorderSurface("tracker_anode_grid2wire", phys_tracker_Interface_grid, phys_Interface_wire, /*AbsorberMaterial*/ Anode_wire_unified);
 	G4LogicalBorderSurface* tracker_Interface_grid2Interface_grid = new G4LogicalBorderSurface("tracker_Interface_grid2Interface_grid", phys_tracker_Interface_grid, phys_interface_grid, /*AbsorberMaterial*/ FR4_unified);
 
-	//G4LogicalBorderSurface* PMMA_plate2anode_grid = new G4LogicalBorderSurface("PMMA_plate2anode_grid", phys_PMMA_plate, phys_anode_grid_frame, FR4_unified);
 	G4LogicalSkinSurface* AlWindow = new G4LogicalSkinSurface("AlWindow_surface", logic_Al_window, stainlessSteel);
 
 	G4LogicalSkinSurface* THGEM1_cell_cu = new G4LogicalSkinSurface("THGEM1_cell_cu_surface", logic_THGEM1_cell_copper, Cu_THGEM);

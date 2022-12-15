@@ -83,6 +83,7 @@ protected:
   G4OpticalSurface *Cu_THGEM;
   G4OpticalSurface *Cu_cathode; // Separate because it accounts for non 100% Cu coverage
   G4OpticalSurface *LAr_OpticalSurface;
+  G4OpticalSurface *PMMA_OpticalSurface;
   G4OpticalSurface *Anode_wire_unified;
   G4OpticalSurface *stainlessSteel;
   G4OpticalSurface *PMT_OpticalSurface;

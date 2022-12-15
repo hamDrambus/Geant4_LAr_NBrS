@@ -38,7 +38,7 @@
     <!--
     <THGEM1_copper_thickness_mm>0.03</THGEM1_copper_thickness_mm>
     <THGEM1_hole_radius_mm>0.5</THGEM1_hole_radius_mm>
-    <THGEM1_dielectric_thickness_mm>0.96</THGEM1_dielectric_thickness_mm>
+    <THGEM1_dielectric_thickness_mm>0.94</THGEM1_dielectric_thickness_mm>
     <THGEM1_hole_pitch_mm>1.1</THGEM1_hole_pitch_mm>
     <THGEM1_hole_rim_mm>0.0</THGEM1_hole_rim_mm>
     -->
@@ -53,10 +53,11 @@
   </FieldMap>
   <DetectorOptics>
     <FR4_SigmaAlpha_deg>50</FR4_SigmaAlpha_deg>
-    <StainlessSteel_SigmaAlpha_deg>10</StainlessSteel_SigmaAlpha_deg>
-    <Cu_SigmaAlpha_deg>30</Cu_SigmaAlpha_deg>
-    <Wire_SigmaAlpha_deg>5</Wire_SigmaAlpha_deg>
-    <!-- model_25b -->
+    <LAr_SigmaAlpha_deg>50</LAr_SigmaAlpha_deg>
+    <PMMA_SigmaAlpha_deg>50</PMMA_SigmaAlpha_deg>
+    <StainlessSteel_SigmaAlpha_deg>50</StainlessSteel_SigmaAlpha_deg>
+    <Cu_SigmaAlpha_deg>50</Cu_SigmaAlpha_deg>
+    <Wire_SigmaAlpha_deg>50</Wire_SigmaAlpha_deg>
     <FR4_reflectivity>0.20</FR4_reflectivity>
     <!-- https://www.cetem.gov.br/images/congressos/2008/CAC00560008.pdf -->
     <!-- <FR4_reflectivity>0.05</FR4_reflectivity> -->

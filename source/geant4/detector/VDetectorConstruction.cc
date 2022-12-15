@@ -185,15 +185,27 @@ void VDetectorConstruction::defineSurfaces()
 	G4double ener[2] = {.1*eV, 10.*eV};
 	G4double zero[2] = {0.0, 0.0};
 	//-------------------------------------------------------------------------------
+	//Liquid Ar - gaseous Ar surface
 	LAr_OpticalSurface = new G4OpticalSurface("LAr_OpticalSurface");
 	LAr_OpticalSurface->SetType(dielectric_dielectric);
 	LAr_OpticalSurface->SetModel(unified);
-	LAr_OpticalSurface->SetFinish(polished);
-	LAr_OpticalSurface->SetSigmaAlpha(0);//alpha in degrees, from 0 to 90.
+	LAr_OpticalSurface->SetFinish(ground);
+	LAr_OpticalSurface->SetSigmaAlpha(gPars::det_opt.LAr_SigmaAlpha);//alpha in degrees, from 0 to 90.
 	G4MaterialPropertiesTable *LAr_MaterialProperty = new G4MaterialPropertiesTable();
 	G4double LAr_Materialeff[2] = { 0, 0 };
 	LAr_MaterialProperty->AddProperty("EFFICIENCY", ener, LAr_Materialeff, 2);
 	LAr_OpticalSurface->SetMaterialPropertiesTable(LAr_MaterialProperty);
+	//-------------------------------------------------------------------------------
+	//PMMA (Acrylic), both across SiPMs and across PMTs
+	PMMA_OpticalSurface = new G4OpticalSurface("PMMA_OpticalSurface");
+	PMMA_OpticalSurface->SetType(dielectric_dielectric);
+	PMMA_OpticalSurface->SetModel(unified);
+	PMMA_OpticalSurface->SetFinish(ground);
+	PMMA_OpticalSurface->SetSigmaAlpha(gPars::det_opt.PMMA_SigmaAlpha);//alpha in degrees, from 0 to 90.
+	G4MaterialPropertiesTable *PMMA_MaterialProperty = new G4MaterialPropertiesTable();
+	G4double PMMA_Materialeff[2] = { 0, 0 };
+	PMMA_MaterialProperty->AddProperty("EFFICIENCY", ener, PMMA_Materialeff, 2);
+	PMMA_OpticalSurface->SetMaterialPropertiesTable(PMMA_MaterialProperty);
 	//-------------------------------------------------------------------------------
 	//FR4_unified
 	FR4_unified = new G4OpticalSurface("FR4_unified");
@@ -212,7 +224,7 @@ void VDetectorConstruction::defineSurfaces()
 	Anode_wire_unified = new G4OpticalSurface("Anode_wire_unified");
 	Anode_wire_unified->SetType(dielectric_metal);
 	Anode_wire_unified->SetModel(unified);
-	Anode_wire_unified->SetFinish(polished);
+	Anode_wire_unified->SetFinish(ground);
 	Anode_wire_unified->SetSigmaAlpha(gPars::det_opt.Wire_SigmaAlpha * degree);//alpha in degrees, from 0 to 90.
 	G4MaterialPropertiesTable *Anode_wire_MaterialProperty = new G4MaterialPropertiesTable();
 	G4double Anode_wire_Materialrefl[2] = { 0.5, 0.5 };//approximately https://nvlpubs.nist.gov/nistpubs/bulletin/07/nbsbulletinv7n2p197_A2b.pdf
@@ -239,7 +251,7 @@ void VDetectorConstruction::defineSurfaces()
 	Cu_cathode = new G4OpticalSurface("Cu_cathode");
 	Cu_cathode->SetType(dielectric_metal);
 	Cu_cathode->SetModel(unified);
-	Cu_cathode->SetFinish(polished);
+	Cu_cathode->SetFinish(ground);
 	Cu_cathode->SetSigmaAlpha(gPars::det_opt.Cu_SigmaAlpha * degree);//alpha in degrees, from 0 to 90.
 	G4MaterialPropertiesTable *Cu_Cathode_MaterialProperty = new G4MaterialPropertiesTable();
 	G4double Cu_Cathode_Materialrefl[2] = {gPars::det_opt.Cu_reflectivity * r_factor, gPars::det_opt.Cu_reflectivity * r_factor};
@@ -252,7 +264,7 @@ void VDetectorConstruction::defineSurfaces()
 	stainlessSteel = new G4OpticalSurface("stainlessSteel");
 	stainlessSteel->SetType(dielectric_metal);
 	stainlessSteel->SetModel(unified);
-	stainlessSteel->SetFinish(polished);
+	stainlessSteel->SetFinish(ground);
 	stainlessSteel->SetSigmaAlpha(gPars::det_opt.StainlessSteel_SigmaAlpha * degree);//alpha in degrees, from 0 to 90.
 	G4MaterialPropertiesTable *stainlessSteelMaterialProperty = new G4MaterialPropertiesTable();
 	G4double stainlessSteelMaterialrefl[2] = {0.5, 0.5}; // doi:10.1063/1.2202915
@@ -265,7 +277,7 @@ void VDetectorConstruction::defineSurfaces()
 	PMT_OpticalSurface = new G4OpticalSurface("PMT_cathode", unified);
 	PMT_OpticalSurface->SetType(dielectric_metal);
 	PMT_OpticalSurface->SetModel(unified);
-	PMT_OpticalSurface->SetFinish(polished);
+	PMT_OpticalSurface->SetFinish(ground);
 	PMT_OpticalSurface->SetSigmaAlpha(0.);
 	G4MaterialPropertiesTable* PMT_cathodeMaterialProperty = new G4MaterialPropertiesTable();
 	G4double cathoderefl[2] = {0, 0};
@@ -278,7 +290,7 @@ void VDetectorConstruction::defineSurfaces()
 	SiPM_OpticalSurface = new G4OpticalSurface("SiPM_OpticalSurface", unified);
 	SiPM_OpticalSurface->SetType(dielectric_metal);
 	SiPM_OpticalSurface->SetModel(unified);
-	SiPM_OpticalSurface->SetFinish(polished);
+	SiPM_OpticalSurface->SetFinish(ground);
 	SiPM_OpticalSurface->SetSigmaAlpha(0.);
 	G4MaterialPropertiesTable* SiPM_MaterialProperty = new G4MaterialPropertiesTable();
 	G4double SiPM_refl[2] = {0, 0};
@@ -344,8 +356,8 @@ void VDetectorConstruction::defineMaterials()
   matFe->SetMaterialPropertiesTable(prop_metals);
 
 	// Air
-  matGas = man->FindOrBuildMaterial("G4_AIR");
-  matGas->SetName("gas");
+  matGas = new G4Material("gasAr", 0.005777*g / cm3, 1, G4State::kStateGas, 87.3 * kelvin, 1.0 * atmosphere); //TODO: use density from settings.
+  matGas->AddElement(Ar, 1);
 	const G4int numentries = 2;
 	G4double energies[numentries] = { 0.1*eV, 10.0*eV };
 	G4double vacrindices[numentries] = { 1., 1. };
@@ -357,7 +369,7 @@ void VDetectorConstruction::defineMaterials()
 	matGas->SetMaterialPropertiesTable(airprop);
 	//------------------------------
 	// LAr
-	matLAr = new G4Material("LAr", 1.400*g / cm3, 1);
+	matLAr = new G4Material("LAr", 1.397*g / cm3, 1, G4State::kStateLiquid, 87.3 * kelvin, 1.0 * atmosphere); //TODO: use density from settings.
 	matLAr->AddElement(Ar, 1);
 	const G4int LAr_numentries = 12;
 	G4double LAr_energies[LAr_numentries] = {1*eV, 2.95*eV, 3.2*eV, 3.4*eV, 3.8*eV, 4*eV, 5.63*eV, 6.89*eV, 7.75*eV, 8.86*eV, 9.69*eV, 10.33*eV};

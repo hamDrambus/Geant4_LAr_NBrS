@@ -53,10 +53,11 @@
   </FieldMap>
   <DetectorOptics>
     <FR4_SigmaAlpha_deg>50</FR4_SigmaAlpha_deg>
-    <StainlessSteel_SigmaAlpha_deg>10</StainlessSteel_SigmaAlpha_deg>
-    <Cu_SigmaAlpha_deg>30</Cu_SigmaAlpha_deg>
-    <Wire_SigmaAlpha_deg>5</Wire_SigmaAlpha_deg>
-    <!-- model_25b -->
+    <LAr_SigmaAlpha_deg>10</LAr_SigmaAlpha_deg>
+    <PMMA_SigmaAlpha_deg>15</PMMA_SigmaAlpha_deg>
+    <StainlessSteel_SigmaAlpha_deg>20</StainlessSteel_SigmaAlpha_deg>
+    <Cu_SigmaAlpha_deg>40</Cu_SigmaAlpha_deg>
+    <Wire_SigmaAlpha_deg>10</Wire_SigmaAlpha_deg>
     <FR4_reflectivity>0.20</FR4_reflectivity>
     <!-- https://www.cetem.gov.br/images/congressos/2008/CAC00560008.pdf -->
     <!-- <FR4_reflectivity>0.05</FR4_reflectivity> -->
