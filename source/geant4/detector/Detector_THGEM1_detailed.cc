@@ -23,7 +23,7 @@ G4VPhysicalVolume * Detector_THGEM1_detailed::Construct()
 	logicWorld->SetUserLimits(new G4UserLimits(maxStep, maxLength, maxTime, minEkin));
 
 	//-------------------------------------------------------------------------------
-	CreateTHGEM1Cell();
+	CreateTHGEM1Cell(matLAr);
 	G4VPhysicalVolume* phys_THGEM1_cell = new G4PVPlacement(0, position_SingleTHGEM1Cell, logic_THGEM1_cell,
 		"phys_THGEM1_cell_isolated", logicWorld, false, 0, fCheckOverlaps);
 

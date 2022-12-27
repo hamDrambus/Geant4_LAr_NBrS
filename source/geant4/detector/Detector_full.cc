@@ -63,7 +63,7 @@ G4VPhysicalVolume * Detector_full::Construct()
 		"phys__FieldWire_top4", logic_LAr_inner, false, 0, fCheckOverlaps);
 
 	//-------------------------------------------------------------------------------
-	CreateTHGEM1Cell();
+	CreateTHGEM1Cell(matLAr);
 	G4VPhysicalVolume* phys_THGEM1_cell = new G4PVPlacement(0, position_SingleTHGEM1Cell, logic_THGEM1_cell,
 		"phys_THGEM1_cell_isolated", logicWorld, false, 0, fCheckOverlaps);
 
@@ -435,7 +435,7 @@ void Detector_full::SetSizeAndPosition()
 	N_Interface_wire = length_Interface_wire / step_wire - 1;
 
 	//Anode_grid
-	thickness_anode_grid = 0.5 * mm;
+	thickness_anode_grid = 1.5 * mm;
 	size_anode_grid = 127 * mm ;//see Download:\DetectorPhotos\2021\THGEM_Electroconnect
 	size_anode_grid_hole = length_wire;
 	z_anode_grid_bottom = z_bottom_THGEM1 + gPars::det_dims->THGEM1_width_total + 5 * mm;
@@ -445,13 +445,13 @@ void Detector_full::SetSizeAndPosition()
 	x_size_PMMA_plate = size_anode_grid;
 	y_size_PMMA_plate = size_anode_grid;
 	z_size_PMMA_plate = 1.5 * mm;
-	double z_PMMA_plate_center = z_anode_grid_center + thickness_anode_grid / 2.0 + z_size_PMMA_plate / 2.0;
+	double z_PMMA_plate_center = z_anode_grid_center + thickness_anode_grid / 2.0 + 0.01 * mm + z_size_PMMA_plate / 2.0; // 0.01 * mm because there is no optical contact
 
 	//SiPMs
 	Nx_SiPMs = n_SiPMs_rows;
 	Ny_SiPMs = n_SiPMs_rows;
 	thickness_SiPM = 1 * nm;
-	double z_SiPM_bottom = z_anode_grid_bottom + thickness_anode_grid + z_size_PMMA_plate + (0.1*mm /*small gap between PMMA and SiPM*/);
+	double z_SiPM_bottom = z_PMMA_plate_center + z_size_PMMA_plate / 2.0 + (1.0*mm /*gap between PMMA and SiPM*/);
 	double z_SiPM_center = z_SiPM_bottom + thickness_SiPM / 2.0;
 	z_size_SiPMFR4 = 2*mm;
 

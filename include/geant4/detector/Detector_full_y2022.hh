@@ -61,7 +61,7 @@ public:
 
 private:
 	virtual void SetSizeAndPosition() override;
-	virtual void CreateTHGEM0Cell();
+	virtual void CreateTHGEM0Cell(G4Material* medium);
 	virtual void SetupTHGEMsMapping() override; //Finds THGEM1 and THGEM0 volumes and initializes mapping class gPars::THGEM1_mapping
 
 	G4LogicalVolume*   logic_SiPM;
@@ -109,6 +109,8 @@ private:
 	double anode_grid_cont_size_z;
 	G4ThreeVector position_anode_grid_container;
 	G4ThreeVector position_anode_grid_frame;
+
+	double EL_gap_thickness;
 
 	// THGEM1 (above EL gap and below Anode wires)
 	double THGEM1_size_xy; // Full real size, including dielectric, z size is set in DetectorDimsFullY2022

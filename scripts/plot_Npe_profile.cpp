@@ -4,7 +4,9 @@
 // plot_Npe_profile("../results/v10_old_setup/transfer_XS_with_diffusion/6169V/recorded.dat", "../../../Post_processing/220804/results_v5/SiPM_Npes_Q1.00.txt", 1.27e6, 10);
 // plot_Npe_profile("../results/v10_old_setup/transfer_XS_with_diffusion/6169V/recorded.dat", "../../../Post_processing/220804/results_v5/SiPM_Npes_Q0.20.txt", 1.58e5, 10);
 // plot_Npe_profile("../results/v10_old_setup/transfer_XS_with_diffusion/6169V/recorded.dat", "../../../Post_processing/220804/results_v5/SiPM_Npes_Q0.04.txt", 5.4e4, 10);
-// plot_Npe_profile("../results/v10_old_setup/MT_default/6169V/recorded.dat", "../../../Post_processing/220804/results_v5/SiPM_Npes_Q0.20.txt", 1.58e5, 10);
+// plot_Npe_profile("../results/v10_old_setup/transfer_XS_with_diffusion/6169V/recorded.dat", "../../../Post_processing/220804/results_v5/SiPM_Npes_Q0.20.txt", 1.58e5, 10);
+// plot_Npe_profile("../results/v11_setup_y2022/transfer_XS_with_diff/18.5kV/recorded.dat", "../../../Post_processing/221020/results_v1/SiPM_Npes.txt", 10411, 500);
+// plot_Npe_profile("../results/v15_GEM1/transfer_XS_with_diff/739V/recorded.dat", "../../../Post_processing/221124/results_v1/SiPM_Npes.txt", 1.40e5, 200);
 
 double SiPM_Npe_stat_error = 1e-3;
 

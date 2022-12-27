@@ -19,10 +19,10 @@ Binary = "../../../../NBrS_THGEM_LAr_v0-build/RelWithDebInfo/Geant_simulation"
 DataPath = "../../../data"
 RecalculateField = False
 RecalculateMesh = False
-Vt1s = [500, 1000, 1500, 6800, 7400, 8000, 8600, 9200]
-#Vt1s = Vt1s + [1765, 2206, 2648, 3090, 3531, 3972, 4413, 4856, 5297, 5738, 5993, 6180] # Voltages for 220203 experiment
-Vt1s = Vt1s + [1762, 2644, 3525, 3966, 4847, 5288, 5728, 6169] # Voltages for 220804 experiment
-Vt1s = sorted(list(set(Vt1s)))
+#V0s = [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+Vt1s = [80, 90, 100, 110, 120, 130, 139, 160, 185, 200, 231, 250, 277, 300, 323, \
+350, 369, 390, 416, 450, 462, 480, 508, 525, 554, 580, 600, 620, 646, 670, 693, \
+620, 739, 760, 785, 800, 831, 850, 877, 900, 923, 950, 1000, 1050, 1100]
 V0s = [20.0 for i in range(len(Vt1s))]
 
 # returns binary absolute path, settings absolute path and log file absolute path (str1, str2, str3)
@@ -90,6 +90,7 @@ if __name__ == "__main__":
         p2 = subprocess.Popen(["tee", files[2]], stdin=p1.stdout)
         p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
         p2.communicate()
+        os.remove(files[1])
         if not p1.returncode is None:
             print ("****************************************************************")
             print ("****************************************************************")
@@ -97,6 +98,7 @@ if __name__ == "__main__":
             print ("****************************************************************")
             print ("****************************************************************")
             continue
+
         print ("****************************************************************")
         print ("****************************************************************")
         print ("Ended simulating V0 = " + str(round(V0s[i], 1)) + ", Vthgem = " + str(round(Vt1s[i])) )

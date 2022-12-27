@@ -90,6 +90,7 @@ if __name__ == "__main__":
         p2 = subprocess.Popen(["tee", files[2]], stdin=p1.stdout)
         p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
         p2.communicate()
+        os.remove(files[1])
         if not p1.returncode is None:
             print ("****************************************************************")
             print ("****************************************************************")

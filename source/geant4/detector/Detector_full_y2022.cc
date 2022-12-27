@@ -7,7 +7,7 @@ Detector_full_y2022::Detector_full_y2022() :
 Detector_full_y2022::~Detector_full_y2022()
 {}
 
-void Detector_full_y2022::CreateTHGEM0Cell()
+void Detector_full_y2022::CreateTHGEM0Cell(G4Material* medium)
 {
 	DetectorDimsFullY2022 *dims = (DetectorDimsFullY2022*) gPars::det_dims;
 	double cell_size_x = dims->THGEM0_hole_pitch / 2.0;
@@ -26,10 +26,10 @@ void Detector_full_y2022::CreateTHGEM0Cell()
 	G4ThreeVector cu_bot_pos(0.0, 0.0, -diel_size_z / 2.0 - cu_size_z / 2.0);
 
 	G4Box* solid_THGEM0_cell_isolation = new G4Box("solid_THGEM0_cell_isolation", cell_size_x, cell_size_y, cell_size_z); //so that cell is in the same material
-	logic_THGEM0_cell = new G4LogicalVolume(solid_THGEM0_cell_isolation, matLAr, "logic_THGEM0_cell_isolation", 0, 0, 0);
+	logic_THGEM0_cell = new G4LogicalVolume(solid_THGEM0_cell_isolation, medium, "logic_THGEM0_cell_isolation", 0, 0, 0);
 
 	G4Box* solid_THGEM0_cell_LAr = new G4Box("solid_THGEM0_cell_LAr", cell_size_x / 2.0, cell_size_y / 2.0, cell_size_z / 2.0);
-	logic_THGEM0_cell_LAr = new G4LogicalVolume(solid_THGEM0_cell_LAr, matLAr, "logic_THGEM0_cell_LAr", 0, 0, 0);
+	logic_THGEM0_cell_LAr = new G4LogicalVolume(solid_THGEM0_cell_LAr, medium, "logic_THGEM0_cell_LAr", 0, 0, 0);
 	phys_THGEM0_cell_LAr = new G4PVPlacement(0, zero, logic_THGEM0_cell_LAr, "phys_THGEM0_cell",
 			logic_THGEM0_cell, false, 0, fCheckOverlaps);
 
@@ -154,7 +154,7 @@ G4VPhysicalVolume * Detector_full_y2022::Construct()
 
 	//--------------------------------------------------------------------------------
 	// Create THGEM0
-	CreateTHGEM0Cell();
+	CreateTHGEM0Cell(matLAr);
 	G4VPhysicalVolume* phys_THGEM0_cell = new G4PVPlacement(0, position_SingleTHGEM0Cell, logic_THGEM0_cell,
 		"phys_THGEM0_cell_isolated", logicWorld, false, 0, fCheckOverlaps);
 	G4Box* solid_whole_THGEM0 = new G4Box("solid_whole_THGEM0", THGEM0_size_xy / 2.0, THGEM0_size_xy / 2.0, dims->THGEM0_width_total / 2.0);
@@ -175,7 +175,7 @@ G4VPhysicalVolume * Detector_full_y2022::Construct()
 
 	//--------------------------------------------------------------------------------
 	// Create THGEM1
-	CreateTHGEM1Cell();
+	CreateTHGEM1Cell(EL_gap_thickness < 0 ? matLAr : matGas);
 	G4VPhysicalVolume* phys_THGEM1_cell = new G4PVPlacement(0, position_SingleTHGEM1Cell, logic_THGEM1_cell,
 		"phys_THGEM1_cell_isolated", logicWorld, false, 0, fCheckOverlaps);
 	G4Box* solid_whole_THGEM1 = new G4Box("solid_whole_THGEM1", THGEM1_size_xy / 2.0, THGEM1_size_xy / 2.0, dims->THGEM1_width_total / 2.0);
@@ -183,12 +183,12 @@ G4VPhysicalVolume * Detector_full_y2022::Construct()
 	G4SubtractionSolid* solid_THGEM1_frame = new G4SubtractionSolid("solid_THGEM1_frame", solid_whole_THGEM1, solid_active_THGEM1);
 	G4LogicalVolume* logic_THGEM1_frame = new G4LogicalVolume(solid_THGEM1_frame, matFR4, "logic_THGEM1_frame", 0, 0, 0);
 	G4VPhysicalVolume* phys_THGEM1_frame = new G4PVPlacement(0, position_THGEM1_frame, logic_THGEM0_frame, "phys_THGEM1_frame",
-			logicWorld, false, 0, fCheckOverlaps);
+			(EL_gap_thickness < 0 ? logic_LAr_inner : logicWorld), false, 0, fCheckOverlaps);
 
 	G4Box* solid_THGEM1_container = new G4Box("solid_THGEM1_container", THGEM1_active_size_xy / 2.0, THGEM1_active_size_xy / 2.0, dims->THGEM1_container_width / 2.0);
 	G4LogicalVolume* logic_THGEM1_container = new G4LogicalVolume(solid_THGEM1_container, matLAr, "logic_THGEM1_container", 0, 0, 0);
 	phys_THGEM1_container = new G4PVPlacement(0, position_THGEM1_container, logic_THGEM1_container, "phys_THGEM1_cell_container",
-			logicWorld, false, 0, fCheckOverlaps);
+			(EL_gap_thickness < 0 ? logic_LAr_inner : logicWorld), false, 0, fCheckOverlaps);
 
 	G4LogicalVolume* logic_THGEM1_copper = new G4LogicalVolume(solid_active_THGEM1, matFR4, "logic_THGEM1_copper", 0, 0, 0);
 	G4VPhysicalVolume* phys_THGEM1_copper = new G4PVPlacement(0, position_THGEM1_copper_plate, logic_THGEM1_copper, "phys_THGEM1_copper",
@@ -478,7 +478,9 @@ void Detector_full_y2022::SetSizeAndPosition()
   double max_EL_gap_thickness = 22.0 * mm; // Distance between interface grid top and THGEM1 bottom
   double THGEMs_size_xy = 127 * mm; //see Download:\DetectorPhotos\2021\THGEM_Electroconnect
   double THGEMs_active_size_xy = 100 * mm; //see Download:\DetectorPhotos\2021\THGEM_Electroconnect
-  double EL_gap_thickness = 6 * mm; // Must be positive (double phase). Counted from THGEM1's real bottom
+  EL_gap_thickness = 6 * mm; // Double phase if positive. Single phase if negative Counted from THGEM1's real bottom
+  if (!dims->is_NBrS_in_THGEM0)
+  	EL_gap_thickness = -4 * mm;
 	double interface_grid_top_z = LAr_drift_width + dims->THGEM0_width_total;
 	double THGEM1_bottom_z = interface_grid_top_z + max_EL_gap_thickness; //=71.0
 	LAr_inner_size_z = interface_grid_top_z + (max_EL_gap_thickness - EL_gap_thickness) + Cathode_size_z;
@@ -530,7 +532,8 @@ void Detector_full_y2022::SetSizeAndPosition()
 	// THGEM1 (above EL gap and below Anode wires)
 	THGEM1_size_xy = THGEMs_size_xy; // Full real size, including dielectric, z size is set in DetectorDimsFullY2022
 	THGEM1_active_size_xy = THGEMs_active_size_xy;
-	position_THGEM1_container = position_THGEM1_frame = G4ThreeVector(0, 0, THGEM1_bottom_z + dims->THGEM1_width_total / 2.0);
+	position_THGEM1_container = position_THGEM1_frame = G4ThreeVector(0, 0, THGEM1_bottom_z + dims->THGEM1_width_total / 2.0
+			+ (EL_gap_thickness < 0 ? LAr_inner_ref_z : 0));
 	position_THGEM1_copper_plate = G4ThreeVector(0, 0, 0); // dummy inside container in case mapping is avoided
 
 	// Anode wires (ground before SiPMs)
@@ -539,7 +542,7 @@ void Detector_full_y2022::SetSizeAndPosition()
 	anode_wire_step = 1 * mm;
 	anode_wire_N = anode_wire_length / anode_wire_step - 1;
 	// Anode grid
-	anode_grid_thickness = 0.5 * mm;
+	anode_grid_thickness = 1.5 * mm;
 	anode_grid_size_xy = THGEMs_size_xy; // Full size. Has hole of length_wire x length_wire size
 	anode_grid_z_bottom = THGEM1_bottom_z + dims->THGEM1_width_total + 5 * mm;
 	// Anode grid's container
@@ -551,7 +554,7 @@ void Detector_full_y2022::SetSizeAndPosition()
 	// PMMA plate, before SiPMs
 	PMMA_plate_size_xy = THGEMs_size_xy;
 	PMMA_plate_size_z = 1.5 * mm;
-	position_PMMA_plate = G4ThreeVector(0, 0, anode_grid_z_bottom + anode_grid_cont_size_z + PMMA_plate_size_z / 2.0);
+	position_PMMA_plate = G4ThreeVector(0, 0, anode_grid_z_bottom + anode_grid_cont_size_z + 0.01 * mm + PMMA_plate_size_z / 2.0); // 0.01 mm because there is no optical contact
 
 	// SiPMs
 	Nx_SiPMs = 5;
@@ -563,7 +566,7 @@ void Detector_full_y2022::SetSizeAndPosition()
 	SiPM_cont_size_xy = std::max(Nx_SiPMs, Ny_SiPMs) * SiPM_pitch + SiPM_size / 2.0;
 	SiPM_cont_size_z = 2 * nm;
 	SiPM_FR4_size_z = 2 * mm;
-	double z_SiPM_top = position_PMMA_plate.z() + PMMA_plate_size_z / 2.0 + SiPM_cont_size_z + (0.2*mm /*small gap between PMMA and SiPM*/);
+	double z_SiPM_top = position_PMMA_plate.z() + PMMA_plate_size_z / 2.0 + SiPM_cont_size_z + (1.0*mm /*gap between PMMA and SiPM*/);
 	position_SiPM_container = G4ThreeVector(0, 0, z_SiPM_top - SiPM_cont_size_z / 2.0);
 	position_SiPMFR4 = G4ThreeVector(0, 0, z_SiPM_top + SiPM_FR4_size_z / 2.0);
 	offset_SiPM_in_container = G4ThreeVector(0, 0, SiPM_cont_size_z / 2.0 - SiPM_thickness / 2.0); // So that top of SiPMs coincides with FR4 substrate's bottom
@@ -623,14 +626,20 @@ void Detector_full_y2022::SetSizeAndPosition()
 		G4Exception("DetectorConstruction::SetSizeAndPosition: ",
 			"InvalidSetup", JustWarning, "anode_grid_thickness < 2*anode_wire_radius");
 	}
-	if (EL_gap_thickness < (dims->THGEM1_container_width - dims->THGEM1_width_total) / 2.0) {
+	if ((EL_gap_thickness < (dims->THGEM1_container_width - dims->THGEM1_width_total) / 2.0) &&
+			(EL_gap_thickness > - dims->THGEM1_container_width + (dims->THGEM1_container_width - dims->THGEM1_width_total) / 2.0)) {
 		G4Exception("DetectorConstruction::SetSizeAndPosition: ",
-			"InvalidSetup", FatalException, "EL_gap_thickness is too small. Single phase mode is not supported.");
+			"InvalidSetup", FatalException, "|EL_gap_thickness| is too small. Half-submerged THGEM1 is not supported.");
+		return;
+	}
+	if (EL_gap_thickness < -(anode_grid_z_bottom - THGEM1_bottom_z)) {
+		G4Exception("DetectorConstruction::SetSizeAndPosition: ",
+			"InvalidSetup", FatalException, "EL_gap_thickness is too small. LAr level higher than anode grid is not supported.");
 		return;
 	}
 	if (EL_gap_thickness > (max_EL_gap_thickness - (dims->THGEM0_container_width - dims->THGEM0_width_total) / 2.0)) {
 		G4Exception("DetectorConstruction::SetSizeAndPosition: ",
-			"InvalidSetup", FatalException, "EL_gap_thickness is too large.");
+			"InvalidSetup", FatalException, "EL_gap_thickness is too large. LAr level below interface THGEM is not supported.");
 		return;
 	}
 
@@ -643,13 +652,14 @@ void Detector_full_y2022::SetSizeAndPosition()
   if (dims->is_NBrS_in_THGEM0) {
 		dims->THGEM_hole_center = //x!=0 because x=0 is just across anode wire before SiPM.
 				G4ThreeVector(dims->THGEM0_hole_pitch, 0, interface_grid_top_z - dims->THGEM0_width_total / 2.0);
+		dims->EL_gap_center = G4ThreeVector(dims->THGEM1_hole_pitch, 0, THGEM1_bottom_z - EL_gap_thickness / 2.0);
   } else {
 		dims->THGEM_hole_center = //x!=0 because x=0 is just across anode wire before SiPM.
 				G4ThreeVector(dims->THGEM1_hole_pitch, 0, THGEM1_bottom_z + gPars::det_dims->THGEM1_width_total / 2.0);
+		dims->EL_gap_center = G4ThreeVector(dims->THGEM1_hole_pitch, 0, THGEM1_bottom_z - max_EL_gap_thickness / 2.0);
   }
   dims->THGEM0_center = G4ThreeVector(0, 0, interface_grid_top_z - dims->THGEM0_width_total / 2.0);
 
-	dims->EL_gap_center = G4ThreeVector(dims->THGEM1_hole_pitch, 0, (interface_grid_top_z + THGEM1_bottom_z) / 2.0);
   dims->Cathode_top_center = G4ThreeVector(0, 0, 0);
   dims->THGEM1_single_cell_position = position_SingleTHGEM1Cell;
   dims->THGEM0_single_cell_position = position_SingleTHGEM0Cell;

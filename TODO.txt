@@ -1,9 +1,13 @@
-1) Figure out discrepancy between mine and Borisova's NBrS in LAr results. Borisova's XS data and energy step size.
-2) Npe x-y experiment vs theory distribution 
-3) (In code) Multiple THGEM mappings and single field map implementation is a little wonky at the moment: GlobalData behavior (loading field map) is dependent on selected detector type explicitly in the code. Also, when calculating electric field at global point, dummy HexagonalMapping class is created.
-4) Proper logging in python scripts (separate log for meshing, field calculations and geant4 simulation as well as python's script itself)
-5) .py all testing
-6) Create install_all.py for full project set-up: dependency installation, environment set-up and build.
+// Core (physics) issues or tasks:
+1) Fix v15_GEM1 simulation: LAr level there is currenly inside EL gap, i.e. below GEM1, while it must be above. Need to add variable LAr level in detector settings.
+2) Npe x-y experiment vs theory distributions.
+3) Study effects of optical properties (LCE systematic error estimation)
+
+// QoL or coding issues:
+1) (In code) Multiple THGEM mappings and single field map implementation is a little bit wonky at the moment: GlobalData behavior (loading field map) is dependent on selected detector type explicitly in the code. Also, when calculating electric field at global point, dummy HexagonalMapping class is created.
+2) Proper logging in python scripts (separate log for meshing, field calculations and geant4 simulation as well as python's script itself)
+3) .py all testing
+4) Create install_all.py for full project set-up: dependency installation, environment set-up and build.
 So that [load the code]->[run install_all.py]->[run results/*/RunSimulation.py]->[analyze results] can be done without thinking/remembering what is happening at all. Although CMake does make compilation or Eclipse set-up quite simple at the moment.
-7) Fix bug in Garfield++ ComponentElmer::ElectricField(x,y,z,ex,ey,ez,m,status) (most likely in ComponentFieldMap::MapCoordinates or less likely in ComponentFieldMap::FindElement13's conditions) which results in inconsistent fields at the edge of THGEM cell. Ask for pull request as well.  
+5) Fix bug in Garfield++ ComponentElmer::ElectricField(x,y,z,ex,ey,ez,m,status) (most likely in ComponentFieldMap::MapCoordinates or less likely in ComponentFieldMap::FindElement13's conditions) which results in inconsistent fields at the edge of THGEM cell. Ask for pull request as well. UPD: fixed by using optimized mesh. Had to switch to Gmsh v4 for that. 
 

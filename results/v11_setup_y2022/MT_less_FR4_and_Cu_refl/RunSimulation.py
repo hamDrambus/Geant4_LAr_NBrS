@@ -19,15 +19,11 @@ Binary = "../../../../NBrS_THGEM_LAr_v0-build/RelWithDebInfo/Geant_simulation"
 DataPath = "../../../data"
 RecalculateField = False
 RecalculateMesh = False
-#Vt1s = [80, 90, 100, 110, 120, 130, 139, 160, 185, 200, 231, 250, 277, 300, 323, \
-#350, 369, 390, 416, 450, 462, 480, 508, 525, 554, 580, 600, 620, 646, 670, 693, \
-#620, 739, 760, 785, 800, 831, 850, 877, 900, 923, 950, 1000, 1050, 1100]
-DSs = [0.05, 0.1, 0.2, 0.3, 0.4, 0.6, 1.0, 2.0, 4.0, 7.0, 10.0]
-V0s = [20.0 for i in range(len(DSs))]
-Vt1s = [923 for i in range(len(DSs))]
+V0s = [11.0, 12.0, 13.0, 14.0, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5]
+Vt1s = [2025, 2250, 2250, 1688, 1238, 1238, 1238, 1238, 917, 563, 338, 0]
 
 # returns binary absolute path, settings absolute path and log file absolute path (str1, str2, str3)
-def prepare_settings(V0, Vth1, DS):
+def prepare_settings(V0, Vth1):
     path = os.path.abspath(__file__)
     dir_path = os.path.dirname(path)
     abs_binary = os.path.normpath(os.path.join(dir_path, Binary))
@@ -46,7 +42,7 @@ def prepare_settings(V0, Vth1, DS):
         return None
     RecalculateMesh = False # Mesh needs to be recalulated only once
 
-    suffix = "NoDiff_NoElim_"+"{:3.0f}".format(Vth1) +"V_" + "{:.2f}".format(DS) + "um"
+    suffix = str(round(V0, 1)) + "kV"
     abs_output_path = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), suffix))
     os.makedirs(abs_output_path, exist_ok=True)
     abs_settings = os.path.normpath(os.path.join(os.path.join(dir_path, ResultsFolder), "settings_" + suffix + ".xml"))
@@ -65,23 +61,22 @@ def prepare_settings(V0, Vth1, DS):
         l = line.replace('DATA_PATH', rel_data_path) # binary is executed from its folder
         l = l.replace('OUTPUT_FOLDER', rel_output_path)
         l = l.replace('MESH_FOLDER', rel_mesh_path)
-        l = l.replace('DRIFT_STEP', "{:.2f}".format(DS))
         print(l.replace('FIELD_MAP_FILE', rel_field_map_file), end='')
     abs_logfile = os.path.join(abs_output_path, "Log.txt")
     return (abs_binary, abs_settings, abs_logfile)
 
 
 if __name__ == "__main__":
-    if len(V0s) != len(Vt1s) or len(V0s) != len(DSs) :
-        print("ERROR: V0s, Vt1s and DSs have diffrent lengths (" + len(V0s) + ", " + len(Vt1s) + ", " + len(DSs) + "). Aborting RunSimulation.py.")
+    if len(V0s) != len(Vt1s):
+        print("ERROR: V0s and Vt1s have diffrent lengths (" + len(V0s) + " vs " + len(Vt1s) + "). Aborting RunSimulation.py.")
         sys.exit(1)
     for i in range(min(len(V0s), len(Vt1s))):
         print ("****************************************************************")
         print ("****************************************************************")
-        print ("Starting simulating V0 = " + str(round(V0s[i], 1)) + ", Vthgem = " + str(round(Vt1s[i])) + ", Drift_step = " + "{:.2f}".format(DSs[i]) )
+        print ("Starting simulating V0 = " + str(round(V0s[i], 1)) + ", Vthgem = " + str(round(Vt1s[i])) )
         print ("****************************************************************")
         print ("****************************************************************")
-        files = prepare_settings(V0s[i], Vt1s[i], DSs[i])
+        files = prepare_settings(V0s[i], Vt1s[i])
         if files is None:
             continue
         abs_binary_path = os.path.dirname(files[0])
@@ -92,17 +87,16 @@ if __name__ == "__main__":
         p2 = subprocess.Popen(["tee", files[2]], stdin=p1.stdout)
         p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
         p2.communicate()
-        os.remove(files[1])
         if not p1.returncode is None:
             print ("****************************************************************")
             print ("****************************************************************")
-            print("ERROR while running " + binary + ". Skipping V0= " + str(round(V0s[i], 1)) + ", Vthgem= " + str(round(Vt1s[i])) + ", Drift_step = " + "{:.2f}".format(DSs[i]) )
+            print("ERROR while running " + binary + ". Skipping V0= " + str(round(V0s[i], 1)) + ", Vthgem= " + str(round(Vt1s[i])) )
             print ("****************************************************************")
             print ("****************************************************************")
             continue
         print ("****************************************************************")
         print ("****************************************************************")
-        print ("Ended simulating V0 = " + str(round(V0s[i], 1)) + ", Vthgem = " + str(round(Vt1s[i])) + ", Drift_step = " + "{:.2f}".format(DSs[i]) )
+        print ("Ended simulating V0 = " + str(round(V0s[i], 1)) + ", Vthgem = " + str(round(Vt1s[i])) )
         print ("****************************************************************")
         print ("****************************************************************")
     print("End of RunSimulation.py")

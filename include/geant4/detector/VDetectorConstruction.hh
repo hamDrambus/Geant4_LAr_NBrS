@@ -45,7 +45,7 @@ protected:
 	virtual void defineMaterials();
 	virtual void defineSurfaces();
 	virtual void SetSizeAndPosition() = 0;
-	virtual void CreateTHGEM1Cell();
+	virtual void CreateTHGEM1Cell(G4Material* medium);
 	virtual void SetupTHGEMsMapping(); //Finds THGEM1 volumes and initializes mapping class gPars::THGEM1_mapping
 
 	std::vector<G4PhysicalVolumesSearchScene::Findings> LocatePV(G4VPhysicalVolume* volume); //must be called after physiWorld is fully constructed

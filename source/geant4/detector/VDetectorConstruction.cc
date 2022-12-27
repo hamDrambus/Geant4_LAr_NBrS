@@ -98,7 +98,7 @@ void VDetectorConstruction::SetupTHGEMsMapping()
 	gData.mapping_manager.AddMapping(thgem1_map);
 }
 
-void VDetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elmer simulation
+void VDetectorConstruction::CreateTHGEM1Cell(G4Material* medium) //Must be the same as in gmsh-elmer simulation
 {
   double cell_size_x = gPars::det_dims->THGEM1_hole_pitch / 2.0;
   double cell_size_y = cell_size_x * std::sqrt(3.0);
@@ -116,10 +116,10 @@ void VDetectorConstruction::CreateTHGEM1Cell() //Must be the same as in gmsh-elm
   G4ThreeVector cu_bot_pos(0.0, 0.0, -diel_size_z / 2.0 - cu_size_z / 2.0);
 
   G4Box* solid_THGEM1_cell_isolation = new G4Box("solid_THGEM1_cell_isolation", cell_size_x, cell_size_y, cell_size_z); //so that cell is in the same material
-  logic_THGEM1_cell = new G4LogicalVolume(solid_THGEM1_cell_isolation, matLAr, "logic_THGEM1_cell_isolation", 0, 0, 0);
+  logic_THGEM1_cell = new G4LogicalVolume(solid_THGEM1_cell_isolation, medium, "logic_THGEM1_cell_isolation", 0, 0, 0);
 
   G4Box* solid_THGEM1_cell_LAr = new G4Box("solid_THGEM1_cell_LAr", cell_size_x / 2.0, cell_size_y / 2.0, cell_size_z / 2.0);
-  logic_THGEM1_cell_LAr = new G4LogicalVolume(solid_THGEM1_cell_LAr, matLAr, "logic_THGEM1_cell_LAr", 0, 0, 0);
+  logic_THGEM1_cell_LAr = new G4LogicalVolume(solid_THGEM1_cell_LAr, medium, "logic_THGEM1_cell_LAr", 0, 0, 0);
   phys_THGEM1_cell_LAr = new G4PVPlacement(0, zero, logic_THGEM1_cell_LAr, "phys_THGEM1_cell",
       logic_THGEM1_cell, false, 0, fCheckOverlaps);
 
