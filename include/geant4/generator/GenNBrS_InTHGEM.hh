@@ -28,15 +28,20 @@ public:
   void GeneratePrimaries(G4Event* anEvent);
   double GetNBrSYieldFactor(void) const {return mNBrS_yield_factor; }
   void SetNBrSYieldFactor(double yield_factor) { mNBrS_yield_factor = yield_factor; }
+  void SetSourceXYprofile(double radius, double radius_smearing);
 protected:
   double mNBrS_yield_factor;
+  double mRadius;
+  double mRadiusSmearing;
+  PDF_routine mRadiusPDF;
 };
 
 class SettingsNBrSGenerator: public VSourceSettings
 {
 public:
   double NBrS_yield_factor;
-  SettingsNBrSGenerator() : NBrS_yield_factor(1) { generator_type = NBrS; }
+  double xy_radius_smearing;
+  SettingsNBrSGenerator() : NBrS_yield_factor(1), xy_radius_smearing(0.0) { generator_type = NBrS; }
 };
 
 #endif // GenNBrS_InTHGEM_h

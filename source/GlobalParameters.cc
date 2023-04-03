@@ -71,6 +71,8 @@ namespace gPars
       det_opt.Wire_SigmaAlpha = optics.get<double>("Wire_SigmaAlpha_deg") * deg;
       det_opt.FR4_reflectivity = optics.get<double>("FR4_reflectivity");
       det_opt.Cu_reflectivity = optics.get<double>("Cu_reflectivity");
+      det_opt.StainlessSteel_reflectivity = optics.get<double>("StainlessSteel_reflectivity", 0.5); // doi:10.1063/1.2202915
+      det_opt.Wire_reflectivity =  optics.get<double>("Wire_reflectivity", 0.5); //approximately https://nvlpubs.nist.gov/nistpubs/bulletin/07/nbsbulletinv7n2p197_A2b.pdf
       det_opt.pmma_absorption_length_filename = optics.get<std::string>("pmma_absorption_length_filename");
       det_opt.pmma_rindex_filename = optics.get<std::string>("pmma_rindex_filename");
       det_opt.pmma_uv_absorption_length_filename = optics.get<std::string>("pmma_uv_absorption_length_filename");

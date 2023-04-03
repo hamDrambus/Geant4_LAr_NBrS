@@ -21,7 +21,8 @@ public:
   enum GeneratorType {
     ElectronPatterns,
     NBrS,
-    PhotonsDirectly
+    PhotonsDirectly,
+		ElectronPatternsNBrS
   };
   GeneratorType generator_type;
 

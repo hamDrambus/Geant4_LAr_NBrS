@@ -13,8 +13,8 @@ Required for the project overall but not used in compilation of C++ code:
 =================================================
 To compile Geant4 code run cmake to create makefile:
 
-mkdir Build
-cd Build
+mkdir build
+cd build
 cmake -DCMAKE_PREFIX_PATH=${HOME}/Software/Geant4/geant4.10.04.p01-install/lib/Geant4-11.0.0 ../
 make
 make install
@@ -72,3 +72,29 @@ One script calculates electric fields for several THGEM voltages
 Another one then generates several settings files from template that will use those electric fields and run simulation program with the settings.
 
 UPD: results/v11 and results/v10 now have RunSimulation.py which will automatically build mesh if necessary, calculate electric fields and then run geant4 simulation. 
+
+=================================================
+Systematic errors legend:
+Theory:
+T1_R	Reflectance values: FR4, Cu, Steel, Wires
+T2_D	Diffused reflections: Cu, FR4, LAr-gas, Steel wires, Acrilyc
+T3_PDE	SiPM PDE uncertainty
+T4_XY	Source position uncertainty
+T5_XY	Source XY profile uncertainty
+T6_Di	Electron diffusion uncertainty
+T7_MSH	Electric field precision (mesh precision)
+T8_XS	Cross-sections' uncertainties (e.g. discrepancy in drift velocity)
+T9	Is stationary theory applicable in non-uniform field?
+
+Experiment:
+E1_Cal	SiPM calibration uncertainty
+E2_Ev	Event selection
+E3_St	Statistical error
+E4_Qcal	Absolute values uncertainty (calibration for X-ray or theory for alphas)
+E5_V0	Drift field uncertainty
+E6_Q_S1	Charge instability by S1
+E7_Qinst	Charge instability per events (first 1k events vs all events) (same as above?)
+E8_O2	O2 impurity
+E9*	THGEM/GEM charge-up effects
+E10_V1*	THGEM voltage uncertainty
+

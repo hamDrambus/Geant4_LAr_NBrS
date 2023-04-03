@@ -56,10 +56,11 @@ using namespace Garfield;
 #define _Z_CATHODE -0.503
 #define _Z_ANODE 0.503
 
+//qewr
 //2D and 3D can be viewed with the same code due to selected geometries!
-#define MESH_ std::string("../../results/v10_old_setup/v00.01_THGEM1/")
-#define RESULT_ std::string("../../results/v10_old_setup/Elmer_v00.01/case_5180v.result")
-#define RESULT_FOLDER std::string("../../results/v10_old_setup/Elmer_v00.01/")
+#define MESH_ std::string("../../tests/19_field_THGEM1_220113/v00.01_THGEM1/")
+#define RESULT_ std::string("../../tests/19_field_THGEM1_220113/Elmer_v00.01/case_2650v.result")
+#define RESULT_FOLDER std::string("../../tests/19_field_THGEM1_220113/Elmer_v00.01/")
 
 void ensure_file(std::string fname); //makes sure file can be created later on
 void ensure_folder(std::string folder);
@@ -247,7 +248,7 @@ ComponentElmer* LoadFieldMap(std::string mesh_folder, std::string elmer_result) 
 	return fm;
 }
 
-void DriftLinesXZ(ComponentElmer* fm, std::size_t line_n) {
+void DriftLinesXZ(ComponentElmer* fm, std::size_t line_n, bool use_above = true) {
 	if (0 != line_n)
 		--line_n;
 	else
@@ -300,7 +301,7 @@ void DriftLinesXZ(ComponentElmer* fm, std::size_t line_n) {
 			aval->DriftPositron((-5.0*_X_SIZE+gg*(_X_SIZE*5.0*2)/line_n),_Y_SIZE, _Z_CATHODE*0.2, 0);
   }
 	std::size_t N = (std::size_t) (line_n * E_ratio);
-	for (std::size_t gg=0; gg <= N; ++gg) {
+	for (std::size_t gg=0; gg <= N && use_above; ++gg) {
 		if (ez_above > 0)
     	aval->DriftElectron((-5.0*_X_SIZE+gg*(_X_SIZE*5.0*2)/N),_Y_SIZE, _Z_ANODE*0.2, 0);
 		else
@@ -395,20 +396,19 @@ int main(int argc, char * argv[]) {
 	  ComponentElmer* fm = LoadFieldMap(MESH_, RESULT_);
 		if (nullptr == fm)
 			return -1;
-	  plot_field(fm,"../../results/v10_old_setup/center_axis_field_5180v.txt",_X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_CATHODE,_X_SIZE * 0.999999,_Y_SIZE * 0.999999, _Z_ANODE, 3000, "axis z");
+		//adsf
+	  plot_field(fm,"../../tests/19_field_THGEM1_220113/center_axis_field_2650V_16.47kV.txt",_X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_CATHODE,_X_SIZE * 0.999999,_Y_SIZE * 0.999999, _Z_ANODE, 3000, "axis z");
 		PointE3D pt_max = find_max_E_along_line(fm, _X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_CATHODE, _X_SIZE * 0.999999, _Y_SIZE * 0.999999, _Z_ANODE, 3000);
 		std::cout<<"Max field is "<<pt_max.E/1000 <<" kV/cm at z = "<< pt_max.z * 10 << " mm"<<std::endl;
 		double E_center = E_at_hole_center(fm);
 		std::cout<<"E at hole center = "<<E_center/1000 <<" kV/cm"<<std::endl;
 		//THGEM_transparency(fm, 1000, true);
 	  AvalancheMC_My *aval = new AvalancheMC_My();
-		DriftLinesXZ(fm, 30);
+		DriftLinesXZ(fm, 30, true);
 	}
 	if (false) {
-		std::vector<double> Vs = {80, 90, 100, 110, 120, 130, 139, 160, 185, 200, 231, 250, 277, 300, 323, \
-		350, 369, 390, 416, 450, 462, 480, 508, 525, 554, 580, 600, 620, 646, 670, 693, \
-		620, 739, 760, 785, 800, 831, 850, 877, 900, 923, 950, 1000, 1050, 1100};
-		std::string plot_file = "../../tests/15_field_calculation_thin_GEM/hole_field_vs_Vdivider.txt";
+		std::vector<double> Vs = {0, 178, 298, 373, 447, 521, 595, 746, 930, 1130, 1257, 1506, 1757, 2009, 2260, 2350};
+		std::string plot_file = "../../tests/19_field_THGEM1_220113/hole_field_vs_Vt_1.0atm.txt";
 		ensure_file(plot_file);
 		std::ofstream str(plot_file, std::ios_base::trunc);
 		str<<"Vdivider[V]\tEmax[kV/cm]\tE at hole center[kV/cm]"<<std::endl;

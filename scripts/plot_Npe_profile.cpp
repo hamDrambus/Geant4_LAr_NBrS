@@ -4,9 +4,11 @@
 // plot_Npe_profile("../results/v10_old_setup/transfer_XS_with_diffusion/6169V/recorded.dat", "../../../Post_processing/220804/results_v5/SiPM_Npes_Q1.00.txt", 1.27e6, 10);
 // plot_Npe_profile("../results/v10_old_setup/transfer_XS_with_diffusion/6169V/recorded.dat", "../../../Post_processing/220804/results_v5/SiPM_Npes_Q0.20.txt", 1.58e5, 10);
 // plot_Npe_profile("../results/v10_old_setup/transfer_XS_with_diffusion/6169V/recorded.dat", "../../../Post_processing/220804/results_v5/SiPM_Npes_Q0.04.txt", 5.4e4, 10);
-// plot_Npe_profile("../results/v10_old_setup/transfer_XS_with_diffusion/6169V/recorded.dat", "../../../Post_processing/220804/results_v5/SiPM_Npes_Q0.20.txt", 1.58e5, 10);
-// plot_Npe_profile("../results/v11_setup_y2022/transfer_XS_with_diff/18.5kV/recorded.dat", "../../../Post_processing/221020/results_v1/SiPM_Npes.txt", 10411, 500);
-// plot_Npe_profile("../results/v15_GEM1/transfer_XS_with_diff/739V/recorded.dat", "../../../Post_processing/221124/results_v1/SiPM_Npes.txt", 1.40e5, 200);
+// plot_Npe_profile("../results/v10_old_setup/transfer_XS_with_diffusion_T5_XY/6169V/recorded.dat", "../../../Post_processing/220804/results_v5/SiPM_Npes_Q0.20.txt", 1.58e5, 20);
+// plot_Npe_profile("../results/v11_setup_y2022/transfer_XS_with_diff/18.5kV/recorded.dat", "../../../Post_processing/221020/results_v1/SiPM_Npes.txt", 6000, 500);
+// plot_Npe_profile("../results/v11_setup_y2022/transfer_XS_with_diff_T5_XY/18.5kV/recorded.dat", "../../../Post_processing/221020/results_v1/SiPM_Npes.txt", 6000, 500);
+// plot_Npe_profile("../results/v15_GEM1/transfer_XS_with_diff/785V/recorded.dat", "../../../Post_processing/221124/results_v1/SiPM_Npes.txt", 1.40e5, 500);
+// plot_Npe_profile("../results/v15_GEM1/transfer_XS_with_diff/831V/recorded.dat", "../../../Post_processing/221215/results_v1/SiPM_Npes.txt", 1.98e5, 200);
 
 double SiPM_Npe_stat_error = 1e-3;
 
@@ -22,6 +24,43 @@ struct Npe_profile_result {
   std::map<int, double> Npe_per_e_per_ch_exp;
   std::pair<double, double> source_xy_exp; // true-ish coordinate of source obtained from experiment.
 };
+
+//Only elements which keys are present in both maps remain.
+template <typename KeyType, typename LeftValue, typename RightValue>
+void MapIntersection(std::map<KeyType, LeftValue>& left, std::map<KeyType, RightValue>& right) {
+  std::map<KeyType, LeftValue> InLeft = left;
+  std::map<KeyType, RightValue> InRight = right;
+  left.clear();
+  right.clear();
+  std::map<KeyType, std::pair<LeftValue, RightValue>> result;
+  typename std::map<KeyType, LeftValue>::const_iterator il  = InLeft.begin();
+  typename std::map<KeyType, RightValue>::const_iterator ir = InRight.begin();
+  while (il != InLeft.end() && ir != InRight.end()) {
+    if (il->first < ir->first)
+      ++il;
+    else if (ir->first < il->first)
+      ++ir;
+    else {
+      left.insert(std::make_pair(il->first, il->second));
+      right.insert(std::make_pair(il->first, ir->second));
+      ++il;
+      ++ir;
+    }
+  }
+}
+
+template <typename KeyType, typename Value>
+void MapPrint(std::map<KeyType, Value>& map) {
+  typename std::map<KeyType, Value>::const_iterator i  = map.begin();
+  std::cout<<"{";
+  while (i != map.end()) {
+    if (i!=map.begin())
+      std::cout<<", ";
+    std::cout<<i->first;
+    ++i;
+  }
+  std::cout<<"}"<<std::endl;
+}
 
 std::map<int, double> ReadExperimentData(std::string filename, std::string voltage) {
   std::map<int, double> result;
@@ -263,6 +302,79 @@ void plot_experiment_projection(std::map<int, double> Npe_exp, double charge, bo
   return;
 }
 
+void plot_sim_and_exp_projections(std::map<int, long int> Npe_sim, std::map<int, double> Npe_exp, bool project_on_X = true) {
+  std::string name1 = std::string(" SiPM simulation ") + (project_on_X ? "X" : "Y") + " projection";
+  std::string name2 = std::string(" SiPM experiment ") + (project_on_X ? "X" : "Y") + " projection";
+  TH1D* hist_01 = new TH1D(name1.c_str(), name1.c_str(), 2*SiPM_n_rows+1,
+						-SiPM_pitch * (SiPM_n_rows + 1) / 2 + SiPM_size / 2.0, SiPM_pitch * (SiPM_n_rows + 1) / 2 - SiPM_size / 2.0);
+  TH1D* hist_02 = new TH1D(name2.c_str(), name2.c_str(), 2*SiPM_n_rows+1,
+						-SiPM_pitch * (SiPM_n_rows + 1) / 2 + SiPM_size / 2.0, SiPM_pitch * (SiPM_n_rows + 1) / 2 - SiPM_size / 2.0);
+  for (auto const& it : Npe_sim) {
+    std::pair<double, double> XY = SiPM_channel_XY(it.first);
+    if (XY.first == DBL_MAX || XY.second == DBL_MAX)
+      continue;
+    hist_01->Fill(project_on_X ? XY.first : XY.second, it.second);
+  }
+  for (auto const& it : Npe_exp) {
+    std::pair<double, double> XY = SiPM_channel_XY(it.first);
+    if (XY.first == DBL_MAX || XY.second == DBL_MAX)
+      continue;
+    hist_02->Fill(project_on_X ? XY.first : XY.second, it.second);
+  }
+  hist_01->Scale(1.0/hist_01->GetMaximum());
+  hist_02->Scale(1.0/hist_02->GetMaximum());
+  TCanvas *c_00 = new TCanvas ((std::string("03_") + name1).c_str(), name1.c_str());
+  c_00->SetGrid(); c_00->SetTicks(); c_00->ToggleEventStatus(); c_00->ToggleToolBar();
+  hist_01->SetLineWidth(2);
+  hist_01->GetXaxis()->SetTitle(project_on_X ? "X (mm)" : "Y (mm)");
+  hist_01->GetYaxis()->SetTitle("Average S2 (arb.)");
+  double title_offset_01 = hist_01->GetYaxis()->GetTitleOffset() + 1.3;
+  hist_01->GetYaxis()->SetTitleOffset(title_offset_01);
+  hist_01->SetStats(false);
+  hist_01->Draw("HIST");
+
+  hist_02->SetLineWidth(2);
+  hist_02->SetLineColor(kBlack);
+  double title_offset_02 = hist_02->GetYaxis()->GetTitleOffset() + 1.3;
+  hist_02->GetYaxis()->SetTitleOffset(title_offset_02);
+  hist_02->SetStats(false);
+  hist_02->Draw("HISTSAME");
+
+  TLegend *legend = new TLegend(0.1, 0.75, 0.3, 0.9);
+	legend->SetMargin(0.25);
+  legend->AddEntry(hist_01, "Simulation", "l");
+  legend->AddEntry(hist_02, "Experiment", "l");
+	legend->Draw("same");
+  c_00->Update();
+  return;
+}
+
+//Number reflecting how close simulation's XY profile is to experimentail one.
+//0 is exact match.
+double score_simulation(std::map<int, long int> Npe_sim, std::map<int, double> Npe_exp) {
+  MapIntersection(Npe_sim, Npe_exp);
+  typename std::map<int, long int>::iterator il  = Npe_sim.begin();
+  typename std::map<int, double>::iterator ir = Npe_exp.begin();
+  double integral1 = 0, integral2 = 0;
+  while (il != Npe_sim.end() && ir != Npe_exp.end()) {
+    integral1 += il->second;
+    integral2 += ir->second;
+    ++il;
+    ++ir;
+  }
+  il  = Npe_sim.begin();
+  ir = Npe_exp.begin();
+  double score = 0;
+  while (il != Npe_sim.end() && ir != Npe_exp.end()) {
+    double lv = il->second / integral1, rv = ir->second / integral2;
+    if (std::fabs(lv + rv) > 1e-30)
+      score += std::fabs((lv - rv)/(lv + rv));
+    ++il;
+    ++ir;
+  }
+  return score;
+}
+
 // Using Oleynikov's position reconstruction results.
 std::pair<double, double> weighted_xy_to_real(std::pair<double, double> xy_in) {
   std::pair<double, double> xy_out;
@@ -395,18 +507,27 @@ Npe_profile_result plot_Npe_profile(std::string sim_input_file = "../results/v10
     std::cout<<"\tTheory, individual PDE: "<<total_sim_indiv_QE<<"\n";
     std::cout<<"\tExperiment: "<<total_exp<<std::endl;
 
+    std::map<int, long int> Npe_sim = plot_info.Npes;
+    std::map<int, double> Npe_exp = res.Npe_per_e_per_ch_exp;
+    MapIntersection(Npe_sim, Npe_exp);
+
     std::pair<double, double> S2_center = plot_experiment_XY(res.Npe_per_e_per_ch_exp, experiment_charge, true);
     std::cout<<"Experimental source center, not adjusted (x, y) = ("<<S2_center.first <<", "<<S2_center.second <<")"<<std::endl;
     res.source_xy_exp = weighted_xy_to_real(S2_center);
     std::cout<<"Experimental source center, adjusted (x, y) = ("<<res.source_xy_exp.first <<", "<<res.source_xy_exp.second <<")"<<std::endl;
 
-    S2_center = plot_simulation_XY(plot_info.Npes, plot_info.N_electrons * NBrS_yield_factor / QE_avg, true);
+    plot_simulation_XY(plot_info.Npes, plot_info.N_electrons * NBrS_yield_factor / QE_avg, true);
+    S2_center = plot_simulation_XY(Npe_sim, plot_info.N_electrons * NBrS_yield_factor / QE_avg, false);
     std::cout<<"Simulation source center, not adjusted (x, y) = ("<<S2_center.first <<", "<<S2_center.second <<")"<<std::endl;
     S2_center = weighted_xy_to_real(S2_center);
     std::cout<<"Simulation source center, adjusted (x, y) = ("<<S2_center.first <<", "<<S2_center.second <<")"<<std::endl;
 
-    plot_simulation_projection(plot_info.Npes, plot_info.N_electrons * NBrS_yield_factor / QE_avg, true);
-    plot_experiment_projection(res.Npe_per_e_per_ch_exp, experiment_charge, true);
+    std::cout<<"Simulation XY SCORE = " << score_simulation(plot_info.Npes, res.Npe_per_e_per_ch_exp)<<std::endl;
+
+    //plot_simulation_projection(Npe_sim, plot_info.N_electrons * NBrS_yield_factor / QE_avg, true);
+    //plot_experiment_projection(Npe_exp, experiment_charge, true);
+    plot_sim_and_exp_projections(Npe_sim, Npe_exp, true);
+    plot_sim_and_exp_projections(Npe_sim, Npe_exp, false);
 
     TCanvas *c_00 = new TCanvas ((std::string("00_") + plot_name).c_str(), plot_name.c_str());
   	c_00->SetGrid(); c_00->SetTicks(); c_00->ToggleEventStatus(); c_00->ToggleToolBar();

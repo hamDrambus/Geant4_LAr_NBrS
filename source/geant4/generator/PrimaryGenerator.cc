@@ -141,7 +141,7 @@ void PrimaryGenerator::GeneratePrimaryVertex(G4Event* event)
   mapping_data.position = particle_position;
   mapping_data.momentum = particle_momentum_direction;
   mapping_data.polarization = particle_polarization;
-  if (gData.mapping_manager.HasMapping()) {
+  if (gData.mapping_manager.HasMapping() && !disable_mapping) {
     G4VPhysicalVolume* volume = navigator->LocateGlobalPointAndSetup(mapping_data.position);
     mapping_data = gData.mapping_manager.GetNewState(volume, mapping_data);
   }

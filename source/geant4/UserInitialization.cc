@@ -57,6 +57,7 @@ void UserInitialization::Build() const
     GenNBrS_InTHGEM *gen = new GenNBrS_InTHGEM;
     generator = gen;
     gen->SetNBrSYieldFactor(settings->NBrS_yield_factor);
+    gen->SetSourceXYprofile(settings->xy_radius, settings->xy_radius_smearing);
     break;
   }
   case (VSourceSettings::PhotonsDirectly): {
@@ -75,6 +76,14 @@ void UserInitialization::Build() const
     generator = gen;
     break;
   }
+  case (VSourceSettings::ElectronPatternsNBrS): {
+		SettingsElectronPatternNBrS *settings = static_cast<SettingsElectronPatternNBrS*>(gPars::source);
+		GenElectronsPatternsNBrS *gen = new GenElectronsPatternsNBrS();
+		gen->SetNBrSYieldFactor(settings->NBrS_yield_factor);
+		gen->SetPattern(settings->pattern);
+		generator = gen;
+		break;
+	}
   default: {
     G4Exception("UserInitialization::UserInitialization: ",
         "InvalidSetup", FatalException, "Unimplemented generator type is used.");

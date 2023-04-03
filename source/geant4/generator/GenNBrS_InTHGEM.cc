@@ -37,7 +37,12 @@ void GenNBrS_InTHGEM::GeneratePrimaries(G4Event* anEvent)
     // Set electron position
     double x, y, z;
     double phi1 = 2 * M_PI * G4UniformRand();
-    double R = std::sqrt(G4UniformRand()) * gPars::source->xy_radius;
+    double R;
+    if (!mRadiusPDF.isValid()) {
+    	R = std::sqrt(G4UniformRand()) * mRadius;
+    } else {
+    	R = mRadiusPDF(G4UniformRand());
+    }
     x = gPars::source->x_center + R*std::cos(phi1);
     y = gPars::source->y_center + R*std::sin(phi1);
     z = gPars::source->z_center + gPars::source->z_width*(G4UniformRand() - 0.5);
@@ -101,4 +106,26 @@ void GenNBrS_InTHGEM::GeneratePrimaries(G4Event* anEvent)
       RecordPhoton(photon);
 	  }
   }
+}
+
+void GenNBrS_InTHGEM::SetSourceXYprofile(double radius, double radius_smearing)
+{
+	mRadius = radius;
+	mRadiusSmearing = radius_smearing;
+	if (mRadiusSmearing > 0) {
+		double r_max = mRadius + mRadiusSmearing * 7;
+		IntegrationRange rs = IntegrationInterval(0, std::max(mRadius - mRadiusSmearing*7, 0.0), std::max(mRadius - mRadiusSmearing*7, 0.0)/200.0);
+		rs += IntegrationInterval(std::max(mRadius - mRadiusSmearing*7, 0.0), r_max, std::min(mRadiusSmearing/50.0, mRadius/200));
+		std::vector<double> xs(rs.NumOfIndices()), ys(rs.NumOfIndices());
+		for (long int i = 0, i_end_ = rs.NumOfIndices(); i!=i_end_; ++i) {
+			xs[i] = rs.Value(i);
+			ys[i] = xs[i] * 1.0 / (exp((xs[i] - mRadius)/mRadiusSmearing) + 1);
+		}
+		mRadiusPDF = PDF_routine(xs, ys);
+		if (!mRadiusPDF.isValid()) {
+			G4Exception("GenNBrS_InTHGEM::SetSourceXYprofile: ",
+					"InvalidData", FatalException, "Failed to set source radius distribution function.");
+				return;
+		}
+	}
 }

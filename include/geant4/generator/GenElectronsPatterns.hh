@@ -47,12 +47,12 @@ public:
     Uniform2Rings,
     Uniform3Rings,
   };
-  GenElectronsPatterns() = delete;
+  GenElectronsPatterns();
   GenElectronsPatterns(PatternElectron pattern);
   ~GenElectronsPatterns();
 
 public:
-  void GeneratePrimaries(G4Event* anEvent);
+  virtual void GeneratePrimaries(G4Event* anEvent);
   void SetPattern(PatternElectron pattern) { mPattern = pattern; }
 
 protected:
@@ -73,7 +73,7 @@ class SettingsElectronPattern: public VSourceSettings
 {
 public:
   GenElectronsPatterns::PatternElectron pattern;
-  SettingsElectronPattern() : pattern(GenElectronsPatterns::UniformSquareGrid) { generator_type= ElectronPatterns; }
+  SettingsElectronPattern() : pattern(GenElectronsPatterns::RandomCircle) { generator_type= ElectronPatterns; }
 };
 
 #endif // GenElectronPatterns_h

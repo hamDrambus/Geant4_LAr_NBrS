@@ -4,6 +4,7 @@
 #include <boost/algorithm/string.hpp>
 #include <geant4/generator/SourceSettings.hh>
 #include <geant4/generator/GenElectronsPatterns.hh>
+#include <geant4/generator/GenElectronsPatternsNBrS.hh>
 #include <geant4/generator/GenNBrS_InTHGEM.hh>
 #include <geant4/generator/GenPhotonsDirectly.hh>
 
@@ -24,6 +25,7 @@ VSourceSettings* CreateSourceSettings(std::string filename)
       SettingsNBrSGenerator *settings = new SettingsNBrSGenerator();
       out = settings;
       settings->NBrS_yield_factor = src->get<double>("NBrS_yield_factor", 1.0);
+      settings->xy_radius_smearing = std::fabs(src->get<double>("xy_radius_smearing_mm", 0.0));
       goto read_common;
     }
     src = pt.get_child_optional("Settings.Source.PhotonsDirectly");
@@ -86,6 +88,33 @@ VSourceSettings* CreateSourceSettings(std::string filename)
       }
       goto read_common;
     }
+    src = pt.get_child_optional("Settings.Source.ElectronPatternNBrS");
+		if (src) {
+			SettingsElectronPatternNBrS *settings = new SettingsElectronPatternNBrS();
+			out = settings;
+			//, RandomSquare, UniformLineX, UniformLineY, UniformSquareGrid, Uniform1Ring, Uniform2Rings, Uniform3Rings
+			std::string pattern = src->get<std::string>("Pattern");
+			if (pattern == "RandomCircle") {
+				settings->pattern = GenElectronsPatterns::RandomCircle;
+			} else if (pattern == "UniformLineX") {
+				settings->pattern = GenElectronsPatterns::UniformLineX;
+			} else if (pattern == "UniformLineY") {
+				settings->pattern = GenElectronsPatterns::UniformLineY;
+			} else if (pattern == "UniformSquareGrid") {
+				settings->pattern = GenElectronsPatterns::UniformSquareGrid;
+			} else if (pattern == "Uniform1Ring") {
+				settings->pattern = GenElectronsPatterns::Uniform1Ring;
+			} else if (pattern == "Uniform2Rings") {
+				settings->pattern = GenElectronsPatterns::Uniform2Rings;
+			} else if (pattern == "Uniform3Rings") {
+				settings->pattern = GenElectronsPatterns::Uniform3Rings;
+			}  else {
+				G4Exception("CreateSourceSettings: ",
+						"InvalidSetup", FatalException, ("Invalid Settings.Source.ElectronPattern.Pattern '" + pattern + "' in settings.").c_str());
+			}
+			settings->NBrS_yield_factor = src->get<double>("NBrS_yield_factor", 1.0);
+			goto read_common;
+		}
     std::cerr<<"CreateSourceSettings: no source type (NBrS_Generator, PhotonsDirectly or ElectronPattern) was found."<<std::endl;
     goto fail_load;
    read_common:

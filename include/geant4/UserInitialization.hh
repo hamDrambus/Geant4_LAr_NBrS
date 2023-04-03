@@ -20,6 +20,7 @@
 #include "detector/Detector_THGEM1_SiPM_shading.hh"
 #include "generator/GenNBrS_InTHGEM.hh"
 #include "generator/GenElectronsPatterns.hh"
+#include "generator/GenElectronsPatternsNBrS.hh"
 #include "generator/GenPhotonsDirectly.hh"
 
 class UserInitialization : public G4VUserActionInitialization

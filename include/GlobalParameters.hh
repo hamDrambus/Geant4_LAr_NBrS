@@ -72,6 +72,8 @@ namespace gPars
 		double Wire_SigmaAlpha;
 		double FR4_reflectivity;
 		double Cu_reflectivity;
+		double StainlessSteel_reflectivity;
+		double Wire_reflectivity;
 		std::string pmma_absorption_length_filename;
 		std::string pmma_rindex_filename;
 		std::string pmma_uv_absorption_length_filename;

@@ -18,10 +18,11 @@
     <!-- Only single generator should be specified: NBrS_Generator, PhotonsDirectly or ElectronPattern -->
     <NBrS_Generator> <!-- generate dirfting electrons and then photons by them -->
       <N_events>500000</N_events> <!-- Number of events to simulate-->
-      <x_center_mm>0.0</x_center_mm> <!-- Source X position. Relative to THGEM1 center -->
-      <y_center_mm>0.0</y_center_mm> <!-- Source Y position. Relative to THGEM1 center -->
+      <x_center_mm>-0.09</x_center_mm> <!-- Source X position. Relative to THGEM1 center -->
+      <y_center_mm>-6.2</y_center_mm> <!-- Source Y position. Relative to THGEM1 center -->
       <z_center_mm>2.0</z_center_mm> <!-- Source Z position. Relative the lowest point where field map is still present (below THGEM1)-->
-      <xy_radius_mm>9.27</xy_radius_mm> <!-- Source radius/size. Meaning depends on specified pattern-->
+      <xy_radius_mm>13.0</xy_radius_mm> <!-- Source radius/size. Meaning depends on specified pattern-->
+      <xy_radius_smearing_mm>3.5</xy_radius_smearing_mm> <!-- Source radius smearing (Fermi step function)-->
       <z_width_mm>0.0</z_width_mm> <!-- Source width.-->
       <NBrS_yield_factor>10.0</NBrS_yield_factor> <!--OPT NBrS real yield is multiplied by this value in order to have good number of photons per 1 electron track-->
     </NBrS_Generator>
@@ -63,6 +64,8 @@
     <!-- <FR4_reflectivity>0.05</FR4_reflectivity> -->
 		<!-- Bass M. Handbook of optics, Vol.4 Edition3 -->
     <Cu_reflectivity>0.36</Cu_reflectivity>
+    <Wire_reflectivity>0.50</Wire_reflectivity> <!-- approximately https://nvlpubs.nist.gov/nistpubs/bulletin/07/nbsbulletinv7n2p197_A2b.pdf -->
+    <StainlessSteel_reflectivity>0.50</StainlessSteel_reflectivity> <!-- doi:10.1063/1.2202915 -->
     <pmma_absorption_length_filename>absorption_length/PMMA_absorption_length_eV_mm.dat</pmma_absorption_length_filename>
 		<pmma_rindex_filename>refractive_index/PMMA_rindex_eV_1.dat</pmma_rindex_filename>
     <pmma_uv_absorption_length_filename>absorption_length/PMMA_VU_absorption_length_eV_mm.dat</pmma_uv_absorption_length_filename>

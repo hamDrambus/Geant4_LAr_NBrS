@@ -227,7 +227,7 @@ void VDetectorConstruction::defineSurfaces()
 	Anode_wire_unified->SetFinish(ground);
 	Anode_wire_unified->SetSigmaAlpha(gPars::det_opt.Wire_SigmaAlpha * degree);//alpha in degrees, from 0 to 90.
 	G4MaterialPropertiesTable *Anode_wire_MaterialProperty = new G4MaterialPropertiesTable();
-	G4double Anode_wire_Materialrefl[2] = { 0.5, 0.5 };//approximately https://nvlpubs.nist.gov/nistpubs/bulletin/07/nbsbulletinv7n2p197_A2b.pdf
+	G4double Anode_wire_Materialrefl[2] = { gPars::det_opt.Wire_reflectivity, gPars::det_opt.Wire_reflectivity};
 	G4double Anode_wire_Materialeff[2] = { 0, 0 };
 	Anode_wire_MaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::general.no_reflections ? zero : Anode_wire_Materialrefl, 2);
 	Anode_wire_MaterialProperty->AddProperty("EFFICIENCY", ener, Anode_wire_Materialeff, 2);
@@ -267,7 +267,7 @@ void VDetectorConstruction::defineSurfaces()
 	stainlessSteel->SetFinish(ground);
 	stainlessSteel->SetSigmaAlpha(gPars::det_opt.StainlessSteel_SigmaAlpha * degree);//alpha in degrees, from 0 to 90.
 	G4MaterialPropertiesTable *stainlessSteelMaterialProperty = new G4MaterialPropertiesTable();
-	G4double stainlessSteelMaterialrefl[2] = {0.5, 0.5}; // doi:10.1063/1.2202915
+	G4double stainlessSteelMaterialrefl[2] = {gPars::det_opt.StainlessSteel_reflectivity, gPars::det_opt.StainlessSteel_reflectivity};
 	G4double stainlessSteelMaterialeff[2] = {0, 0};
 	stainlessSteelMaterialProperty->AddProperty("REFLECTIVITY", ener, gPars::general.no_reflections ? zero : stainlessSteelMaterialrefl, 2);
 	stainlessSteelMaterialProperty->AddProperty("EFFICIENCY", ener, stainlessSteelMaterialeff, 2);

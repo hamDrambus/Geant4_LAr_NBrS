@@ -1,5 +1,9 @@
 #include <geant4/generator/GenElectronsPatterns.hh>
 
+GenElectronsPatterns::GenElectronsPatterns() :
+  VGeneratePrimaries(), mPattern(PatternElectron::RandomCircle)
+{}
+
 GenElectronsPatterns::GenElectronsPatterns(PatternElectron pattern) :
   VGeneratePrimaries(), mPattern(pattern)
 {}

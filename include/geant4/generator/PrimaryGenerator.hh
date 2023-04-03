@@ -62,6 +62,8 @@ class PrimaryGenerator : public G4VPrimaryGenerator
   { particle_momentum_direction =  aMomDirection.unit(); }
   inline void SetParticlePolarization(G4ThreeVector aVal)
   { particle_polarization = aVal; }
+  inline void SetDisableMapping(bool disable)
+	{ disable_mapping = disable; }
 
   inline G4ParticleDefinition* GetParticleDefinition() const
   { return particle_definition; }
@@ -75,6 +77,8 @@ class PrimaryGenerator : public G4VPrimaryGenerator
   { return particle_momentum_direction; }
   inline G4ThreeVector GetParticlePolarization() const
   { return particle_polarization; }
+  inline bool GetDisableMapping() const
+	{ return disable_mapping; }
 
   protected:
   G4Navigator* navigator;
@@ -86,6 +90,7 @@ class PrimaryGenerator : public G4VPrimaryGenerator
   G4double              	particle_momentum = 0.0;
   G4double              	particle_charge = 0.0;
   G4ThreeVector         	particle_polarization;
+  bool										disable_mapping = false;
 };
 
 #endif //PRIMARY_GENERATOR_H_
