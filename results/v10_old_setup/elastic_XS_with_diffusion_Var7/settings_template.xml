@@ -80,9 +80,9 @@
     <XS_momentum_transfer_filename>LAr_XS/XS_momentum_transfer_Var7.txt</XS_momentum_transfer_filename>
     <atomic_density_cm3>2.10e22</atomic_density_cm3> <!-- OPT by default density at 87.3K & 1 atm is used (2.10e22 cm^-3 doi:10.1209/0295-5075/ac4c03)-->
     <cache_folder>../../NBrS_THGEM_LAr_v0/data_cache_Var7_elastic/</cache_folder> <!--OPT folder containing saved computations-->
-    <LAr_drift_velocity>LAr_drift/LAr_drift_velocity_data.txt</LAr_drift_velocity> <!--OPT In case there is no theoretical values-->
-    <LAr_diffusion_transversal>LAr_drift/LAr_diffusionT_data.txt</LAr_diffusion_transversal> <!--OPT In case there is no theoretical values-->
-    <LAr_diffusion_longitudinal>LAr_drift/LAr_diffusionL_data.txt</LAr_diffusion_longitudinal> <!--OPT In case there is no theoretical values-->
+    <exp_drift_velocity>LAr_drift/exp_drift_velocity_data.txt</exp_drift_velocity> <!--OPT In case there is no theoretical values-->
+    <exp_diffusion_transversal>LAr_drift/LAr_diffusionT_data.txt</exp_diffusion_transversal> <!--OPT In case there is no theoretical values-->
+    <exp_diffusion_longitudinal>LAr_drift/LAr_diffusionL_data.txt</exp_diffusion_longitudinal> <!--OPT In case there is no theoretical values-->
     <NBrS_formula>ElasticXS</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default) and TransferXS are supported -->
   </ArgonProperties>
   <Debug>

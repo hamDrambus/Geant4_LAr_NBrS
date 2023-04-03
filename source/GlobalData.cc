@@ -201,7 +201,7 @@ void GlobalData::SetupFieldMap(void)
   if (!Ar_props.drift_velocity.isValid()) {
     velocity = new DataVector();
     std::ifstream str;
-    str.open(gPars::Ar_props.LAr_drift_velocity);
+    str.open(gPars::medium_props.exp_drift_velocity);
     if (!str.is_open()) {
       G4Exception("GlobalData::SetupFieldMap: ",
         "InvalidSetup", FatalException, "Failed to open LAr drift velocity file");
@@ -221,7 +221,7 @@ void GlobalData::SetupFieldMap(void)
     diff_longitudinal = new DataVector();
     diff_transversal = new DataVector();
     std::ifstream str;
-    str.open(gPars::Ar_props.LAr_diffusion_longitudinal);
+    str.open(gPars::medium_props.exp_diffusion_longitudinal);
     if (!str.is_open()) {
       G4Exception("GlobalData::SetupFieldMap: ",
         "InvalidSetup", JustWarning, "Failed to open LAr longitudinal diffusion file");
@@ -232,7 +232,7 @@ void GlobalData::SetupFieldMap(void)
       diff_longitudinal->use_rightmost(true);
     }
 
-    str.open(gPars::Ar_props.LAr_diffusion_transversal);
+    str.open(gPars::medium_props.exp_diffusion_transversal);
     if (!str.is_open()) {
       G4Exception("GlobalData::SetupFieldMap: ",
         "InvalidSetup", JustWarning, "Failed to open LAr transversal diffusion file");

@@ -9,7 +9,7 @@ namespace gPars
 	VSourceSettings *source;
 	ElmerFieldMap field_map;
 	DetectorOptics det_opt;
-	ArgonProperties Ar_props;
+	MediumProperties medium_props;
 	Results results;
 
 	bool LoadSettings(std::string fname)
@@ -46,8 +46,8 @@ namespace gPars
         general.electron_max_time *= ns;
       general.print_drift_track = deb.get<bool>("print_drift_track", false);
       general.teleportation_verbosity = deb.get<int>("teleportation_verbosity", 0);
-      Ar_props.print_calculations = deb.get<bool>("Ar_print_calculations", true);
-      Ar_props.pedantic_calculations = deb.get<bool>("Ar_pedantic_calculations", true);
+      medium_props.print_calculations = deb.get<bool>("Ar_print_calculations", true);
+      medium_props.pedantic_calculations = deb.get<bool>("Ar_pedantic_calculations", true);
       }
       {
       ptree field = pt.get_child("Settings.FieldMap");
@@ -86,15 +86,16 @@ namespace gPars
       }
       {
       ptree ar_props = pt.get_child("Settings.ArgonProperties");
-      Ar_props.XS_energy_transfer_filename = ar_props.get<std::string>("XS_energy_transfer_filename");
-      Ar_props.XS_momentum_transfer_filename = ar_props.get<std::string>("XS_momentum_transfer_filename");
+      medium_props.medium_type = LiquidAr;
+      medium_props.XS_energy_transfer_filename = ar_props.get<std::string>("XS_energy_transfer_filename");
+      medium_props.XS_momentum_transfer_filename = ar_props.get<std::string>("XS_momentum_transfer_filename");
 
       // Not changeable parameters:
-      Ar_props.atomic_density = ar_props.get<double>("atomic_density_cm3", 2.10e22) / (cm3);
-      Ar_props.cache_folder = ar_props.get<std::string>("cache_folder", "");
-      Ar_props.LAr_drift_velocity = ar_props.get<std::string>("LAr_drift_velocity", "");
-      Ar_props.LAr_diffusion_transversal = ar_props.get<std::string>("LAr_diffusion_transversal", "");
-      Ar_props.LAr_diffusion_longitudinal = ar_props.get<std::string>("LAr_diffusion_longitudinal", "");
+      medium_props.atomic_density = ar_props.get<double>("atomic_density_cm3", 2.10e22) / (cm3);
+      medium_props.cache_folder = ar_props.get<std::string>("cache_folder", "");
+      medium_props.exp_drift_velocity = ar_props.get<std::string>("exp_drift_velocity", "");
+      medium_props.exp_diffusion_transversal = ar_props.get<std::string>("exp_diffusion_transversal", "");
+      medium_props.exp_diffusion_longitudinal = ar_props.get<std::string>("exp_diffusion_longitudinal", "");
       std::string NBrS_formula_str = ar_props.get<std::string>("NBrS_formula", "ElasticXS");
       boost::optional<NBrSFormula> NBrS_formula;
       if (NBrS_formula_str == "ElasticXS")
@@ -103,13 +104,13 @@ namespace gPars
         NBrS_formula = NBrSFormula::TransferXS;
       if (boost::none == NBrS_formula) {
         std::cerr<<"LoadSettings:Warning: NBrS_formula=\""<<NBrS_formula_str<<"\" is not supported! Default \"ElasticXS\" is used."<<std::endl;
-        Ar_props.NBrS_formula = NBrSFormula::ElasticXS;
+        medium_props.NBrS_formula = NBrSFormula::ElasticXS;
       } else
-        Ar_props.NBrS_formula = *NBrS_formula;
-      Ar_props.force_recalculation = ar_props.get<bool>("force_recalculation", false);
-      Ar_props.distributions_energy_step_factor = ar_props.get<double>("distributions_energy_step_factor", 1.0);
-      Ar_props.field_step_factor = ar_props.get<double>("field_step_factor", 1.0);
-      Ar_props.spectra_step_factor = ar_props.get<double>("spectra_step_factor", 1.0);
+        medium_props.NBrS_formula = *NBrS_formula;
+      medium_props.force_recalculation = ar_props.get<bool>("force_recalculation", false);
+      medium_props.distributions_energy_step_factor = ar_props.get<double>("distributions_energy_step_factor", 1.0);
+      medium_props.field_step_factor = ar_props.get<double>("field_step_factor", 1.0);
+      medium_props.spectra_step_factor = ar_props.get<double>("spectra_step_factor", 1.0);
       }
 
       det_dims = CreateDetectorSettings(fname);
@@ -130,11 +131,11 @@ namespace gPars
       det_opt.TPB_emission_spectrum_filename = general.data_path+det_opt.TPB_emission_spectrum_filename;
       det_opt.TPB_rindex_filename = general.data_path+det_opt.TPB_rindex_filename;
 
-      Ar_props.XS_energy_transfer_filename = general.data_path + Ar_props.XS_energy_transfer_filename;
-      Ar_props.XS_momentum_transfer_filename = general.data_path + Ar_props.XS_momentum_transfer_filename;
-      Ar_props.LAr_drift_velocity = general.data_path + Ar_props.LAr_drift_velocity;
-      Ar_props.LAr_diffusion_transversal = general.data_path + Ar_props.LAr_diffusion_transversal;
-      Ar_props.LAr_diffusion_longitudinal = general.data_path + Ar_props.LAr_diffusion_longitudinal;
+      medium_props.XS_energy_transfer_filename = general.data_path + medium_props.XS_energy_transfer_filename;
+      medium_props.XS_momentum_transfer_filename = general.data_path + medium_props.XS_momentum_transfer_filename;
+      medium_props.exp_drift_velocity = general.data_path + medium_props.exp_drift_velocity;
+      medium_props.exp_diffusion_transversal = general.data_path + medium_props.exp_diffusion_transversal;
+      medium_props.exp_diffusion_longitudinal = general.data_path + medium_props.exp_diffusion_longitudinal;
 
     } catch (ptree_bad_path& e) {
       std::cout << "LoadSettings: ptree_bad_path exception:" << std::endl;

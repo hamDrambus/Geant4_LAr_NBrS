@@ -17,7 +17,7 @@ bool ArgonPropertiesTables::LoadCached(void)
 {
   bool calculations_required = false;
   std::ifstream str;
-  str.open(gPars::Ar_props.cache_folder + filename_drift_velocity);
+  str.open(gPars::medium_props.cache_folder + filename_drift_velocity);
   if (str.is_open()) {
     drift_velocity.read(str);
     if (!drift_velocity.isValid())
@@ -26,7 +26,7 @@ bool ArgonPropertiesTables::LoadCached(void)
   } else
     calculations_required = true;
 
-  str.open(gPars::Ar_props.cache_folder + filename_drift_diffusion_L);
+  str.open(gPars::medium_props.cache_folder + filename_drift_diffusion_L);
   if (str.is_open()) {
     drift_diffusion_L.read(str);
     if (!drift_diffusion_L.isValid())
@@ -35,7 +35,7 @@ bool ArgonPropertiesTables::LoadCached(void)
   } else
     calculations_required = true;
 
-  str.open(gPars::Ar_props.cache_folder + filename_drift_diffusion_T);
+  str.open(gPars::medium_props.cache_folder + filename_drift_diffusion_T);
   if (str.is_open()) {
     drift_diffusion_T.read(str);
     if (!drift_diffusion_T.isValid())
@@ -44,7 +44,7 @@ bool ArgonPropertiesTables::LoadCached(void)
   } else
     calculations_required = true;
 
-  str.open(gPars::Ar_props.cache_folder + filename_yield);
+  str.open(gPars::medium_props.cache_folder + filename_yield);
   if (str.is_open()) {
     yield.read(str);
     if (!yield.isValid())
@@ -53,7 +53,7 @@ bool ArgonPropertiesTables::LoadCached(void)
   } else
     calculations_required = true;
 
-  str.open(gPars::Ar_props.cache_folder + filename_spectra, std::ios_base::binary);
+  str.open(gPars::medium_props.cache_folder + filename_spectra, std::ios_base::binary);
   if (str.is_open()) {
     spectra.read(str);
     if (spectra.is_empty())
@@ -67,13 +67,13 @@ bool ArgonPropertiesTables::LoadCached(void)
 
 void ArgonPropertiesTables::Initialize(void)
 {
-  pedantic = gPars::Ar_props.pedantic_calculations;
-  verbosity = gPars::Ar_props.print_calculations ? 2 : verbosity;
+  pedantic = gPars::medium_props.pedantic_calculations;
+  verbosity = gPars::medium_props.print_calculations ? 2 : verbosity;
   if (verbosity > 0)
     std::cout<<"Starting argon properties initialization..."<<std::endl;
 
   std::ifstream str;
-  str.open(gPars::Ar_props.XS_energy_transfer_filename);
+  str.open(gPars::medium_props.XS_energy_transfer_filename);
   if (str.is_open()) {
     XS_energy_transfer.read(str);
     XS_energy_transfer.scaleXY(eV, cm*cm); // Check files' units
@@ -84,7 +84,7 @@ void ArgonPropertiesTables::Initialize(void)
           "InvalidData", FatalException, "Electron-argon energy transfer cross-section is not loaded!");
     return;
   }
-  str.open(gPars::Ar_props.XS_momentum_transfer_filename);
+  str.open(gPars::medium_props.XS_momentum_transfer_filename);
   if (str.is_open()) {
     XS_momentum_transfer.read(str);
     XS_momentum_transfer.scaleXY(eV, cm*cm); // Check files' units
@@ -96,7 +96,7 @@ void ArgonPropertiesTables::Initialize(void)
     return;
   }
 
-  if (!gPars::Ar_props.force_recalculation) {
+  if (!gPars::medium_props.force_recalculation) {
     if (LoadCached()) {
       if (verbosity > 0)
         std::cout<<"Finished argon properties initialization."<<std::endl;
@@ -104,9 +104,9 @@ void ArgonPropertiesTables::Initialize(void)
     }
   }
 
-  copy_file(gPars::general.settings_filename, gPars::Ar_props.cache_folder + "settings_used_for_calculations.xml");
+  copy_file(gPars::general.settings_filename, gPars::medium_props.cache_folder + "settings_used_for_calculations.xml");
   const double kVcm = kilovolt / cm;
-  double sfc = gPars::Ar_props.field_step_factor; // Step factor to test results dependencies on step size.
+  double sfc = gPars::medium_props.field_step_factor; // Step factor to test results dependencies on step size.
   interval_field_NBrS = IntegrationInterval(80 * kVcm, 1050.0 * kVcm, sfc * 5 * kVcm);
   interval_field_NBrS += IntegrationInterval(10.0 * kVcm, 80.0 * kVcm, sfc * 1 * kVcm);
   interval_field_NBrS += IntegrationInterval(3.0 * kVcm, 12.0 * kVcm, sfc * 0.2 * kVcm);
@@ -120,13 +120,13 @@ void ArgonPropertiesTables::Initialize(void)
   max_field = interval_field_drift.max();
   min_field = interval_field_drift.min();
 
-  sfc = gPars::Ar_props.distributions_energy_step_factor;
+  sfc = gPars::medium_props.distributions_energy_step_factor;
   interval_XS = IntegrationInterval(0 * eV, 0.001 * eV, sfc * 0.0002 * eV);
   interval_XS += IntegrationInterval(0 * eV, 0.01 * eV, sfc * 0.001 * eV);
   interval_XS += IntegrationInterval(0.01 * eV, 1 * eV, sfc * 0.04 * eV);
   interval_XS += IntegrationInterval(1 * eV, 30 * eV, sfc * 0.4 * eV);
 
-  sfc = gPars::Ar_props.spectra_step_factor;
+  sfc = gPars::medium_props.spectra_step_factor;
   interval_photon_En = IntegrationInterval(hc / (1000 * nm), hc / (50 * nm), sfc * 0.2 * 0.02 * eV); // from 50 to 1000 nm photons
   interval_photon_En += IntegrationInterval(hc / (1000 * nm), hc / (700 * nm), sfc * 0.2 * 0.002 * eV);
   min_f_value_probability = 1e-10 * pow(joule, -1.5); // to avoid division by 0
@@ -134,8 +134,8 @@ void ArgonPropertiesTables::Initialize(void)
   if (2 == verbosity)
     PlotInputXSs();
 
-  bool recalculate = gPars::Ar_props.force_recalculation;
-  str.open(gPars::Ar_props.cache_folder + filename_electron_distributions, std::ios_base::binary);
+  bool recalculate = gPars::medium_props.force_recalculation;
+  str.open(gPars::medium_props.cache_folder + filename_electron_distributions, std::ios_base::binary);
   if (!str.is_open())
     recalculate = true;
   else {
@@ -146,21 +146,21 @@ void ArgonPropertiesTables::Initialize(void)
   }
   if (recalculate) {
     CalcElectronDistributions();
-    electron_distributions.write(gPars::Ar_props.cache_folder + filename_electron_distributions);
+    electron_distributions.write(gPars::medium_props.cache_folder + filename_electron_distributions);
   }
   if (electron_distributions.is_empty()) {
     G4Exception("GlobalData::ArgonPropertiesTables::Initialize: ",
           "InvalidData", FatalException, "Electron energy distributions are empty.");
     return;
   }
-  recalculate = gPars::Ar_props.force_recalculation;
+  recalculate = gPars::medium_props.force_recalculation;
 
   if (!drift_velocity.isValid()) {
     CalcDriftVelocity(); // F_distributions depend on drift velocity
-    drift_velocity.write(gPars::Ar_props.cache_folder + filename_drift_velocity, "Field[MV/mm]\tVelocity[mm/ns]\t(Geant4 units)");
+    drift_velocity.write(gPars::medium_props.cache_folder + filename_drift_velocity, "Field[MV/mm]\tVelocity[mm/ns]\t(Geant4 units)");
   }
 
-  str.open(gPars::Ar_props.cache_folder + filename_F_distributions, std::ios_base::binary);
+  str.open(gPars::medium_props.cache_folder + filename_F_distributions, std::ios_base::binary);
   if (!str.is_open())
     recalculate = true;
   else {
@@ -171,22 +171,22 @@ void ArgonPropertiesTables::Initialize(void)
   }
   if (recalculate) {
     CalcFDistributions();
-    F_distributions.write(gPars::Ar_props.cache_folder + filename_F_distributions);
+    F_distributions.write(gPars::medium_props.cache_folder + filename_F_distributions);
   }
   if (F_distributions.is_empty()) {
     G4Exception("GlobalData::ArgonPropertiesTables::Initialize: ",
           "InvalidData", FatalException, "F distributions are empty.");
     return;
   }
-  recalculate = gPars::Ar_props.force_recalculation;
+  recalculate = gPars::medium_props.force_recalculation;
 
   if (!drift_diffusion_T.isValid() || recalculate) {
     CalcDiffusionT();
-    drift_diffusion_T.write(gPars::Ar_props.cache_folder + filename_drift_diffusion_T, "Field[MV/mm]\tDiffusion transverse[mm^2/ns]\t(Geant4 units)");
+    drift_diffusion_T.write(gPars::medium_props.cache_folder + filename_drift_diffusion_T, "Field[MV/mm]\tDiffusion transverse[mm^2/ns]\t(Geant4 units)");
   }
   if (!drift_diffusion_L.isValid() || recalculate) {
     CalcDiffusionL();
-    drift_diffusion_L.write(gPars::Ar_props.cache_folder + filename_drift_diffusion_L, "Field[MV/mm]\tDiffusion longitudinal[mm^2/ns]\t(Geant4 units)");
+    drift_diffusion_L.write(gPars::medium_props.cache_folder + filename_drift_diffusion_L, "Field[MV/mm]\tDiffusion longitudinal[mm^2/ns]\t(Geant4 units)");
   }
   if (verbosity == 2) {
     std::cout<<"Plotting electron diffusion coefficients..."<<std::endl;
@@ -194,8 +194,8 @@ void ArgonPropertiesTables::Initialize(void)
   }
   if (!yield.isValid() || spectra.is_empty() || recalculate) {
     CalcYeildAndSpectra();
-    spectra.write(gPars::Ar_props.cache_folder + filename_spectra);
-    yield.write(gPars::Ar_props.cache_folder + filename_yield, "Field[MV/mm]\tYield[photons/mm]\t(Geant4 units)");
+    spectra.write(gPars::medium_props.cache_folder + filename_spectra);
+    yield.write(gPars::medium_props.cache_folder + filename_yield, "Field[MV/mm]\tYield[photons/mm]\t(Geant4 units)");
   }
 
   F_distributions.clear();
@@ -222,10 +222,10 @@ IntegrationRange ArgonPropertiesTables::GetIntervalElectronDistributions(double 
   const double E2 = Es_end(ref_field);
   // Integration interval, describing region of interest for electron distribution
   // at 1 Td (210 kV/cm)
-  const double sfc = gPars::Ar_props.distributions_energy_step_factor; // Step factor to test results dependency on step size.
+  const double sfc = gPars::medium_props.distributions_energy_step_factor; // Step factor to test results dependency on step size.
   IntegrationInterval reference_flat = IntegrationInterval(0 * eV, E1, sfc * 0.4 * eV); // flat part
   IntegrationInterval reference_decline = IntegrationInterval(E1, E2, sfc * 0.1 * eV); // fast changing (large derivative)
-  const double reduced_field = field / gPars::Ar_props.atomic_density;
+  const double reduced_field = field / gPars::medium_props.atomic_density;
   reference_flat.Rescale(0, Es_flat(reduced_field));
   reference_decline.Rescale(Es_flat(reduced_field), Es_end(reduced_field));
   return reference_flat + reference_decline;
@@ -249,11 +249,11 @@ IntegrationRange ArgonPropertiesTables::GetIntervalFDistributions(double field) 
   const double E3 = Es_3(ref_field);
   // Integration interval, describing region of interest for electron distribution
   // at 0.333 Td (70 kV/cm)
-  const double sfc = gPars::Ar_props.distributions_energy_step_factor; // Step factor to test results dependency on step size.
+  const double sfc = gPars::medium_props.distributions_energy_step_factor; // Step factor to test results dependency on step size.
   IntegrationInterval reference_rise = IntegrationInterval(0 * eV, E1, sfc * 0.02 * eV); // fast changing (large derivative)
   IntegrationInterval reference_flat = IntegrationInterval(E1, E2, sfc * 0.4 * eV);
   IntegrationInterval reference_decline = IntegrationInterval(E2, E3, sfc * 0.04 * eV); // fast changing (large derivative)
-  const double reduced_field = field / gPars::Ar_props.atomic_density;
+  const double reduced_field = field / gPars::medium_props.atomic_density;
   reference_rise.Rescale(0, Es_1(reduced_field));
   reference_flat.Rescale(Es_1(reduced_field), Es_2(reduced_field));
   reference_decline.Rescale(Es_2(reduced_field), Es_3(reduced_field));
@@ -284,9 +284,9 @@ DataVector ArgonPropertiesTables::CalcElectronDistribution(double field) const /
   out.use_leftmost(false); out.use_rightmost(false);
   out.setOrder(1); out.setNused(2); // Linear interpolation (energy points are quite dense).
   DataVector f_tmp = out; // To calculate normalization.
-  const double delta = 2.0 * gPars::Ar_props.m_to_M;
+  const double delta = 2.0 * gPars::medium_props.m_to_M;
   const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
-  const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
+  const double Ar_density = gPars::medium_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
   const double eq_10_coeff = 1.5 * e_mass_SI / e_SI / e_SI / field_SI / field_SI;
 
@@ -346,10 +346,10 @@ void ArgonPropertiesTables::CalcDriftVelocity(void)
 
 double ArgonPropertiesTables::CalcDriftVelocity(double field) const
 { //eq. 11 in Borisova2021 (doi:doi:10.1209/0295-5075/ac4c03)
-  const double delta = 2.0 * gPars::Ar_props.m_to_M;
+  const double delta = 2.0 * gPars::medium_props.m_to_M;
   const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
   const double sqrt_vel = sqrt(joule * eV_to_vel);
-  const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
+  const double Ar_density = gPars::medium_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
   const double eq_11_coeff = 2.0 / 3.0 * e_SI * field_SI / e_mass_SI;
   IntegrationRange range = GetIntervalElectronDistributions(field) + interval_XS;
@@ -405,10 +405,10 @@ DataVector ArgonPropertiesTables::CalcFDistribution(double field) const
   range.Trim(0.0, GetIntervalFDistributions(field).max());
 
   // It is always good to reduce number of multiplications inside loops. So constant factors are cached.
-  const double delta = 2.0 * gPars::Ar_props.m_to_M;
+  const double delta = 2.0 * gPars::medium_props.m_to_M;
   const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
   const double sqrt_vel = sqrt(joule * eV_to_vel);
-  const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
+  const double Ar_density = gPars::medium_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
   const double eq_5_coeff = 1.5 * e_mass_SI / e_SI / field_SI * (drift_velocity(field) * s / m);
 
@@ -495,7 +495,7 @@ void ArgonPropertiesTables::CalcYeildAndSpectra(void)
 
 DataVector ArgonPropertiesTables::CalcDiffXS(double field) const
 {
-  switch (gPars::Ar_props.NBrS_formula) {
+  switch (gPars::medium_props.NBrS_formula) {
   case(gPars::NBrSFormula::ElasticXS):
     return CalcDiffXS_ElasticFormula(field);
   case(gPars::NBrSFormula::TransferXS):
@@ -503,7 +503,7 @@ DataVector ArgonPropertiesTables::CalcDiffXS(double field) const
   default:
     G4Exception("ArgonPropertiesTables::CalcDiffXS: ",
           "InvalidValue", FatalException, (std::string("gPars::Ar_props.NBrS_formula type ")
-          + std::to_string(gPars::Ar_props.NBrS_formula) + " is not implemented!").c_str());
+          + std::to_string(gPars::medium_props.NBrS_formula) + " is not implemented!").c_str());
     return DataVector();
   }
 }
@@ -518,9 +518,9 @@ DataVector ArgonPropertiesTables::CalcDiffXS_ElasticFormula(double field) const
   out.setOrder(1); out.setNused(2); // Linear interpolation (energy points are quite dense).
   if (interval_photon_En.NumOfIndices() <= 0)
     return out;
-  const double delta = 2.0 * gPars::Ar_props.m_to_M;
+  const double delta = 2.0 * gPars::medium_props.m_to_M;
   const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
-  const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
+  const double Ar_density = gPars::medium_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
   const double eq_6_coeff = 8.0 / 3.0 * Ar_density * (classic_electr_radius/m) / (hc/(m*joule)) * sqrt(2.0 / e_mass_SI)
       / (drift_velocity(field) * s / m); // In SI
@@ -570,9 +570,9 @@ DataVector ArgonPropertiesTables::CalcDiffXS_TransferFormula(double field) const
   out.setOrder(1); out.setNused(2); // Linear interpolation (energy points are quite dense).
   if (interval_photon_En.NumOfIndices() <= 0)
     return out;
-  const double delta = 2.0 * gPars::Ar_props.m_to_M;
+  const double delta = 2.0 * gPars::medium_props.m_to_M;
   const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
-  const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
+  const double Ar_density = gPars::medium_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
   const double eq_6_coeff = 8.0 / 3.0 * Ar_density * (classic_electr_radius/m) / (hc/(m*joule)) * sqrt(2.0 / e_mass_SI)
       / (drift_velocity(field) * s / m); // In SI
@@ -636,8 +636,8 @@ void ArgonPropertiesTables::CalcDiffusionT(void)
 double ArgonPropertiesTables::CalcDiffusionT(double field) const
 {
   //eq. 4 in Atrazhev1985 (doi:10.1088/0022-3719/18/6/015), rewritten without nu_m
-  const double delta = 2.0 * gPars::Ar_props.m_to_M;
-  const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
+  const double delta = 2.0 * gPars::medium_props.m_to_M;
+  const double Ar_density = gPars::medium_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
   const double eq_4_coeff = sqrt(2.0) / 3.0 / sqrt(e_mass_SI) / Ar_density;
 
@@ -691,10 +691,10 @@ double ArgonPropertiesTables::CalcDiffusionL(double field) const
   // seems correct. Fixed formula is in data/Atrazhev1985_corrected_equation_5.png
   // Or in latex format:
   // D_{||} = D_{0} - \frac{2}{3m} \int_{0}^{\infty}\left( \frac{\epsilon^{3/2}}{\nu_{m}(\epsilon)} \frac{d F (\epsilon)}{d \epsilon} + \frac{3mW}{2e\mathscr{E}} \sqrt{\epsilon} F(\epsilon) \right) d \epsilon
-  const double delta = 2.0 * gPars::Ar_props.m_to_M;
+  const double delta = 2.0 * gPars::medium_props.m_to_M;
   const double eV_to_vel = 2.0 / eV * e_SI / e_mass_SI;
   const double sqrt_vel = sqrt(joule * eV_to_vel);
-  const double Ar_density = gPars::Ar_props.atomic_density * m*m*m;
+  const double Ar_density = gPars::medium_props.atomic_density * m*m*m;
   const double field_SI = field / volt * m;
   const double eq_5_coeff = 2.0 / 3.0 / e_mass_SI;
   const double int2_coeff = 3.0 / 2.0 * (drift_velocity(field) * s / m) * e_mass_SI / e_SI / field_SI;
@@ -766,7 +766,7 @@ void ArgonPropertiesTables::PlotInputXSs(void) const
   std::stringstream gnuplotCommands;
   gnuplotCommands
       <<"set terminal png size 1000,800 enhanced"<<std::endl
-      <<"set output '"+gPars::Ar_props.cache_folder+"electron_Ar_XSs.png'"<<std::endl
+      <<"set output '"+gPars::medium_props.cache_folder+"electron_Ar_XSs.png'"<<std::endl
       <<"set grid"<<std::endl
       <<"set logscale xy"<<std::endl
       <<"set xrange[0.001:50]"<<std::endl
@@ -789,7 +789,7 @@ void ArgonPropertiesTables::PlotInputXSs(void) const
   fputs(gnuplotCommands.str().c_str(), gnuplotPipe);
   fflush(gnuplotPipe);
 
-  open_output_file(gPars::Ar_props.cache_folder + filename_XS_energy, str, std::ios_base::trunc);
+  open_output_file(gPars::medium_props.cache_folder + filename_XS_energy, str, std::ios_base::trunc);
   if (str.is_open())
     str << "//Energy[eV]\tElastic XS[cm^2]" <<std::endl;
   gnuplotCommands.str(std::string());
@@ -824,7 +824,7 @@ void ArgonPropertiesTables::PlotInputXSs(void) const
   fflush(gnuplotPipe);
   gnuplotCommands.str(std::string());
 
-  open_output_file(gPars::Ar_props.cache_folder + filename_XS_momentum, str, std::ios_base::trunc);
+  open_output_file(gPars::medium_props.cache_folder + filename_XS_momentum, str, std::ios_base::trunc);
   if (str.is_open())
     str << "//Energy[eV]\tMomentun transfer XS[cm^2]" <<std::endl;
   gnuplotCommands
@@ -868,11 +868,11 @@ void ArgonPropertiesTables::PlotElectronDistributions(void) const
     }
     return;
   }
-  delete_file(gPars::Ar_props.cache_folder+"electron_distributions_low_E.gif");
+  delete_file(gPars::medium_props.cache_folder+"electron_distributions_low_E.gif");
   std::stringstream gnuplotCommands;
   gnuplotCommands
       << "set terminal gif size 800,800 animate delay 100 enhanced"<<std::endl
-      <<"set output '"+gPars::Ar_props.cache_folder+"electron_distributions_low_E.gif'"<<std::endl
+      <<"set output '"+gPars::medium_props.cache_folder+"electron_distributions_low_E.gif'"<<std::endl
       <<"set grid"<<std::endl
       <<"set xrange [0:"<< GetIntervalElectronDistributions(low_high_threshold_field).max() / eV<<"]"<<std::endl
       <<"set xlabel \"Energy [eV]\""<<std::endl
@@ -896,7 +896,7 @@ void ArgonPropertiesTables::PlotElectronDistributions(void) const
     }
     gnuplotCommands << "EOD"<<std::endl;
     std::string title = "E = " + dbl_to_str(electron_distributions.getX(i) * cm / kilovolt, 3)
-        + " kV/cm, E/N = " + dbl_to_str(electron_distributions.getX(i) / gPars::Ar_props.atomic_density / Td, 3)
+        + " kV/cm, E/N = " + dbl_to_str(electron_distributions.getX(i) / gPars::medium_props.atomic_density / Td, 3)
         + " Td";
     gnuplotCommands << "plot $Mydata using 1:2 w l lw 2 lc rgb 'black' title \"" << title <<"\""<<std::endl;
     fputs(gnuplotCommands.str().c_str(), gnuplotPipe);
@@ -904,10 +904,10 @@ void ArgonPropertiesTables::PlotElectronDistributions(void) const
   }
 
   gnuplotCommands.str(std::string());
-  delete_file(gPars::Ar_props.cache_folder+"electron_distributions_high_E.gif");
+  delete_file(gPars::medium_props.cache_folder+"electron_distributions_high_E.gif");
   gnuplotCommands
       << "set terminal gif size 800,800 animate delay 100 enhanced"<<std::endl
-      <<"set output '"+gPars::Ar_props.cache_folder+"electron_distributions_high_E.gif'"<<std::endl
+      <<"set output '"+gPars::medium_props.cache_folder+"electron_distributions_high_E.gif'"<<std::endl
       <<"set xrange [0:"<< GetIntervalElectronDistributions(max_field).max() / eV<<"]"<<std::endl
       <<"set yrange [1e-5:10]"<<std::endl<<std::endl;
   fputs(gnuplotCommands.str().c_str(), gnuplotPipe);
@@ -927,7 +927,7 @@ void ArgonPropertiesTables::PlotElectronDistributions(void) const
     }
     gnuplotCommands << "EOD"<<std::endl;
     std::string title = "E = " + dbl_to_str(electron_distributions.getX(i) * cm / kilovolt, 3)
-        + " kV/cm, E/N = " + dbl_to_str(electron_distributions.getX(i) / gPars::Ar_props.atomic_density / Td, 3)
+        + " kV/cm, E/N = " + dbl_to_str(electron_distributions.getX(i) / gPars::medium_props.atomic_density / Td, 3)
         + " Td";
     gnuplotCommands << "plot $Mydata using 1:2 w l lw 2 lc rgb 'black' title \"" << title <<"\""<<std::endl;
     fputs(gnuplotCommands.str().c_str(), gnuplotPipe);
@@ -935,10 +935,10 @@ void ArgonPropertiesTables::PlotElectronDistributions(void) const
   }
 
   gnuplotCommands.str(std::string());
-  delete_file(gPars::Ar_props.cache_folder+"electron_distributions_dynamic.gif");
+  delete_file(gPars::medium_props.cache_folder+"electron_distributions_dynamic.gif");
   gnuplotCommands
       << "set terminal gif size 800,800 animate delay 100 enhanced"<<std::endl
-      <<"set output '"+gPars::Ar_props.cache_folder+"electron_distributions_dynamic.gif'"<<std::endl
+      <<"set output '"+gPars::medium_props.cache_folder+"electron_distributions_dynamic.gif'"<<std::endl
       <<"set xrange [0:*]"<<std::endl
       <<"set yrange [ 1e-7 < * :*]"<<std::endl<<std::endl;
   fputs(gnuplotCommands.str().c_str(), gnuplotPipe);
@@ -956,7 +956,7 @@ void ArgonPropertiesTables::PlotElectronDistributions(void) const
     }
     gnuplotCommands << "EOD"<<std::endl;
     std::string title = "E = " + dbl_to_str(electron_distributions.getX(i) * cm / kilovolt, 3)
-        + " kV/cm, E/N = " + dbl_to_str(electron_distributions.getX(i) / gPars::Ar_props.atomic_density / Td, 3)
+        + " kV/cm, E/N = " + dbl_to_str(electron_distributions.getX(i) / gPars::medium_props.atomic_density / Td, 3)
         + " Td";
     gnuplotCommands << "plot $Mydata using 1:2 w l lw 2 lc rgb 'black' title \"" << title <<"\""<<std::endl;
     fputs(gnuplotCommands.str().c_str(), gnuplotPipe);
@@ -978,10 +978,10 @@ void ArgonPropertiesTables::PlotDriftVelocity(void) const
   std::stringstream gnuplotCommands;
   gnuplotCommands
       <<"set terminal png size 1000,800 enhanced"<<std::endl
-      <<"set output '"+gPars::Ar_props.cache_folder+"electron_drift_velocity.png'"<<std::endl
+      <<"set output '"+gPars::medium_props.cache_folder+"electron_drift_velocity.png'"<<std::endl
       <<"set grid"<<std::endl
-      <<"set xrange["<<interval_field_drift.min() / gPars::Ar_props.atomic_density / Td
-      <<":"<<interval_field_drift.max() / gPars::Ar_props.atomic_density / Td << "]"<<std::endl
+      <<"set xrange["<<interval_field_drift.min() / gPars::medium_props.atomic_density / Td
+      <<":"<<interval_field_drift.max() / gPars::medium_props.atomic_density / Td << "]"<<std::endl
       <<"set xlabel \"Field [Td]\""<<std::endl
       <<"set logscale x"<<std::endl
       <<"set yrange [0:1e6]"<<std::endl
@@ -993,10 +993,10 @@ void ArgonPropertiesTables::PlotDriftVelocity(void) const
     << "undefine $Mydata"<<std::endl
     << "$Mydata << EOD"<<std::endl;
   for(std::size_t j = 0, j_end_ = drift_velocity.size(); j!=j_end_; ++j) {
-    double X = drift_velocity.getX(j) / gPars::Ar_props.atomic_density / Td;
+    double X = drift_velocity.getX(j) / gPars::medium_props.atomic_density / Td;
     double Y = drift_velocity.getY(j) * s / cm;
     gnuplotCommands // Passing data through pipe together with commands
-    << drift_velocity.getX(j) / gPars::Ar_props.atomic_density / Td // Geant4 field to Townsends
+    << drift_velocity.getX(j) / gPars::medium_props.atomic_density / Td // Geant4 field to Townsends
     << "\t" << drift_velocity.getY(j) * s / cm
     << std::endl;
   }
@@ -1019,10 +1019,10 @@ void ArgonPropertiesTables::PlotFDistributions(void) const
     return;
   }
   std::stringstream gnuplotCommands;
-  delete_file(gPars::Ar_props.cache_folder+"electron_F_distributions_low_E.gif");
+  delete_file(gPars::medium_props.cache_folder+"electron_F_distributions_low_E.gif");
   gnuplotCommands
       <<"set terminal gif size 800,800 animate delay 100 enhanced"<<std::endl
-      <<"set output '"+gPars::Ar_props.cache_folder+"electron_F_distributions_low_E.gif'"<<std::endl
+      <<"set output '"+gPars::medium_props.cache_folder+"electron_F_distributions_low_E.gif'"<<std::endl
       <<"set grid"<<std::endl
       <<"set xrange[0:" << GetIntervalFDistributions(low_high_threshold_field).max() / eV << "]"<<std::endl
       <<"set xlabel \"Energy [eV]\""<<std::endl
@@ -1046,17 +1046,17 @@ void ArgonPropertiesTables::PlotFDistributions(void) const
     }
     gnuplotCommands << "EOD"<<std::endl;
     std::string title = "E = " + dbl_to_str(F_distributions.getX(i) * cm / kilovolt, 3)
-        + " kV/cm, E/N = " + dbl_to_str(F_distributions.getX(i) / gPars::Ar_props.atomic_density / Td, 3)
+        + " kV/cm, E/N = " + dbl_to_str(F_distributions.getX(i) / gPars::medium_props.atomic_density / Td, 3)
         + " Td";
     gnuplotCommands << "plot $Mydata using 1:2 w l lw 2 lc rgb 'black' title \"" << title <<"\""<<std::endl;
     fputs(gnuplotCommands.str().c_str(), gnuplotPipe);
     fflush(gnuplotPipe);
   }
   gnuplotCommands.str(std::string());
-  delete_file(gPars::Ar_props.cache_folder+"electron_F_distributions_high_E.gif");
+  delete_file(gPars::medium_props.cache_folder+"electron_F_distributions_high_E.gif");
   gnuplotCommands
       <<"set terminal gif size 800,800 animate delay 100 enhanced"<<std::endl
-      <<"set output '"+gPars::Ar_props.cache_folder+"electron_F_distributions_high_E.gif'"<<std::endl
+      <<"set output '"+gPars::medium_props.cache_folder+"electron_F_distributions_high_E.gif'"<<std::endl
       <<"set xrange[0:" << GetIntervalFDistributions(max_field).max() / eV << "]"<<std::endl
       <<"set yrange [1e-4:10]"<<std::endl
       <<"set ylabel \"F\\' [eV^{-1/2}]\""<<std::endl;
@@ -1077,7 +1077,7 @@ void ArgonPropertiesTables::PlotFDistributions(void) const
     }
     gnuplotCommands << "EOD"<<std::endl;
     std::string title = "E = " + dbl_to_str(F_distributions.getX(i) * cm / kilovolt, 3)
-        + " kV/cm, E/N = " + dbl_to_str(F_distributions.getX(i) / gPars::Ar_props.atomic_density / Td, 3)
+        + " kV/cm, E/N = " + dbl_to_str(F_distributions.getX(i) / gPars::medium_props.atomic_density / Td, 3)
         + " Td";
     gnuplotCommands << "plot $Mydata using 1:2 w l lw 2 lc rgb 'black' title \"" << title <<"\""<<std::endl;
     fputs(gnuplotCommands.str().c_str(), gnuplotPipe);
@@ -1085,10 +1085,10 @@ void ArgonPropertiesTables::PlotFDistributions(void) const
   }
 
   gnuplotCommands.str(std::string());
-  delete_file(gPars::Ar_props.cache_folder+"electron_F_distributions_dynamic.gif");
+  delete_file(gPars::medium_props.cache_folder+"electron_F_distributions_dynamic.gif");
   gnuplotCommands
       <<"set terminal gif size 800,800 animate delay 100 enhanced"<<std::endl
-      <<"set output '"+gPars::Ar_props.cache_folder+"electron_F_distributions_dynamic.gif'"<<std::endl
+      <<"set output '"+gPars::medium_props.cache_folder+"electron_F_distributions_dynamic.gif'"<<std::endl
       <<"set xrange [*:*]"<<std::endl
       <<"set logscale x"<<std::endl
       <<"set yrange [ 1e-7< * :*]"<<std::endl<<std::endl;
@@ -1107,7 +1107,7 @@ void ArgonPropertiesTables::PlotFDistributions(void) const
     }
     gnuplotCommands << "EOD"<<std::endl;
     std::string title = "E = " + dbl_to_str(F_distributions.getX(i) * cm / kilovolt, 3)
-        + " kV/cm, E/N = " + dbl_to_str(F_distributions.getX(i) / gPars::Ar_props.atomic_density / Td, 3)
+        + " kV/cm, E/N = " + dbl_to_str(F_distributions.getX(i) / gPars::medium_props.atomic_density / Td, 3)
         + " Td";
     gnuplotCommands << "plot $Mydata using 1:2 w l lw 2 lc rgb 'black' title \"" << title <<"\""<<std::endl;
     fputs(gnuplotCommands.str().c_str(), gnuplotPipe);
@@ -1129,7 +1129,7 @@ void ArgonPropertiesTables::PlotYield(void) const
   std::stringstream gnuplotCommands;
   gnuplotCommands
       <<"set terminal png size 1200,800 enhanced"<<std::endl
-      <<"set output '"+gPars::Ar_props.cache_folder+"NBrS_yield.png'"<<std::endl
+      <<"set output '"+gPars::medium_props.cache_folder+"NBrS_yield.png'"<<std::endl
       <<"set grid"<<std::endl
       <<"set xrange[0:"<<interval_field_NBrS.max() / kilovolt * cm << "]"<<std::endl
       <<"set xlabel \"Electric field [kV/cm]\""<<std::endl
@@ -1168,7 +1168,7 @@ void ArgonPropertiesTables::PlotSpectra(void) const
   std::stringstream gnuplotCommands;
   gnuplotCommands
       << "set terminal gif size 1200,800 animate delay 100 enhanced"<<std::endl
-      <<"set output '"+gPars::Ar_props.cache_folder+"NBrS_spectra.gif'"<<std::endl
+      <<"set output '"+gPars::medium_props.cache_folder+"NBrS_spectra.gif'"<<std::endl
       <<"set grid"<<std::endl
       <<"set xrange[0:1000]"<<std::endl
       <<"set xlabel \"Wavelength [nm]\""<<std::endl
@@ -1195,7 +1195,7 @@ void ArgonPropertiesTables::PlotSpectra(void) const
     }
     gnuplotCommands << "EOD"<<std::endl;
     std::string title = "E = " + dbl_to_str(spectra.getX(i) * cm / kilovolt, 3)
-        + " kV/cm, E/N = " + dbl_to_str(spectra.getX(i) / gPars::Ar_props.atomic_density / Td, 3)
+        + " kV/cm, E/N = " + dbl_to_str(spectra.getX(i) / gPars::medium_props.atomic_density / Td, 3)
         + " Td";
     gnuplotCommands << "plot $Mydata using 1:2 w l lw 2 lc rgb 'black' title '" << title <<"'"<<std::endl;
     fputs(gnuplotCommands.str().c_str(), gnuplotPipe);
@@ -1217,10 +1217,10 @@ void ArgonPropertiesTables::PlotDiffusions(void) const
   std::stringstream gnuplotCommands;
   gnuplotCommands
       <<"set terminal png size 1200,800 enhanced"<<std::endl
-      <<"set output '"+gPars::Ar_props.cache_folder+"electron_diffusion.png'"<<std::endl
+      <<"set output '"+gPars::medium_props.cache_folder+"electron_diffusion.png'"<<std::endl
       <<"set grid"<<std::endl
-      <<"set xrange["<<min_field / gPars::Ar_props.atomic_density / Td
-      <<":"<<max_field / gPars::Ar_props.atomic_density / Td << "]"<<std::endl
+      <<"set xrange["<<min_field / gPars::medium_props.atomic_density / Td
+      <<":"<<max_field / gPars::medium_props.atomic_density / Td << "]"<<std::endl
       <<"set logscale x"<<std::endl
       <<"set xlabel \"Field (Td)\""<<std::endl
       <<"set yrange [0:60]"<<std::endl
@@ -1233,7 +1233,7 @@ void ArgonPropertiesTables::PlotDiffusions(void) const
     << "$Mydata1 << EOD"<<std::endl;
   for(std::size_t j = 0, j_end_ = drift_diffusion_T.size(); j!=j_end_; ++j) {
     gnuplotCommands // Passing data through pipe together with commands
-    << drift_diffusion_T.getX(j) / gPars::Ar_props.atomic_density / Td // Geant4 field to Townsends
+    << drift_diffusion_T.getX(j) / gPars::medium_props.atomic_density / Td // Geant4 field to Townsends
     << "\t" << drift_diffusion_T.getY(j) * s / cm / cm
     << ""<<std::endl;
   }
@@ -1247,7 +1247,7 @@ void ArgonPropertiesTables::PlotDiffusions(void) const
     << "$Mydata2 << EOD"<<std::endl;
   for(std::size_t j = 0, j_end_ = drift_diffusion_L.size(); j!=j_end_; ++j) {
     gnuplotCommands // Passing data through pipe together with commands
-    << drift_diffusion_L.getX(j) / gPars::Ar_props.atomic_density / Td // Geant4 field to Townsends
+    << drift_diffusion_L.getX(j) / gPars::medium_props.atomic_density / Td // Geant4 field to Townsends
     << "\t" << drift_diffusion_L.getY(j) * s / cm / cm
     << ""<<std::endl;
   }

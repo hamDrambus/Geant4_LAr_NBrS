@@ -88,16 +88,23 @@ namespace gPars
 	  TransferXS
 	};
 
-	struct ArgonProperties {
+	enum Medium {
+		LiquidAr,
+		LiquidKr,
+		LiquidXe
+	};
+
+	struct MediumProperties {
+		Medium medium_type;
 	  bool print_calculations;
 	  bool pedantic_calculations; // if true then incorrect computations (such as division by 0,
 	  //infinities, DBL_MAX) throw error. Otherwise default values are used.
 	  std::string XS_energy_transfer_filename;
 	  std::string XS_momentum_transfer_filename;
 	  std::string cache_folder;
-	  std::string LAr_drift_velocity; // Used only when there is no theoretically calculated one
-    std::string LAr_diffusion_longitudinal; // Used only when there is no theoretically calculated one
-    std::string LAr_diffusion_transversal; // Used only when there is no theoretically calculated one
+	  std::string exp_drift_velocity; // Used only when there is no theoretically calculated one
+    std::string exp_diffusion_longitudinal; // Used only when there is no theoretically calculated one
+    std::string exp_diffusion_transversal; // Used only when there is no theoretically calculated one
 	  double atomic_density; // in Geant4 units [mm^-3]
     static constexpr double m_to_M = 5.109989461e5 / 3.726e10; // m_electron / M_Ar_atom ratio (eV to eV)
     NBrSFormula NBrS_formula;
@@ -121,7 +128,7 @@ namespace gPars
 	extern VSourceSettings *source;
 	extern ElmerFieldMap field_map;
 	extern DetectorOptics det_opt;
-	extern ArgonProperties Ar_props;
+	extern MediumProperties medium_props;
 	extern Results results;
 }
 
