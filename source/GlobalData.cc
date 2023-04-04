@@ -133,7 +133,7 @@ void GlobalData::ProgressBarHelper::finish(void)
 
 GlobalData::GlobalData() :
     field_map(nullptr),
-    LAr_medium(nullptr),
+    drift_medium(nullptr),
     progress_bar()
 {}
 
@@ -141,13 +141,34 @@ GlobalData::~GlobalData()
 {
   if (nullptr != field_map)
     delete field_map;
-  if (nullptr != LAr_medium)
-    delete LAr_medium;
+  if (nullptr != drift_medium)
+    delete drift_medium;
+  if (nullptr != medium_props)
+  	delete medium_props;
 }
 
 void GlobalData::Initialize(void)
 {
-  Ar_props.Initialize();
+	switch(gPars::medium_props.medium_type) {
+	case gPars::LiquidAr: {
+		medium_props = new ArgonPropertiesTables();
+		break;
+	}
+	case gPars::LiquidKr: {
+		medium_props = new KryptonPropertiesTables();
+		break;
+	}
+	case gPars::LiquidXe: {
+		medium_props = new XenonPropertiesTables();
+		break;
+	}
+	default: {
+		G4Exception("GlobalData::Initialize: ",
+				"InvalidSetup", FatalException, ("Failed to create medium class for " + gPars::MediumName() + ".").c_str());
+		return;
+	}
+	}
+	medium_props->Initialize();
   SetupFieldMap();
 }
 
@@ -198,7 +219,7 @@ void GlobalData::SetupFieldMap(void)
   field_map->SetRelativeTolerance(gPars::field_map.mesh_tolerance);
 
   DataVector* velocity = nullptr;
-  if (!Ar_props.drift_velocity.isValid()) {
+  if (!medium_props->drift_velocity.isValid()) {
     velocity = new DataVector();
     std::ifstream str;
     str.open(gPars::medium_props.exp_drift_velocity);
@@ -212,12 +233,12 @@ void GlobalData::SetupFieldMap(void)
     velocity->use_rightmost(true);
     str.close();
   } else {
-    velocity = &Ar_props.drift_velocity;
+    velocity = &medium_props->drift_velocity;
   }
 
   DataVector* diff_longitudinal = nullptr;
   DataVector* diff_transversal = nullptr;
-  if (!Ar_props.drift_diffusion_L.isValid() && !Ar_props.drift_diffusion_T.isValid()) {
+  if (!medium_props->drift_diffusion_L.isValid() && !medium_props->drift_diffusion_T.isValid()) {
     diff_longitudinal = new DataVector();
     diff_transversal = new DataVector();
     std::ifstream str;
@@ -243,19 +264,19 @@ void GlobalData::SetupFieldMap(void)
       diff_transversal->use_rightmost(true);
     }
   } else {
-    if (Ar_props.drift_diffusion_L.isValid() && Ar_props.drift_diffusion_T.isValid()) {
-      diff_longitudinal = &Ar_props.drift_diffusion_L;
-      diff_transversal = &Ar_props.drift_diffusion_T;
+    if (medium_props->drift_diffusion_L.isValid() && medium_props->drift_diffusion_T.isValid()) {
+      diff_longitudinal = &medium_props->drift_diffusion_L;
+      diff_transversal = &medium_props->drift_diffusion_T;
     } else { // In only one type of diffusion is not available then use the same for both.
-      if (Ar_props.drift_diffusion_L.isValid())
-        diff_transversal = new DataVector(*(diff_longitudinal = &Ar_props.drift_diffusion_L));
+      if (medium_props->drift_diffusion_L.isValid())
+        diff_transversal = new DataVector(*(diff_longitudinal = &(medium_props->drift_diffusion_L)));
       else
-        diff_longitudinal = new DataVector(*(diff_transversal= &Ar_props.drift_diffusion_T));
+        diff_longitudinal = new DataVector(*(diff_transversal= &(medium_props->drift_diffusion_T)));
     }
   }
-  LAr_medium = new DriftMedium("LAr", *velocity, *diff_longitudinal, *diff_transversal);
-  LAr_medium->SetDriftable(true);
-  field_map->SetMedium(0, LAr_medium);
+  drift_medium = new DriftMedium("LAr", *velocity, *diff_longitudinal, *diff_transversal);
+  drift_medium->SetDriftable(true);
+  field_map->SetMedium(0, drift_medium);
   gPars::det_dims->drift_start_center = GetDriftStartCenter();
 }
 

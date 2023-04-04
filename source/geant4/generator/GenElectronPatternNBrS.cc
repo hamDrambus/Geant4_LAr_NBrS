@@ -21,7 +21,7 @@ void GenElectronsPatternsNBrS::GeneratePrimaries(G4Event* anEvent)
 			"InvalidParticle", FatalException, "Could not find 'opticalphoton' particle");
 		return;
 	}
-	if (!gData.Ar_props.IsReady()) {
+	if (!gData.medium_props->IsReady()) {
 		G4Exception("GenElectronsPatternsNBrS::GeneratePrimaries: ",
 			"InvalidData", FatalException, "Argon NBrS and/or drift parameters are not available.");
 		return;
@@ -51,7 +51,7 @@ void GenElectronsPatternsNBrS::GeneratePrimaries(G4Event* anEvent)
 			for (std::size_t i=1, i_end_ = TR.size(); i!=i_end_ && i_end_!=0; ++i) {
 				double dl = (TR[i].pos - TR[i-1].pos).mag();
 				double E_avg = 0.5 * (TR[i].field.mag() + TR[i-1].field.mag());
-				double yield = mNBrS_yield_factor * gData.Ar_props.yield(E_avg);
+				double yield = mNBrS_yield_factor * gData.medium_props->yield(E_avg);
 				double N_ph_avg = yield * dl; // All variables are in Geant4 units.
 				G4long N_ph_actual = G4Poisson(N_ph_avg);
 				for (G4long ph = 0; ph!=N_ph_actual; ++ph) {
@@ -59,7 +59,7 @@ void GenElectronsPatternsNBrS::GeneratePrimaries(G4Event* anEvent)
 					PhotonHit photon;
 					PrimaryGenerator single_particle(mNavigator);
 					single_particle.SetParticleDefinition(particle);
-					double energy = gData.Ar_props.GenPhotonEnergy(E_avg, G4UniformRand());
+					double energy = gData.medium_props->GenPhotonEnergy(E_avg, G4UniformRand());
 					if (energy <= 0) {
 						G4Exception("PrimaryGeneratorAction::GeneratePrimaries: ",
 								"InvalidParticle", JustWarning, "Argon NBrS photon with incorrect energy aborted.");

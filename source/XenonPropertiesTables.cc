@@ -1,10 +1,10 @@
 #include <chrono>
 #include <thread>
 
-#include "ArgonPropertiesTables.hh"
+#include "XenonPropertiesTables.hh"
 
 
-void ArgonPropertiesTables::Initialize(void)
+void XenonPropertiesTables::Initialize(void)
 {
 	pedantic = gPars::medium_props.pedantic_calculations;
 	verbosity = gPars::medium_props.print_calculations ? 2 : verbosity;
@@ -143,55 +143,55 @@ void ArgonPropertiesTables::Initialize(void)
 		std::cout<<"Finished "<<gPars::MediumName()<<" properties initialization..."<<std::endl;
 }
 
-IntegrationRange ArgonPropertiesTables::GetIntervalElectronDistributions(double field) const
+IntegrationRange XenonPropertiesTables::GetIntervalElectronDistributions(double field) const
 {
   const double kVcm = kilovolt / cm;
-  const double density = 2.10e22 / cm3; // The parameters were determined at this LAr density.
+  const double density = 1.35e22 / cm3; // The parameters were determined at this LKr density.
   // The values below are determined using iterative calculations of electron distributions
   // E2s here must be > E3s in GetIntervalFDistributions
-  std::vector<double> fields = {0, 0.01, 0.06,    0.1,  0.5,    1,    3,    6,    10,   20,   30,   40,   70,   150,  300,  600,  1050, 1200};
-  std::vector<double> E1s =    {0, 3e-4, 1.5e-3,  3e-3, 1.8e-2, 0.03, 0.04, 0.06, 0.2,  0.5,  0.8,  1.2,  2.0,  3.0,  3.9,  4.3,  4.8,  5.2};
-  std::vector<double> E2s =    {0, 6e-3, 3e-2,    6e-2, 0.3,    0.6,  1.3,  2.2,  2.7,  3.7,  4.5,  4.6,  6.0,  8.0,  11.5, 16.0, 21.0, 22.0};
-  DataVector Es_flat(fields, E1s, 2, 3); // 2nd order interpolation!
-  DataVector Es_end(fields, E2s, 1, 2);
-  Es_flat.scaleXY(kVcm / density, eV);
-  Es_end.scaleXY(kVcm / density, eV);
-  const double ref_field = 210 * kVcm / density;
-  const double E1 = Es_flat(ref_field);
-  const double E2 = Es_end(ref_field);
-  // Integration interval, describing region of interest for electron distribution
-  // at 1 Td (210 kV/cm)
-  const double sfc = gPars::medium_props.distributions_energy_step_factor; // Step factor to test results dependency on step size.
-  IntegrationInterval reference_flat = IntegrationInterval(0 * eV, E1, sfc * 0.4 * eV); // flat part
-  IntegrationInterval reference_decline = IntegrationInterval(E1, E2, sfc * 0.1 * eV); // fast changing (large derivative)
+  std::vector<double> fields = {0, 0.01,   0.07,  0.11, 0.51, 1,    3,    6,    10,   20,   30,   40,   70,   150,  300,  600,  1050, 1200};
+	std::vector<double> E1s =    {0, 1.2e-2, 0.07,  0.12, 0.45, 0.8,  1.1,  1.4,  1.6,  1.9,  2.2,  2.3,  2.5,  3.0,  3.6,  4.9,  6.0,  7.0};
+	std::vector<double> E2s =    {0, 3.5e-2, 0.30,  0.35, 1.0,  1.4,  2.0,  2.1,  2.5,  2.8,  3.0,  3.2,  3.6,  4.8,  7.0,  13.0, 22.0, 25.0};
+	DataVector Es_flat(fields, E1s, 2, 3); // 2nd order interpolation!
+	DataVector Es_end(fields, E2s, 1, 2);
+	Es_flat.scaleXY(kVcm / density, eV);
+	Es_end.scaleXY(kVcm / density, eV);
+	const double ref_field = 150 * kVcm / density;
+	const double E1 = Es_flat(ref_field);
+	const double E2 = Es_end(ref_field);
+	// Integration interval, describing region of interest for electron distribution
+	// at ~1 Td (150 kV/cm)
+	const double sfc = gPars::medium_props.distributions_energy_step_factor; // Step factor to test results dependency on step size.
+	IntegrationInterval reference_flat = IntegrationInterval(0 * eV, E1, sfc * 0.02 * eV); // flat part
+	IntegrationInterval reference_decline = IntegrationInterval(E1, E2, sfc * 0.05 * eV); // fast changing (large derivative)
   const double reduced_field = field / gPars::medium_props.atomic_density;
   reference_flat.Rescale(0, Es_flat(reduced_field));
   reference_decline.Rescale(Es_flat(reduced_field), Es_end(reduced_field));
   return reference_flat + reference_decline;
 }
 
-IntegrationRange ArgonPropertiesTables::GetIntervalFDistributions(double field) const
+IntegrationRange XenonPropertiesTables::GetIntervalFDistributions(double field) const
 {
   const double kVcm = kilovolt / cm;
-  const double density = 2.10e22 / cm3; // The parameters were determined at this LAr density.
+  const double density = 1.35e22 / cm3; // The parameters were determined at this LKr density.
   // The values below are determined using iterative calculations of electron distributions
-  std::vector<double> fields = {0, 0.01,    0.06,   0.1,    0.5,    1,    3,    6,    10,   20,   30,   40,   70,   150,  300,  600,  1050, 1200};
-  std::vector<double> E1s =    {0, 2e-4,    1.7e-3, 2.5e-3, 1.1e-2, 0.02, 0.04, 0.1,  0.15, 0.2,  0.25, 0.3,  0.4,  0.45, 0.5,  0.7,  0.9,  1.1};
-  std::vector<double> E2s =    {0, 1.3e-3,  6.2e-3, 1.3e-2, 5.2e-2, 0.12, 0.33, 0.7,  1.2,  2.0,  2.6,  2.8,  3.8,  4.8,  6.5,  10.0, 14.0, 18.0};
-  std::vector<double> E3s =    {0, 6e-3,    3e-2,   6e-2,   0.3,    0.6,  1.3,  2.2,  2.7,  3.7,  4.5,  4.6,  6.0,  8.0,  11.5, 16.5, 27.0, 30.0};
-  DataVector Es_1(fields, E1s, 1, 2); Es_1.scaleXY(kVcm / density, eV);
-  DataVector Es_2(fields, E2s, 1, 2); Es_2.scaleXY(kVcm / density, eV);
-  DataVector Es_3(fields, E3s, 1, 2); Es_3.scaleXY(kVcm / density, eV);
-  const double ref_field = 70 * kVcm / density;
-  const double E1 = Es_1(ref_field);
-  const double E2 = Es_2(ref_field);
-  const double E3 = Es_3(ref_field);
-  // Integration interval, describing region of interest for electron distribution
-  // at 0.333 Td (70 kV/cm)
-  const double sfc = gPars::medium_props.distributions_energy_step_factor; // Step factor to test results dependency on step size.
-  IntegrationInterval reference_rise = IntegrationInterval(0 * eV, E1, sfc * 0.02 * eV); // fast changing (large derivative)
-  IntegrationInterval reference_flat = IntegrationInterval(E1, E2, sfc * 0.4 * eV);
-  IntegrationInterval reference_decline = IntegrationInterval(E2, E3, sfc * 0.04 * eV); // fast changing (large derivative)
+  std::vector<double> fields = {0, 0.01,   0.07,   0.11,   0.515,  1,    3,    6,    10,   20,   30,   40,   70,   150,  300,  600,  1050, 1200};
+	std::vector<double> E1s =    {0, 2e-3,   1e-2,   2e-2,   8e-2,   0.1,  0.2,  0.2,  0.3,  0.3,  0.3,  0.3,  0.4,  0.7,  0.8,  1.0,  1.1,  1.2};
+	std::vector<double> E2s =    {0, 1.1e-2, 9e-2,   1.1e-1, 0.65,   0.85, 1.0,  1.1,  1.2,  1.9,  2.0,  2.0,  2.3,  3.0,  4.0,  6.0,  8.0,  8.5};
+	std::vector<double> E3s =    {0, 3e-2,   6e-1,   1.0,    1.3,    1.5,  2.0,  3.0,  4.0,  4.3,  5.0,  5.0,  7.0,  9.0, 15.0, 30.0, 40.0, 41.0};
+	DataVector Es_1(fields, E1s, 1, 2); Es_1.scaleXY(kVcm / density, eV);
+	DataVector Es_2(fields, E2s, 1, 2); Es_2.scaleXY(kVcm / density, eV);
+	DataVector Es_3(fields, E3s, 1, 2); Es_3.scaleXY(kVcm / density, eV);
+	const double ref_field = 70 * kVcm / density;
+	const double E1 = Es_1(ref_field);
+	const double E2 = Es_2(ref_field);
+	const double E3 = Es_3(ref_field);
+	// Integration interval, describing region of interest for electron distribution
+	// at 0.52 Td (70 kV/cm)
+	const double sfc = gPars::medium_props.distributions_energy_step_factor; // Step factor to test results dependency on step size.
+	IntegrationInterval reference_rise = IntegrationInterval(0 * eV, E1, sfc * 0.018 * eV); // fast changing (large derivative)
+	IntegrationInterval reference_flat = IntegrationInterval(E1, E2, sfc * 0.10 * eV);
+	IntegrationInterval reference_decline = IntegrationInterval(E2, E3, sfc * 0.040 * eV); // fast changing (large derivative)
   const double reduced_field = field / gPars::medium_props.atomic_density;
   reference_rise.Rescale(0, Es_1(reduced_field));
   reference_flat.Rescale(Es_1(reduced_field), Es_2(reduced_field));

@@ -106,7 +106,7 @@ namespace gPars
     std::string exp_diffusion_longitudinal; // Used only when there is no theoretically calculated one
     std::string exp_diffusion_transversal; // Used only when there is no theoretically calculated one
 	  double atomic_density; // in Geant4 units [mm^-3]
-    static constexpr double m_to_M = 5.109989461e5 / 3.726e10; // m_electron / M_Ar_atom ratio (eV to eV)
+    double m_to_M; // m_electron / M_Ar_atom ratio (eV to eV)
     NBrSFormula NBrS_formula;
     bool force_recalculation;
     double distributions_energy_step_factor;
@@ -130,6 +130,8 @@ namespace gPars
 	extern DetectorOptics det_opt;
 	extern MediumProperties medium_props;
 	extern Results results;
+
+	std::string MediumName(void);
 }
 
 #endif //GlobalParameters_h

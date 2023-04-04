@@ -26,7 +26,7 @@ void VGeneratePrimaries::SetupNavigator(void)
 
 void VGeneratePrimaries::SetupElectronDrift(void)
 {
-  if (nullptr == gData.LAr_medium || !gData.LAr_medium->GetVelocityData().isValid()) {
+  if (nullptr == gData.drift_medium || !gData.drift_medium->GetVelocityData().isValid()) {
     G4Exception("PrimaryGeneratorAction::SetupElectronDrift: ",
       "InvalidSetup", FatalException, "Invalid drift medium");
     return;
@@ -35,7 +35,7 @@ void VGeneratePrimaries::SetupElectronDrift(void)
       delete mElectronDrift;
   mElectronDrift = new DriftElectron();
   mElectronDrift->SetDistanceSteps(gPars::field_map.drift_step_size);
-  if ((!gData.LAr_medium->GetLongDiffutionData().isValid() && !gData.LAr_medium->GetTransDiffutionData().isValid())
+  if ((!gData.drift_medium->GetLongDiffutionData().isValid() && !gData.drift_medium->GetTransDiffutionData().isValid())
       || !gPars::general.enable_e_diffusion)
     mElectronDrift->DisableDiffusion();
   else

@@ -24,7 +24,10 @@
 #include "GlobalParameters.hh"
 #include "geant4/MappingManager.hh"
 #include "geant4/PhotonHit.hh"
+#include "MediumPropertiesTables.hh"
 #include "ArgonPropertiesTables.hh"
+#include "KryptonPropertiesTables.hh"
+#include "XenonPropertiesTables.hh"
 
 class DriftTrack {
 public:
@@ -82,14 +85,14 @@ public:
 
   void Initialize(void);
   void SetupFieldMap(void);
-  G4ThreeVector GetFieldAtGlobal(G4ThreeVector position, DriftMedium* &medium, int *status = nullptr); // Not const but thred-safe
+  G4ThreeVector GetFieldAtGlobal(G4ThreeVector position, DriftMedium* &medium, int *status = nullptr); // Not const but thread-safe
   void PlotField(std::string filename, G4ThreeVector line_start, G4ThreeVector line_finish, int Num, std::string name="", double L_fine=0, int Num_fine=0);
   G4ThreeVector GetDriftStartCenter(void) const;
 
   MappingManager mapping_manager; // Mappings are set during geometry construction in G4RunManager::Initialize()->G4VUserDetectorConstruction::Construct(). Thread safe.
   FieldElmerMap* field_map; // Depends only on gPars::
-  DriftMedium* LAr_medium;
-  ArgonPropertiesTables Ar_props;
+  DriftMedium* drift_medium;
+  MediumPropertiesTables* medium_props;
 };
 
 extern GlobalData gData;

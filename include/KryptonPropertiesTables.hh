@@ -1,5 +1,5 @@
-#ifndef ArgonPropertiesTables_h
-#define ArgonPropertiesTables_h
+#ifndef KryptonPropertiesTables_h
+#define KryptonPropertiesTables_h
 
 #include <string>
 
@@ -13,9 +13,9 @@
 #include "GlobalParameters.hh"
 #include "MediumPropertiesTables.hh"
 
-class ArgonPropertiesTables : public MediumPropertiesTables {
+class KryptonPropertiesTables : public MediumPropertiesTables {
 public:
-  ArgonPropertiesTables() { classname = "ArgonPropertiesTables"; }
+	KryptonPropertiesTables() { classname = "KryptonPropertiesTables"; }
   virtual void Initialize(void) override;
 protected:
   // Integration intervals are selected manually after looking at integrated functions behavior.
@@ -24,4 +24,4 @@ protected:
   virtual IntegrationRange GetIntervalFDistributions(double field) const override;
 };
 
-#endif // ArgonPropertiesTables_h
+#endif // KryptonPropertiesTables_h
