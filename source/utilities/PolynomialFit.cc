@@ -119,12 +119,12 @@ void DataVector::insert(double x, double y) //does not disrupt order
 		xys.push_back(std::pair<double, double>(x, y));
 		return;
 	}
-	if (x < xys.front().first) {
-		xys.insert(xys.begin(), std::pair<double, double>(x, y));
-		return;
-	}
 	if (x > xys.back().first) {
 		xys.push_back(std::pair<double, double>(x, y));
+		return;
+	}
+	if (x < xys.front().first) {
+		xys.insert(xys.begin(), std::pair<double, double>(x, y));
 		return;
 	}
 	boost::optional<std::pair<std::size_t, std::size_t>> inds = getX_indices(x);
@@ -137,6 +137,11 @@ void DataVector::insert(double x, double y) //does not disrupt order
 void DataVector::push_back (double x, double y)//faster version not checking that the new array is ordered.
 {
 	xys.push_back(std::pair<double, double> (x, y));
+}
+
+void DataVector::push_back (std::pair<double, double> xy)
+{
+	xys.push_back(xy);
 }
 
 double DataVector::integrate(const IntegrationRange &range)
@@ -385,81 +390,18 @@ double DataVector::operator()(double X_point, boost::optional<double> x0) const
 
 boost::optional<std::pair<std::size_t, std::size_t>> DataVector::getX_indices(double x) const
 {
-	boost::optional<std::pair<std::size_t, std::size_t>> out;
-	std::size_t sz = xys.size();
-	if (0 == sz)
-		return out;
-	if (x <= xys.front().first) {
-		out = std::pair<std::size_t, std::size_t>(0, 0);
-		return out;
-	}
-	if (x >= xys.back().first) {
-		out = std::pair<std::size_t, std::size_t>(sz - 1, sz - 1);
-		return out;
-	}
-	//find first x which is not less that X_point. That is index bounding X_point: xs[first] <= X_point < xs[first + 1]
-	//See std::lower_bound and std::upper_bound
-	std::size_t count = sz;
-	std::size_t first = 0;
-	//std::lower_bound(xys.begin(), xys.end(), [](const std::pair<double, double> &a, const std::pair<double, double> &b)->bool{
-	//	return a.first<b.first;
-	//});
-	while (count > 0) {
-		std::size_t step = count / 2;
-		std::size_t ind = first + step;
-		if (!(x < xys[ind].first)) {
-			first = ++ind;
-			count -= step + 1;
-		} else
-			count = step;
-	}
-	//first is such, that x>=xs[first-1] and x<xs[first]
-	//first always != 0 here
-	--first;
-	if (x == xys[first].first) {
-		out = std::pair<std::size_t, std::size_t>(first, first);
-		return out;
-	}
-	out = std::pair<std::size_t, std::size_t>(first, first + 1);
-	return out;
+	auto picker = [] (const std::vector<std::pair<double, double>> & xys, std::size_t index) -> double {
+		return xys[index].first;
+	};
+	return find_bounds(xys, x, picker);
 }
 //I chose to copy getX_indices code here instead of using parameter or lambda value picker function in the fear that it will reduce the performance. I did not test that it would.
 boost::optional<std::pair<std::size_t, std::size_t>> DataVector::getY_indices(double y) const
 {
-	boost::optional<std::pair<std::size_t, std::size_t>> out;
-	std::size_t sz = xys.size();
-	if (0==sz)
-		return out;
-	if (y <= xys.front().second) {
-		out = std::pair<std::size_t, std::size_t>(0, 0);
-		return out;
-	}
-	if (y >= xys.back().second) {
-		out = std::pair<std::size_t, std::size_t>(sz - 1, sz - 1);
-		return out;
-	}
-	//find first x which is not less that X_point. That is index bounding X_point: xs[first] <= X_point < xs[first + 1]
-	//See std::lower_bound and std::upper_bound
-	std::size_t count = sz;
-	std::size_t first = 0;
-	while (count > 0) {
-		std::size_t step = count / 2;
-		std::size_t ind = first + step;
-		if (!(y < xys[ind].second)) {
-			first = ++ind;
-			count -= step + 1;
-		} else
-			count = step;
-	}
-	//first is such, that y>=ys[first-1] and y<ys[first]
-	//first always != 0 here
-	--first;
-	if (y == xys[first].second) {
-		out = std::pair<std::size_t, std::size_t>(first, first);
-		return out;
-	}
-	out = std::pair<std::size_t, std::size_t>(first, first + 1);
-	return out;
+	auto picker = [] (const std::vector<std::pair<double, double>> & xys, std::size_t index) -> double {
+		return xys[index].second;
+	};
+	return find_bounds(xys, y, picker);
 }
 
 double DataVector::polynomial_value(double x, double x0, const std::vector<double>& coefs) const

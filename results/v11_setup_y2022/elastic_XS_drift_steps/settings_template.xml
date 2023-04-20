@@ -87,6 +87,6 @@
     <electron_max_time_ns>MAX</electron_max_time_ns> <!--OPT maximal lifetime of photon. Prevents stuck electrons which normally must not happen-->
     <print_drift_track>false</print_drift_track> <!--OPT print each electron drift track point by point to file-->
     <teleportation_verbosity>0</teleportation_verbosity> <!--OPT to print HexagonalMapping info-->
-    <Ar_print_calculations>true</Ar_print_calculations> <!--OPT print results of caculating argon properties-->
+    <print_calculations>true</print_calculations> <!--OPT print results of caculating argon properties-->
   </Debug>
 </Settings>

@@ -184,9 +184,7 @@ void GlobalData::SetupFieldMap(void)
   }
   double tolerance = G4GeometryTolerance::GetInstance()->GetSurfaceTolerance();
   double x_min, x_max, y_min, y_max, z_min, z_max;
-  // TODO: connect elmer field map and detector's mapping properly.
-  // Maybe move field loading as a function in Detector construction?
-  // Or use MappingManager's mapping with has_field_map=true?
+  //TODO: move these checks to detector construction classes?
   field_map->GetBoundingBox(x_min, y_min, z_min, x_max, y_max, z_max);
   if (gPars::det_dims->detector_type == VDetectorDimensions::Full_detector_y2022) {
   	DetectorDimsFullY2022 *dims = (DetectorDimsFullY2022*) gPars::det_dims;

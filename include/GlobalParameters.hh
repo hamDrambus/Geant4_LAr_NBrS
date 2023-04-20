@@ -107,11 +107,16 @@ namespace gPars
     std::string exp_diffusion_transversal; // Used only when there is no theoretically calculated one
 	  double atomic_density; // in Geant4 units [mm^-3]
     double m_to_M; // m_electron / M_Ar_atom ratio (eV to eV)
+    double maximum_lambda;
     NBrSFormula NBrS_formula;
     bool force_recalculation;
-    double distributions_energy_step_factor;
+    double distributions_relative_minimum;
+    double distributions_relative_tolerance;
+    double drift_velocity_relative_tolerance;
+    double diffusion_relative_tolerance;
+    double F_distributions_relative_tolerance;
+    double yield_relative_tolerance;
     double field_step_factor;
-    double spectra_step_factor;
 	};
 
 	class Results {

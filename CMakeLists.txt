@@ -37,7 +37,9 @@ file (GLOB_RECURSE sources1 ${PROJECT_SOURCE_DIR}/source/*.cpp)
 list (APPEND sources ${sources1})
 file(GLOB_RECURSE headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 file(GLOB_RECURSE headers1 ${PROJECT_SOURCE_DIR}/include/*.h)
+file(GLOB_RECURSE headers2 ${PROJECT_SOURCE_DIR}/include/*.hpp)
 list (APPEND headers ${headers1})
+list (APPEND headers ${headers2})
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
@@ -58,6 +60,18 @@ list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib"
 if("${isSystemDir}" STREQUAL "-1")
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 endif("${isSystemDir}" STREQUAL "-1")
+
+#----------------------------------------------------------------------------
+# Remove some of the warnings for gcc as
+# boost has quite a lot of these particular ones
+#
+if (MSVC)
+    # warning level 4
+    add_compile_options(/W4)
+else()
+	# additional warnings
+	add_compile_options(-Wno-pedantic -Wno-shadow)
+endif()
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries

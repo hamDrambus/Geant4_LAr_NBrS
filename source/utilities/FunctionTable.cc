@@ -6,40 +6,50 @@ FunctionTable::FunctionTable(void)
 FunctionTable::~FunctionTable()
 {}
 
+boost::optional<std::pair<double, double>> FunctionTable::getRangeAtX(double X) const
+{
+	boost::optional<std::pair<std::size_t, std::size_t>> inds = getX_indices(X);
+	if (!inds) {
+		return boost::none;
+	}
+	const DataVector *vec1 = &getY_data(inds->first);
+	const DataVector *vec2 = &getY_data(inds->second);
+	if (!vec1->size() && !vec2->size())
+		return boost::none;
+	double y_min, y_max;
+	if (vec1->size() && vec2->size()) {
+		y_min = std::min(vec1->getX(0), vec2->getX(0));
+		y_max = std::max(vec1->getX(vec1->size()-1), vec2->getX(vec2->size()-1));
+		return std::pair<double, double>(y_min, y_max);
+	}
+	if (!vec1->size())
+		vec1 = vec2;
+	y_min = vec1->getX(0);
+	y_max = vec1->getX(vec1->size()-1);
+	return std::pair<double, double>(y_min, y_max);
+}
+
+boost::optional<std::size_t> FunctionTable::getSizeAtX(double X) const
+{
+	boost::optional<std::pair<std::size_t, std::size_t>> inds = getX_indices(X);
+	if (!inds) {
+		return boost::none;
+	}
+	const DataVector *vec1 = &getY_data(inds->first);
+	const DataVector *vec2 = &getY_data(inds->second);
+	if (!vec1->size() && !vec2->size())
+		return boost::none;
+	if (vec1->size() && vec2->size()) {
+		return std::max(vec1->size(), vec2->size());
+	}
+	if (!vec1->size())
+		vec1 = vec2;
+	return vec1->size();
+}
+
 boost::optional<std::pair<std::size_t, std::size_t>> FunctionTable::getX_indices(double X) const
 {
-	boost::optional<std::pair<std::size_t, std::size_t>> out;
-	if (xs_.empty())
-		return out;
-	std::size_t sz = xs_.size();
-	if (X <= xs_[0]) {
-		out = std::pair<std::size_t, std::size_t>(0, 0);
-		return out;
-	}
-	if (X >= xs_[sz-1]) {
-		out = std::pair<std::size_t, std::size_t>(sz - 1, sz - 1);
-		return out;
-	}
-	//find first x which is not less that X_point. That is index bounding X_point: xs[first] <= X < xs[first + 1]
-	//See std::lower_bound and std::upper_bound
-	std::size_t count = sz;
-	std::size_t first = 0;
-	while (count > 0) {
-		std::size_t step = count / 2;
-		std::size_t ind = first + step;
-		if (!(X < xs_[ind])) {
-			first = ++ind;
-			count -= step + 1;
-		} else
-			count = step;
-	}
-	--first;
-	if (X == xs_[first]) {
-		out = std::pair<std::size_t, std::size_t>(first, first);
-		return out;
-	}
-	out = std::pair<std::size_t, std::size_t>(first, first + 1);
-	return out;
+	return find_bounds(xs_, X);
 }
 
 double FunctionTable::operator ()(double X, double Y) const
@@ -58,7 +68,7 @@ double FunctionTable::operator ()(double X, double Y) const
 		} else {
 			double z0 = ys_[X_inds->first].getY(Y_inds->first), z1 = ys_[X_inds->first].getY(Y_inds->second);
 			double y0 = ys_[X_inds->first].getX(Y_inds->first), y1 = ys_[X_inds->first].getX(Y_inds->second);
-			return z0 + (z1 - z0) * (Y - y0) / (y1 - y0);
+			return ys_[X_inds->first](Y);
 		}
 	} else {
 		boost::optional<std::pair<std::size_t, std::size_t>> Y_inds_left = ys_[X_inds->first].getX_indices(Y);

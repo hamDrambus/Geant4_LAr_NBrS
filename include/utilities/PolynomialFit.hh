@@ -13,6 +13,7 @@
 
 #include "GlobalUtilities.hh"
 #include "IntegrationInterval.hh"
+#include "FindBoundsContainer.hpp"
 
 // A lot of code improvements and cleanup is required:
 //TODO:  1) Consistent function names (use std:: scheme)
@@ -30,7 +31,7 @@
 //TODO:  8) Add plotting with gnuplot via pipe. With support of integration intervals.
 //TODO:  9) Infinite domains support (for PDFs), including integration
 //TODO:  10) Do not reallocate memory for coefficient vector each time. Allocate only once when order is selected.
-//TODO:  11) Look up GSL implementation for some ideas.
+//TODO:  11) Look up GSL implementation for some ideas. Also something akin to boost::odeint paradigm looks very promising.
 
 //TVectorD parameters are [0]+[1]*x+[2]*x^2+...
 class PolynomialFit {
@@ -128,6 +129,34 @@ public:
 	double getY(std::size_t n) const {
 		return xys[n].second;
 	}
+	double maxY() const {
+		double out = -DBL_MAX;
+		for (std::size_t i = 0, i_end_ = xys.size(); i!=i_end_; ++i) {
+			out = std::max(xys[i].second, out);
+		}
+		return out;
+	}
+	double minY() const {
+		double out = DBL_MAX;
+		for (std::size_t i = 0, i_end_ = xys.size(); i!=i_end_; ++i) {
+			out = std::min(xys[i].second, out);
+		}
+		return out;
+	}
+	double maxX() const {
+		double out = -DBL_MAX;
+		for (std::size_t i = 0, i_end_ = xys.size(); i!=i_end_; ++i) {
+			out = std::max(xys[i].first, out);
+		}
+		return out;
+	}
+	double minX() const {
+		double out = DBL_MAX;
+		for (std::size_t i = 0, i_end_ = xys.size(); i!=i_end_; ++i) {
+			out = std::min(xys[i].first, out);
+		}
+		return out;
+	}
 	void scaleX(double factor) {
 	  for (auto &i : xys)
       i.first *= factor;
@@ -153,6 +182,9 @@ public:
 	void resize(std::size_t sz) {
 		xys.resize(sz);
 	}
+	void reserve(std::size_t sz) {
+		xys.reserve(sz);
+	}
 	bool isValid(void) const {
 		return (N_used > fitter.getOrder()) && N_used <= size();
 	}
@@ -160,6 +192,7 @@ public:
 	double operator()(double X_point, boost::optional<double> x0 = boost::none) const; //x0 = point is recommended to use. At least x0 must be close to point, or there will be large errors otherwise
 	void insert(double x, double y);
 	void push_back (double x, double y);
+	void push_back (std::pair<double, double> xy);
 	double integrate(const IntegrationRange &range);
 	void integrate(void); // Transforms itself to integral
 
@@ -167,7 +200,7 @@ public:
 	void read(std::ifstream& str);
 	void write(std::string fname, std::string comment = "") const;
 	void write(std::ofstream& str, std::string comment = "") const;
-	//Warning! These functions have defined behaviour only when X/Y values are sorted in the ascending order.
+	//Warning! These functions have defined behavior only when X/Y values are sorted in the ascending order.
 	//DataVector's X values are supposed to be always sorted, but there is no guarantee about Ys;
 	boost::optional<std::pair<std::size_t, std::size_t>> getX_indices(double X_point) const; //[n_min, n_max] are used, not [n_min, n_max).N_used == n_max - n_min + 1 >= order + 1
 	boost::optional<std::pair<std::size_t, std::size_t>> getY_indices(double Y_point) const; //[n_min, n_max] are used, not [n_min, n_max).N_used == n_max - n_min + 1 >= order + 1

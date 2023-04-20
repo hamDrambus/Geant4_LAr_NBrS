@@ -107,26 +107,32 @@
     <no_reflections>false</no_reflections> <!--OPT if true, then all non-transparent materials have 0 reflectivity-->
     <no_diffused_reflections>false</no_diffused_reflections> <!--OPT if true, then all reflections are not diffusial-->
   </DetectorOptics>
-  <ArgonProperties> <!--Also <KryptonProperties> and <XenonProperties> are available with identical syntax. Use LKr_XS or LXe_XS data folders. --> 
+  <ArgonProperties> <!--Also <KryptonProperties> and <XenonProperties> are available with identical syntax. Use LKr_XS or LXe_XS data folders. -->
     <XS_energy_transfer_filename>LAr_XS/XS_energy_transfer.txt</XS_energy_transfer_filename>
     <XS_momentum_transfer_filename>LAr_XS/XS_momentum_transfer.txt</XS_momentum_transfer_filename>
-    <atomic_density_cm3>2.10e22</atomic_density_cm3> <!-- OPT by default density at 87.3K & 1 atm is used (2.10e22 cm^-3 doi:10.1209/0295-5075/ac4c03)-->
+    <atomic_density_cm3>2.10e22</atomic_density_cm3> <!-- OPT by default density at boiling temperature at 1 atm is used (doi:10.1209/0295-5075/ac4c03)-->
     <cache_folder>../../NBrS_THGEM_LAr_v0/data_cache_LAr/</cache_folder> <!--OPT folder containing saved computations-->
     <exp_drift_velocity>LAr_drift/exp_drift_velocity_data.txt</exp_drift_velocity> <!--OPT In case there is no theoretical values-->
     <exp_diffusion_transversal>LAr_drift/LAr_diffusionT_data.txt</exp_diffusion_transversal> <!--OPT In case there is no theoretical values-->
     <exp_diffusion_longitudinal>LAr_drift/LAr_diffusionL_data.txt</exp_diffusion_longitudinal> <!--OPT In case there is no theoretical values-->
     <NBrS_formula>TransferXS</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default) and TransferXS are supported -->
+    <maximum_lambda_nm>1000</maximum_lambda_nm> <!-- OPT -->
+    <m_to_M>1.373247e-5</m_to_M> <!-- OPT ratio of electron to atom mass. Default depends on the selected gas -->
+    <yield_relative_tolerance>1e-3</yield_relative_tolerance> <!-- OPT double (nested) integration with this precision -->
+    <distributions_relative_minimum>1e-10</distributions_relative_minimum> <!-- OPT defines E_max. Сrucial for correct calculation of transverse diffuison as F at E_max must be small  -->
+    <drift_velocity_relative_tolerance>1e-5</drift_velocity_relative_tolerance> <!-- OPT -->
+    <diffusion_relative_tolerance>1e-5</diffusion_relative_tolerance> <!-- OPT -->
+    <F_distributions_relative_tolerance>1e-5</F_distributions_relative_tolerance> <!-- OPT -->
+    <distributions_relative_tolerance>1e-5</distributions_relative_tolerance> <!-- OPT -->
     <force_recalculation>false</force_recalculation> <!--OPT if true, cached data is always recalculated-->
-    <distributions_energy_step_factor>1.0</distributions_energy_step_factor> <!--OPT default is 1.0. Energy steps for integral calculations are multiplied by this value-->
-    <field_step_factor>1.0</field_step_factor> <!--OPT default is 1.0-->
-    <spectra_step_factor>1.0</spectra_step_factor> <!--OPT default is 1.0. Photon energy step factor for NBrS spectra calculations-->
+    <field_step_factor>1.0</field_step_factor> <!--OPT default is 1.0. Defines density of electric field points. The lesser this factor, the more points there are. -->
   </ArgonProperties>
   <Debug>
     <check_geometry_overlap>true</check_geometry_overlap> <!--OPT-->
     <electron_max_time_ns>MAX</electron_max_time_ns> <!--OPT maximal lifetime of photon. Prevents stuck electrons which normally must not happen-->
     <print_drift_track>false</print_drift_track> <!--OPT print each electron drift track point by point to file-->
     <teleportation_verbosity>0</teleportation_verbosity> <!--OPT to print HexagonalMapping info-->
-    <Ar_print_calculations>true</Ar_print_calculations> <!--OPT print results of caculating argon properties-->
-    <Ar_pedantic_calculations>false</Ar_pedantic_calculations> <!--OPT if true then issues in calculations will throw error-->
+    <print_calculations>true</print_calculations> <!--OPT print results of caculating argon properties-->
+    <pedantic_calculations>false</pedantic_calculations> <!--OPT if true then issues in calculations will throw error-->
   </Debug>
 </Settings>

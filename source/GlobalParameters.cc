@@ -59,8 +59,8 @@ namespace gPars
         general.electron_max_time *= ns;
       general.print_drift_track = deb.get<bool>("print_drift_track", false);
       general.teleportation_verbosity = deb.get<int>("teleportation_verbosity", 0);
-      medium_props.print_calculations = deb.get<bool>("Ar_print_calculations", true);
-      medium_props.pedantic_calculations = deb.get<bool>("Ar_pedantic_calculations", true);
+      medium_props.print_calculations = deb.get<bool>("print_calculations", true);
+      medium_props.pedantic_calculations = deb.get<bool>("pedantic_calculations", true);
       }
       {
       ptree field = pt.get_child("Settings.FieldMap");
@@ -101,26 +101,28 @@ namespace gPars
       boost::optional<ptree&> med_props = pt.get_child_optional("Settings.ArgonProperties");
       if (med_props) {
       	medium_props.medium_type = LiquidAr;
-      	medium_props.m_to_M = 5.109989461e5 / 3.7211e10;
+      	medium_props.m_to_M = med_props->get<double>("m_to_M", 5.109989461e5 / 3.7211e10);
+      	medium_props.atomic_density = med_props->get<double>("atomic_density_cm3", 2.10e22) / (cm3);
       	goto read_common;
       }
       med_props = pt.get_child_optional("Settings.KryptonProperties");
       if (med_props) {
 				medium_props.medium_type = LiquidKr;
-				medium_props.m_to_M = 5.109989461e5 / 7.8057e10;
+				medium_props.m_to_M = med_props->get<double>("m_to_M", 5.109989461e5 / 7.8057e10);
+				medium_props.atomic_density = med_props->get<double>("atomic_density_cm3", 1.73e22) / (cm3);
 				goto read_common;
 			}
       med_props = pt.get_child_optional("Settings.XenonProperties");
       if (med_props) {
 				medium_props.medium_type = LiquidXe;
-				medium_props.m_to_M = 5.109989461e5 / 1.2230e11;
+				medium_props.m_to_M = med_props->get<double>("m_to_M", 5.109989461e5 / 1.2230e11);
+				medium_props.atomic_density = med_props->get<double>("atomic_density_cm3", 1.35e22) / (cm3);
 				goto read_common;
 			}
       throw std::invalid_argument("LoadSettings: no medium (ArgonProperties, KryptonProperties or XenonProperties) was found.");
      read_common:
       medium_props.XS_energy_transfer_filename = med_props->get<std::string>("XS_energy_transfer_filename");
       medium_props.XS_momentum_transfer_filename = med_props->get<std::string>("XS_momentum_transfer_filename");
-      medium_props.atomic_density = med_props->get<double>("atomic_density_cm3", 2.10e22) / (cm3);
       medium_props.cache_folder = med_props->get<std::string>("cache_folder", "");
       medium_props.exp_drift_velocity = med_props->get<std::string>("exp_drift_velocity", "");
       medium_props.exp_diffusion_transversal = med_props->get<std::string>("exp_diffusion_transversal", "");
@@ -134,12 +136,19 @@ namespace gPars
       if (boost::none == NBrS_formula) {
         std::cerr<<"LoadSettings:Warning: NBrS_formula=\""<<NBrS_formula_str<<"\" is not supported! Default \"ElasticXS\" is used."<<std::endl;
         medium_props.NBrS_formula = NBrSFormula::ElasticXS;
-      } else
+      } else {
         medium_props.NBrS_formula = *NBrS_formula;
-      medium_props.force_recalculation = med_props->get<bool>("force_recalculation", false);
-      medium_props.distributions_energy_step_factor = med_props->get<double>("distributions_energy_step_factor", 1.0);
-      medium_props.field_step_factor = med_props->get<double>("field_step_factor", 1.0);
-      medium_props.spectra_step_factor = med_props->get<double>("spectra_step_factor", 1.0);
+      }
+      medium_props.maximum_lambda = med_props->get<double>("maximum_lambda_nm", 1000) * nm;
+			medium_props.force_recalculation = med_props->get<bool>("force_recalculation", false);
+			medium_props.yield_relative_tolerance = med_props->get<double>("yield_relative_tolerance", 1e-3);
+			medium_props.distributions_relative_minimum = med_props->get<double>("distributions_relative_minimum", 1e-10);
+			medium_props.drift_velocity_relative_tolerance = med_props->get<double>("drift_velocity_relative_tolerance", 1e-5);
+			medium_props.diffusion_relative_tolerance = med_props->get<double>("diffusion_relative_tolerance", 1e-5);
+			medium_props.F_distributions_relative_tolerance = med_props->get<double>("F_distributions_relative_tolerance", medium_props.diffusion_relative_tolerance);
+			double min_tol = std::min({medium_props.yield_relative_tolerance, medium_props.drift_velocity_relative_tolerance, medium_props.F_distributions_relative_tolerance});
+			medium_props.distributions_relative_tolerance = med_props->get<double>("distributions_relative_tolerance", min_tol);
+			medium_props.field_step_factor = med_props->get<double>("field_step_factor", 1.0);
       }
 
       det_dims = CreateDetectorSettings(fname);

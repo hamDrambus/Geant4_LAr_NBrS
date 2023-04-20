@@ -56,6 +56,9 @@ public:
 	bool is_empty(void) const {
 		return xs_.empty();
 	}
+
+	boost::optional<std::pair<double, double>> getRangeAtX(double X) const;
+	boost::optional<std::size_t> getSizeAtX(double X) const;
 };
 
 #endif // FUNCTION_TABLE_H

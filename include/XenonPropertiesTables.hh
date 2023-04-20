@@ -16,12 +16,7 @@
 class XenonPropertiesTables : public MediumPropertiesTables {
 public:
 	XenonPropertiesTables() { classname = "XenonPropertiesTables"; }
-  virtual void Initialize(void) override;
-protected:
-  // Integration intervals are selected manually after looking at integrated functions behavior.
-  // In case of another materials, input XSs or domains these may need to be changed.
-  virtual IntegrationRange GetIntervalElectronDistributions(double field) const override;
-  virtual IntegrationRange GetIntervalFDistributions(double field) const override;
+  virtual void InitializeFields(void) override;
 };
 
 #endif // XenonPropertiesTables_h
