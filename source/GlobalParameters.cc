@@ -141,7 +141,7 @@ namespace gPars
       }
       medium_props.maximum_lambda = med_props->get<double>("maximum_lambda_nm", 1000) * nm;
 			medium_props.force_recalculation = med_props->get<bool>("force_recalculation", false);
-			medium_props.yield_relative_tolerance = med_props->get<double>("yield_relative_tolerance", 1e-3);
+			medium_props.yield_relative_tolerance = med_props->get<double>("yield_relative_tolerance", 1e-4);
 			medium_props.distributions_relative_minimum = med_props->get<double>("distributions_relative_minimum", 1e-10);
 			medium_props.drift_velocity_relative_tolerance = med_props->get<double>("drift_velocity_relative_tolerance", 1e-5);
 			medium_props.diffusion_relative_tolerance = med_props->get<double>("diffusion_relative_tolerance", 1e-5);

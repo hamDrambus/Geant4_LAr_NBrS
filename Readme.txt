@@ -2,16 +2,16 @@ Dependencies:
 1) c++ Boost. Headers are enough, no need for compiling it.
 2) Geant4 (only v11.0 was used and tested). Do not forget to run '$source ../bin/geant4.sh' and to add Geant4's library path to LD_LIBRARY_PATH. Best to add 'source ../bin/geant4.sh' to startup script in /etc/profile.d/ 
 
-Required for the project overall but not used in compilation of C++ code:
+Required/recommended for the project overall but not used in compilation of C++ code:
 1) CERN ROOT is strongly recommended to analyze obtained data with root_scripts/*. Alternatively, it can be done by hand using text output of Geant4_simulation (do note QE and PDE issue discussed below).
 2) FreeCAD, view3dscene or something else is recommended to view VRML2FILE (g4.wrl) visualization output. Otherwise refer to Geant4 visualization (configured from vis.mac)
 3) Gmsh v4 is required to create THGEM cell mesh (.geo file->.msh). Gmsh v3 does not have mesh options setups from .geo file (could not find its documentation) so it won't work properly.
-4) Elmer is required to calculate electric fields in cell using Gmsh output (.msh + .sif -> .results, .header, .nodes, .elements, .boundary).
+4) Elmer is required to calculate electric fields in the cell using Gmsh output (.msh + .sif -> .results, .header, .nodes, .elements, .boundary).
 5) Python3 is strongly recommended to run simulation scripts (RunSimulation.py) which streamline the workflow. In particular, they invoke Gmsh and Elmer if correct script set-up and input files are used. After electric fields are calculated, settings.xml is automatically generated from template settings using the field maps files. Finally, c++ geant4 simulation is run using generated field maps and settings. The scripts are very readable and thus new simulation cases can be added as needed.
-6) gnuplot is recommended to quickly plot some simple files (such as electric fields). There are some functions in the c++ program which plot data by connecting to gnuplot with pipe. Not required for running the application.
+6) gnuplot is recommended to quickly plot some simple files (such as electric fields). There are some functions in the c++ program which plot data by connecting to gnuplot with pipe. Not required for running the application but is required for plotting functions.
 
 =================================================
-To compile Geant4 code run cmake to create makefile:
+To compile this code run cmake to create makefile:
 
 mkdir build
 cd build
@@ -35,44 +35,46 @@ How to run simulation from scratch (github):
 	1) Install required and recommended dependencies.
 	2) Load the code and compile it using CMake or Eclipse.
 	4) Check paths to binaries (Geant4_simulation, Elmer, Gmsh) and folders in python scripts SolveFields.py and RunSimulation.py. These are set up at the head of the scripts.
-	5) python3 project_folder/results/v*/*/RunSimulation.py
+	5) python3 ./results/v*/*/RunSimulation.py
 	6) Process results using project_folder/root_scripts/*. E.g:
-		cd project_folder/root_scripts
+		cd ./root_scripts
 		root -l
 		.L init.cpp
 		.L plot_Npe_spectrum.cpp
 		.x print_Npe_vs_V.cpp
-	Alternatively, log files generated during execution of RunSimulation.py can be used directly by hand.
+	Alternatively, log files generated during execution of RunSimulation.py can be used directly by hand. Also see Run::AddToFile for output data format.
 
 =================================================
 Setting up the simulation
 
-Generally speaking simulation is configured from several places:
-1) GlobalParamters (gPars::) is responsible for straightforward program setups such as filenames, some detector dimesnsions (which can't be fully arbitrary), number of events to simulate, and some debug/output options. UPD: Detector demensions and some global parameters related to them are now stored in DetectorSettings class.
-2) UserInitialization is responsible for selection of detector geometry (there are the main one and a few for testing) and how and what particles are generated.
-3) ArgonPropertiesTables is a hard-coded computation of several LAr paremters within certain boundaries. ArgonPropertiesTables::Initialize contains initialization of integration intervals and step sizes. These should be carefully changed if different input cross-sections are used (e.g. another gas) or paramters are needed for different electric fields or at different accuracy. Plotting of paramters also contains some hard-coded paramters (mainly axes ranges). Realistically, this class is the most challenging to configure correctly, but normally this should be done once and then forgotten about.
-4) Electric field maps are input data which are calculated by 3-rd party Gmsh and Elmer programs. Their input files are present in the project, but output must be generated separately (it is quite memory-heavy) before running simulation.
-5) Each VDetectorContruction inheritor has SetSizeAndPosition(), Construct() and other virtual methods which contain construction of specific geometry. This is usual Geant4 business. Note that some GlobalParamters (DetectorSettings) are changed there so that primary particle generators work correctly for any geometry without any additional adjustments in them or GlobalParamters. Do also note that PMTs' quantum efficiency (QE) and SiPMs' photon detection efficiency (PDE) are by default set to 1 in geant4. It is done to increase number of photons and decrease statistical errors. QE and PDE are taken into account (averaged over detected/emitted spectrum) in root_scripts/*. 
-6) VGeneratePrimaries inheritors are best configured by specifying Pattern from UserInitialization if possible. Otherwise, either add another pattern, create new class or change code inside existing ones. I.e. avoid cryptic hard-coding inside UserInitialization.
-7) There is vis.mac which configures Geant4 visualization. Refer to geant4's docs.
-
-1) and 2) are easiest to change without breaking anything and are supposed to be changed most often.
-3) is required if physical properties must be changed.
-4) is required for field maps. Must be adjusted/set for newly loaded project.
-5) is for new geometries (new detector versions).
-6) is primarily for testing. Or for some completely new simulation.
-
-UPD: parameters are now set in settings.xml file.
+Simulation parameters for compiled code are set in settings.xml file.
 Thus program must be run as:
 ...build/RelWithDebInfo/Geant_simulation path/to/settings.xml | tee path/to/log.txt
-If no parameter is passed, then "settings.xml" is expected to be present in the current directory
+If no parameter is passed, then "settings.xml" is expected to be present in the current directory.
+The list of possible parameters and their meaning can be found in ./settings_all_parameters.xml file.
+
+Using the settings.xml the simulation is configured in several places:
+1) GlobalParamters (gPars::) is responsible for straightforward program setups such as filenames, number of events to simulate, and some debug/output options. Detector demensions and some global parameters related to them are stored in DetectorSettings class.
+2) UserInitialization is responsible for selection of detector geometry (there are the main one and a few for testing) and how and what particles are generated.
+3) MaterialPropertiesTables (its inheritors ArgonPropertiesTables, KryptonPropertiesTables and XenonPropertiesTables) is responsible for computation of several LAr, LKr and LXe parameters: electron energy distributions, drift velocity and diffusion coefficients and NBrS spectra and yields. These parameters are calculated at hard-coded points in electric field, see MaterialPropertiesTables::Initialize. Calculation of the parameters is conducted based on input cross sections using automatic integration (boost::odeint). Thus changing the cross sections or material altogether should not require changing the code or require minimal changes respectively. Plotting of the parameters is also somewhat hard-coded though (mainly axes ranges).
+4) Electric field maps are input data which are calculated by 3-rd party Gmsh and Elmer programs. Their input files are present in the project (see ./results/*), but output must be generated separately (it is quite memory-heavy) before running simulation.
+5) Each VDetectorContruction inheritor has SetSizeAndPosition(), Construct() and other virtual methods which contain construction of specific geometry. This is usual Geant4 business. Note that some GlobalParamters (DetectorSettings) are changed there so that primary particle generators work correctly for any geometry without any additional adjustments in them or GlobalParameters. Do also note that PMTs' quantum efficiency (QE) and SiPMs' photon detection efficiency (PDE) are by default set to 1 in this code. It is done to increase number of detected photons and decrease statistical errors. QE and PDE are taken into account (averaged over detected/emitted spectrum) in root_scripts/*. 
+6) Some VGeneratePrimaries inheritors can be configured by specifying Pattern from UserInitialization (and correspondingly settings.xml). If require pattern is absent, either add another one, create new class or change code inside existing ones. It's best to avoid cryptic hard-coding inside UserInitialization.
+7) There is vis.mac which configures Geant4 visualization. Refer to geant4's docs.
+
+In summary:
+1) and 2) are easiest to change without breaking anything and are supposed to be changed most often.
+3) is required if physical properties must be changed.
+4) is required for field maps. It must be adjusted/set for newly loaded project.
+5) is for new geometries (new detector versions).
+6) is responsible for generating particles to be detected. It is changed primarily for testing but also for some completely new simulations.
 
 UPD: There are now python scripts streamlining simulation process.
-One script calculates electric fields for several THGEM voltages
-Another one then generates several settings files from template that will use those electric fields and run simulation program with the settings.
+One script (SolveFields.py) will automatically build mesh (if necessary) and then calculate electric fields for any voltages across THGEM or voltage divider.
+Another one (RunSimulation.py) then generates several settings files from template that will use those electric fields and run corresponding simulation based on the settings template provided.
 
-UPD: results/v11 and results/v10 now have RunSimulation.py which will automatically build mesh if necessary, calculate electric fields and then run geant4 simulation. 
-
+=================================================
+For internal use
 =================================================
 Systematic errors legend:
 Theory:

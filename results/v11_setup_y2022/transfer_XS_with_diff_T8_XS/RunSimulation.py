@@ -19,10 +19,10 @@ Binary = "../../../../NBrS_THGEM_LAr_v0-build/RelWithDebInfo/Geant_simulation"
 DataPath = "../../../data"
 RecalculateField = False
 RecalculateMesh = False
-#V0s = [6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 21.0, 22.0]
-#Vt1s = [2025, 2025, 2025, 2025, 2025, 2025, 2250, 2250, 1688, 1238, 1238, 1238, 1238, 917, 563, 338, 0, 0, 0, 0, 0, 0]
-V0s = [22.0]
-Vt1s = [0]
+V0s = [6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 21.0, 22.0]
+Vt1s = [2025, 2025, 2025, 2025, 2025, 2025, 2250, 2250, 1688, 1238, 1238, 1238, 1238, 917, 563, 338, 0, 0, 0, 0, 0, 0]
+#V0s = [22.0]
+#Vt1s = [0]
 
 # returns binary absolute path, settings absolute path and log file absolute path (str1, str2, str3)
 def prepare_settings(V0, Vth1):

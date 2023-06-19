@@ -28,21 +28,26 @@ void print_results_table(void)
   //std::vector<double> Vs = {80, 90, 100, 110, 120, 130, 139, 160, 185, 200, 231, 250, 277, 300, 323, \
     350, 369, 390, 416, 450, 462, 480, 508, 525, 554, 580, 600, 620, 646, 670, 693, \
     739, 760, 785, 800, 831, 850, 877, 900, 923, 950, 1000, 1050, 1100};
-  std::vector<double> Vs = {6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 21.0, 22.0};
+  //std::vector<double> Vs = {6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 21.0, 22.0};
+  //for v15 GEM1, extended fields
+  //std::vector<double> Vs = {1200, 1300, 1400, 1500, 1750, 2000, 2250, 2500, 3000};
+  //std::vector<double> Vs = {3500, 4000, 4500, 5000, 5500, 6000, 6500, 7500, 8000, 8500, 9000, 9500, 10000};
+  std::vector<double> Vs = {1200, 1300, 1400, 1500, 1750, 2000, 2250, 2500, 3000, \
+  3500, 4000, 4500, 5000, 5500, 6000, 6500, 7500, 8000, 8500, 9000, 9500, 10000};
   //Drift steps:
   //std::vector<double> Vs = {0.05, 0.1, 0.2, 0.3, 0.4, 0.6, 1.0, 2.0, 4.0, 7.0, 10.0};
   std::sort(Vs.begin(), Vs.end());
   //std::string folder = "../results/v15_GEM1/elastic_XS_with_diff/";
-  std::string folder = "../results/v11_setup_y2022/transfer_XS_with_diff_T8_XS/";
-  double NBrS_yield_factor = 1000;
-  std::vector<int> exclude_channles = {};
-  std::string str_SiPMs = "25SiPMs";
+  std::string folder = "../results/v15_GEM1/elastic_XS_with_diff_more/";
+  double NBrS_yield_factor = 1;
+  std::vector<int> exclude_channles = {44};
+  std::string str_SiPMs = "24SiPMs";
   std::vector<std::string> inputs_gen, inputs_rec;
   for (std::size_t i = 0, i_end_ = Vs.size(); i!=i_end_; ++i) {
-    inputs_gen.push_back(folder+dbl_to_str(Vs[i], 1) +"kV/generated.dat");
-    inputs_rec.push_back(folder+dbl_to_str(Vs[i], 1) +"kV/recorded.dat");
+    inputs_gen.push_back(folder+dbl_to_str(Vs[i], 0) +"V/generated.dat");
+    inputs_rec.push_back(folder+dbl_to_str(Vs[i], 0) +"V/recorded.dat");
   }
-  std::string output_fname = folder + "Results_vs_V0.txt";
+  std::string output_fname = folder + "Results_vs_V1.txt";
   ExperimentalXY* PMTs_QE_data = LoadQE("../data/quantum_efficiency/PMT_R6041_506MOD.dat", true);
   ExperimentalXY* SiPMs_QE_data = LoadQE("../data/quantum_efficiency/SiPM_s13360-6050pe_46V.dat", true);
   PlotInfo plot_info_generated, plot_info_PMTs, plot_info_SiPMs;
@@ -66,7 +71,7 @@ void print_results_table(void)
     std::cerr<<this_str<<":Error: Could not open output file \""<<output_fname<<"\"!"<<std::endl;
     return;
   }
-  str<<"//V0[V]\tN_electrons\tN_photons_per_e\tNph_"<<str_SiPMs<<"\tNph_1PMT\tLCE_"<<str_SiPMs<<"\tLCE_1PMT\tQE_"<<str_SiPMs<<"_recorded"
+  str<<"//V1[V]\tN_electrons\tN_photons_per_e\tNph_"<<str_SiPMs<<"\tNph_1PMT\tLCE_"<<str_SiPMs<<"\tLCE_1PMT\tQE_"<<str_SiPMs<<"_recorded"
       "\tQE_1PMT_recorded\tQE_"<<str_SiPMs<<"_generated\tQE_1PMT_generated\tNpe_per_e_"<<str_SiPMs<<"\tNpe_per_e_1PMT"<<std::endl;
   for (std::size_t i = 0, i_end_ = Vs.size(); i!=i_end_; ++i) {
     plot_info_generated.histogram->Reset("ICESM");
