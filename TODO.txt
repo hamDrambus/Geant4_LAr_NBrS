@@ -5,6 +5,12 @@
 4) Create install_all.py for full project set-up: dependency installation, environment set-up and build.
 So that [load the code]->[run install_all.py]->[run results/*/RunSimulation.py]->[analyze results] can be done without thinking/remembering what is happening at all. Although CMake does make compilation or Eclipse set-up quite simple at the moment.
 5) Fix bug in Garfield++ ComponentElmer::ElectricField(x,y,z,ex,ey,ez,m,status) (most likely in ComponentFieldMap::MapCoordinates or less likely in ComponentFieldMap::FindElement13's conditions) which results in inconsistent fields at the edge of THGEM cell. Ask for pull request as well. UPD: fixed by using optimized mesh. Had to switch to Gmsh v4 for that. 
+6) Make python scripts extract THGEM geometry from settings_template.xml into .geo. As of right now .geo geometry must be made the same as in .xml by hand.
+7) Add datatable extraction to scripts (e.g. to extract electron energy distribution or NBrS spectrum and specific required field).
+8) Configure scripts/print_results_table.cpp for 3 detector configurations which can be selected with only single parameter.
+9) Add NBrS yield factor to output files. So that scripts can be aware of it automatically.
+10) Add field range configuration to settings
+11) Add variable number of events to simulate. It is usually required to simulate certain number of photons (detected or generated), not number of electrons. This is important when working with large ranges of voltages. There is an issue of how to maintain multithreading if condition to stop is certain number of photons.
 
 cd ../transfer_XS_with_diffusion
 python3 RunSimulation.py
