@@ -7,6 +7,7 @@
 # Setup the project
 cmake_minimum_required(VERSION 3.16)
 project(Geant_simulation)
+cmake_policy(SET CMP0144 NEW)
 
 find_package(Boost 1.33 REQUIRED)
 #----------------------------------------------------------------------------
