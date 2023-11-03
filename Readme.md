@@ -7,12 +7,13 @@
 
 ### Required/recommended for the project overall:
 
-1. CERN ROOT is strongly recommended to analyze obtained data with root_scripts/*. Alternatively, it can be done by hand using text output of Geant4_simulation (do note QE and PDE issue discussed below).
+1. CERN ROOT is strongly recommended to analyze obtained data with root_scripts/*. Alternatively, it can be done by hand using text output of Geant4_simulation (do note QE and PDE issue/quirk discussed below).
 2. FreeCAD, view3dscene or something else is recommended to view VRML2FILE (g4.wrl) visualization output. Otherwise refer to Geant4 visualization (configured from vis.mac)
 3. Gmsh v4 is required to create THGEM cell mesh (.geo file->.msh). Gmsh v3 does not have mesh options setups from .geo file (could not find its documentation) so it won't work properly.
 4. Elmer is required to calculate electric fields in the cell using Gmsh output (.msh + .sif -> .results, .header, .nodes, .elements, .boundary).
 5. Python3 is strongly recommended to run simulation scripts (RunSimulation.py) which streamline the workflow. In particular, they invoke Gmsh and Elmer if correct script set-up and input files are used. After electric fields are calculated, settings.xml is automatically generated from template settings using the field maps files. Finally, c++ geant4 simulation is run using generated field maps and settings. The scripts are very readable and thus new simulation cases can be added as needed.
 6. gnuplot is recommended to quickly plot some simple files (such as electric fields). There are some functions in the c++ program which plot data by connecting to gnuplot with pipe. Not required for running the application but is required for plotting functions.
+7. Wolfram Mathematica v>=13.0 is required for calculating and tabulating Ar NBrS cross section using exact theory. Use cell with ExportCPPData in "Export tabulated cross section" section to build data table. Mathematica is not required for approximations of NBrS cross section via e-Ar scattering ones.
 
 ## How to compile
 
@@ -43,31 +44,37 @@ Also Note that Eclipse console is somewhat buggy. Because of that, progress bars
 3. Check paths to binaries (Geant4_simulation, Elmer, Gmsh) and folders in python scripts SolveFields.py and RunSimulation.py. These are set up at the head of the scripts.
 4. 
 		python3 ./results/v*/*/RunSimulation.py
-5. Process results using project_folder/root_scripts/*. E.g:
-		cd ./root_scripts
-		root -l
-		.L init.cpp
-		.L plot_Npe_spectrum.cpp
-		.x print_Npe_vs_V.cpp
+5. Process results using ./scripts/*. E.g:
+			cd ./scripts
+			root -l
+			.L init.cpp
+			.L plot_Npe_spectrum.cpp
+			.x print_Npe_vs_V.cpp
+Or			
+			cd ./scripts
+			root -l
+			.L init.cpp
+			.x print_results_table.cpp
+
 Alternatively, log files generated during execution of RunSimulation.py can be used directly by hand.
-Also see Run::AddToFile for output data format.
+See Run::AddToFile for output data format.
 
 ## Setting up the simulation
 
 Simulation parameters for compiled code are set in settings.xml file.
 Thus program must be run as:
-		...build/RelWithDebInfo/Geant_simulation path/to/settings.xml | tee path/to/log.txt
+		...build/RelWithDebInfo/Geant_simulation relative/path/to/settings.xml | tee path/to/log.txt
 If no parameter is passed, then "settings.xml" is expected to be present in the current directory.
 The list of possible parameters and their meaning can be found in ./settings_all_parameters.xml file.
 
-Using the settings.xml the simulation is configured in several places:
+By using the settings.xml the simulation is configured in several places:
 
 1. GlobalParamters (gPars::) is responsible for straightforward program setups such as filenames, number of events to simulate, and some debug/output options. Detector demensions and some global parameters related to them are stored in DetectorSettings class.
 2. UserInitialization is responsible for selection of detector geometry (there are the main one and a few for testing) and how and what particles are generated.
 3. MaterialPropertiesTables (its inheritors ArgonPropertiesTables, KryptonPropertiesTables and XenonPropertiesTables) is responsible for computation of several LAr, LKr and LXe parameters: electron energy distributions, drift velocity and diffusion coefficients and NBrS spectra and yields. These parameters are calculated at hard-coded points in electric field, see MaterialPropertiesTables::Initialize. Calculation of the parameters is conducted based on input cross sections using automatic integration (boost::odeint). Thus changing the cross sections or material altogether should not require changing the code or require minimal changes respectively. Plotting of the parameters is also somewhat hard-coded though (mainly axes ranges).
 4. Electric field maps are input data which are calculated by 3-rd party Gmsh and Elmer programs. Their input files are present in the project (see ./results/*), but output must be generated separately (it is quite memory-heavy) before running simulation.
-5. Each VDetectorContruction inheritor has SetSizeAndPosition(), Construct() and other virtual methods which contain construction of specific geometry. This is usual Geant4 business. Note that some GlobalParamters (DetectorSettings) are changed there so that primary particle generators work correctly for any geometry without any additional adjustments in them or GlobalParameters. Do also note that PMTs' quantum efficiency (QE) and SiPMs' photon detection efficiency (PDE) are by default set to 1 in this code. It is done to increase number of detected photons and decrease statistical errors. QE and PDE are taken into account (averaged over detected/emitted spectrum) in root_scripts/*. 
-6. Some VGeneratePrimaries inheritors can be configured by specifying Pattern from UserInitialization (and correspondingly settings.xml). If require pattern is absent, either add another one, create new class or change code inside existing ones. It's best to avoid cryptic hard-coding inside UserInitialization.
+5. Each VDetectorContruction inheritor has SetSizeAndPosition(), Construct() and other virtual methods which contain construction of specific geometry. This is usual Geant4 business. Note that some GlobalParamters (DetectorSettings) are changed there so that primary particle generators work correctly for any geometry without any additional adjustments in them or GlobalParameters. Do also note that PMTs' quantum efficiency (QE) and SiPMs' photon detection efficiency (PDE) are by default set to 1 in this code. It is done to increase number of detected photons and decrease statistical errors. QE and PDE are taken into account (averaged over detected/emitted spectrum) during post-processing in ./scripts/*. 
+6. Some VGeneratePrimaries inheritors can be configured by specifying Pattern from UserInitialization (and correspondingly settings.xml). This parameter allows to change how particles are generated (usually spatially) without creating new classes. If required pattern is absent, either add another one, create new class or change the code inside existing patterns. It's best to avoid cryptic hard-coding inside UserInitialization.
 7. There is vis.mac which configures Geant4 visualization. Refer to geant4's docs.
 
 In summary:
