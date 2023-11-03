@@ -45,16 +45,19 @@ Also Note that Eclipse console is somewhat buggy. Because of that, progress bars
 4. 
 		python3 ./results/v*/*/RunSimulation.py
 5. Process results using ./scripts/*. E.g:
-			cd ./scripts
-			root -l
-			.L init.cpp
-			.L plot_Npe_spectrum.cpp
-			.x print_Npe_vs_V.cpp
+
+		cd ./scripts
+		root -l
+		.L init.cpp
+		.L plot_Npe_spectrum.cpp
+		.x print_Npe_vs_V.cpp
+			
 Or			
-			cd ./scripts
-			root -l
-			.L init.cpp
-			.x print_results_table.cpp
+
+		cd ./scripts
+		root -l
+		.L init.cpp
+		.x print_results_table.cpp
 
 Alternatively, log files generated during execution of RunSimulation.py can be used directly by hand.
 See Run::AddToFile for output data format.
