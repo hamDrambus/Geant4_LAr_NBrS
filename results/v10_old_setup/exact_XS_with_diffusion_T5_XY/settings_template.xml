@@ -21,8 +21,8 @@
       <x_center_mm>-0.09</x_center_mm> <!-- Source X position. Relative to THGEM1 center -->
       <y_center_mm>-6.2</y_center_mm> <!-- Source Y position. Relative to THGEM1 center -->
       <z_center_mm>2.0</z_center_mm> <!-- Source Z position. Relative the lowest point where field map is still present (below THGEM1)-->
-      <xy_radius_mm>13.0</xy_radius_mm> <!-- Source radius/size. Meaning depends on specified pattern-->
-      <xy_radius_smearing_mm>3.5</xy_radius_smearing_mm> <!-- Source radius smearing (Fermi step function)-->
+      <xy_radius_mm>9.27</xy_radius_mm> <!-- Source radius/size. Meaning depends on specified pattern-->
+      <xy_radius_smearing_mm>0</xy_radius_smearing_mm> <!-- Source radius smearing (Fermi step function)-->
       <z_width_mm>0.0</z_width_mm> <!-- Source width.-->
       <NBrS_yield_factor>20.0</NBrS_yield_factor> <!--OPT NBrS real yield is multiplied by this value in order to have good number of photons per 1 electron track-->
     </NBrS_Generator>
@@ -81,12 +81,13 @@
     <XS_energy_transfer_filename>LAr_XS/XS_energy_transfer_Borisova_corrected.txt</XS_energy_transfer_filename>
     <XS_momentum_transfer_filename>LAr_XS/XS_momentum_transfer_Borisova_corrected.txt</XS_momentum_transfer_filename>
     <atomic_density_cm3>2.10e22</atomic_density_cm3> <!-- OPT by default density at 87.3K & 1 atm is used (2.10e22 cm^-3 doi:10.1209/0295-5075/ac4c03)-->
-    <cache_folder>../../NBrS_THGEM_LAr_v0/data_cache_LAr_v4_transfer/</cache_folder> <!--OPT folder containing saved computations-->
+    <cache_folder>../../NBrS_THGEM_LAr_v0/data_cache_LAr_v5_exact/</cache_folder> <!--OPT folder containing saved computations-->
     <exp_drift_velocity>LAr_drift/exp_drift_velocity_data.txt</exp_drift_velocity> <!--OPT In case there is no theoretical values-->
     <exp_diffusion_transversal>LAr_drift/LAr_diffusionT_data.txt</exp_diffusion_transversal> <!--OPT In case there is no theoretical values-->
     <exp_diffusion_longitudinal>LAr_drift/LAr_diffusionL_data.txt</exp_diffusion_longitudinal> <!--OPT In case there is no theoretical values-->
-    <NBrS_formula>TransferXS</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default), TransferXS and ExactMilstein are supported -->
-
+    <NBrS_formula>ExactMilstein</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default), TransferXS and ExactMilstein are supported -->
+    <XS_NBrS_exact_table_filename>LAr_XS/Theory_SalnikovMilstein/XS_NBrS_table.dat</XS_NBrS_exact_table_filename> <!-- Mandatory if ExactMilstein NBrS
+    formula is used. Tabulated XS is obtained in Mathematica separately.-->
   </ArgonProperties>
   <Debug>
     <check_geometry_overlap>false</check_geometry_overlap> <!--OPT-->

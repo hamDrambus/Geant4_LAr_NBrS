@@ -15,39 +15,87 @@
 // 11. N photoelectrons per electron for SiPM-matrix (some channels my be turned off)
 // 12. N photoelectrons per electron for 1 PMT (= Total generated N photons [2] * LCE * <QE>)
 
-void print_results_table(void)
-{
-  std::string this_str = "print_Npe_vs_V";
+struct definitions {
+  std::vector<double> Vs;
+  std::string folder;
+  double NBrS_yield_factor;
+  std::vector<int> exclude_channles;
+  std::string out_file_header;
+  std::vector<std::string> inputs_generated;
+  std::vector<std::string> inputs_recorded;
+  std::string output_fname;
+};
 
-  //std::vector<double> Vs = {6180, 5993, 5728, 5297, 4856, 4413, 3972, 3531, 3090, 2648, 2206, 1765};
-  //std::vector<double> Vs = {200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, \
+definitions use_v10_old_setup(void) {
+  definitions defs;
+  defs.folder = "../results/v10_old_setup/exact_XS_with_diffusion_T11_Tr_Boyle15/";
+  defs.NBrS_yield_factor = 20;
+  // parameters below should be rarely changed
+  defs.Vs = {200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, \
   1600, 1762, 1765, 1900, 2100, 2206, 2400, 2644, 2648, 2800, 3090, 3150, 3300, 3525, 3531, 3700, 3972, \
   4200, 4413, 4600, 4847, 4856, 5050, 5288, 5297, 5500, 5728, 5738, 5993, 6169, 6180, 6400, 6600, 6800, \
   7000, 7400, 7800, 8200, 8600, 9200};
-  //std::vector<double> Vs = {500, 1000, 1500, 1762, 2644, 3525, 3966, 4847, 5288, 5728, 6169, 6800, 7400, 8000, 8600, 9200};
-  //std::vector<double> Vs = {80, 90, 100, 110, 120, 130, 139, 160, 185, 200, 231, 250, 277, 300, 323, \
+  std::sort(defs.Vs.begin(), defs.Vs.end());
+  defs.exclude_channles = {43, 44};
+  std::string str_SiPMs = "23SiPMs";
+  defs.out_file_header = "//V1[V]\tN_electrons\tN_photons_per_e\tNph_"+str_SiPMs+"\tNph_1PMT\tLCE_"+str_SiPMs+"\tLCE_1PMT\tQE_"+str_SiPMs+
+        "_recorded\tQE_1PMT_recorded\tQE_"+str_SiPMs+"_generated\tQE_1PMT_generated\tNpe_per_e_"+str_SiPMs+"\tNpe_per_e_1PMT";
+  for (std::size_t i = 0, i_end_ = defs.Vs.size(); i!=i_end_; ++i) {
+    defs.inputs_generated.push_back(defs.folder+dbl_to_str(defs.Vs[i], 0) +"V/generated.dat");
+    defs.inputs_recorded.push_back(defs.folder+dbl_to_str(defs.Vs[i], 0) +"V/recorded.dat");
+  }
+  defs.output_fname = defs.folder + "Results_vs_V1.txt";
+  return defs;
+}
+
+definitions use_v11_setup_y2022(void) {
+  definitions defs;
+  defs.folder = "../results/v11_setup_y2022/transfer_XS_with_diff/";
+  defs.NBrS_yield_factor = 1000;
+  // parameters below should be rarely changed
+  defs.Vs = {6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 21.0, 22.0};
+  std::sort(defs.Vs.begin(), defs.Vs.end());
+  defs.exclude_channles = {};
+  std::string str_SiPMs = "25SiPMs";
+  defs.out_file_header = "//V0[kV]\tN_electrons\tN_photons_per_e\tNph_"+str_SiPMs+"\tNph_1PMT\tLCE_"+str_SiPMs+"\tLCE_1PMT\tQE_"+str_SiPMs+
+        "_recorded\tQE_1PMT_recorded\tQE_"+str_SiPMs+"_generated\tQE_1PMT_generated\tNpe_per_e_"+str_SiPMs+"\tNpe_per_e_1PMT";
+  for (std::size_t i = 0, i_end_ = defs.Vs.size(); i!=i_end_; ++i) {
+    defs.inputs_generated.push_back(defs.folder+dbl_to_str(defs.Vs[i], 1) +"kV/generated.dat");
+    defs.inputs_recorded.push_back(defs.folder+dbl_to_str(defs.Vs[i], 1) +"kV/recorded.dat");
+  }
+  defs.output_fname = defs.folder + "Results_vs_V0.txt";
+  return defs;
+}
+
+definitions use_v15_GEM1(void) {
+  definitions defs;
+  defs.folder = "../results/v15_GEM1/transfer_XS_with_diff/";
+  defs.NBrS_yield_factor = 500;
+  // parameters below should be rarely changed
+  defs.Vs = {80, 90, 100, 110, 120, 130, 139, 160, 185, 200, 231, 250, 277, 300, 323, \
     350, 369, 390, 416, 450, 462, 480, 508, 525, 554, 580, 600, 620, 646, 670, 693, \
     739, 760, 785, 800, 831, 850, 877, 900, 923, 950, 1000, 1050, 1100};
-  //std::vector<double> Vs = {6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 21.0, 22.0};
-  //for v15 GEM1, extended fields
-  //std::vector<double> Vs = {1200, 1300, 1400, 1500, 1750, 2000, 2250, 2500, 3000};
-  //std::vector<double> Vs = {3500, 4000, 4500, 5000, 5500, 6000, 6500, 7500, 8000, 8500, 9000, 9500, 10000};
-  std::vector<double> Vs = {1200, 1300, 1400, 1500, 1750, 2000, 2250, 2500, 3000, \
-  3500, 4000, 4500, 5000, 5500, 6000, 6500, 7500, 8000, 8500, 9000, 9500, 10000};
-  //Drift steps:
-  //std::vector<double> Vs = {0.05, 0.1, 0.2, 0.3, 0.4, 0.6, 1.0, 2.0, 4.0, 7.0, 10.0};
-  std::sort(Vs.begin(), Vs.end());
-  //std::string folder = "../results/v15_GEM1/elastic_XS_with_diff/";
-  std::string folder = "../results/v15_GEM1/elastic_XS_with_diff_more/";
-  double NBrS_yield_factor = 1;
-  std::vector<int> exclude_channles = {44};
+  std::sort(defs.Vs.begin(), defs.Vs.end());
+  defs.exclude_channles = {44};
   std::string str_SiPMs = "24SiPMs";
-  std::vector<std::string> inputs_gen, inputs_rec;
-  for (std::size_t i = 0, i_end_ = Vs.size(); i!=i_end_; ++i) {
-    inputs_gen.push_back(folder+dbl_to_str(Vs[i], 0) +"V/generated.dat");
-    inputs_rec.push_back(folder+dbl_to_str(Vs[i], 0) +"V/recorded.dat");
+  defs.out_file_header = "//V1[V]\tN_electrons\tN_photons_per_e\tNph_"+str_SiPMs+"\tNph_1PMT\tLCE_"+str_SiPMs+"\tLCE_1PMT\tQE_"+str_SiPMs+
+        "_recorded\tQE_1PMT_recorded\tQE_"+str_SiPMs+"_generated\tQE_1PMT_generated\tNpe_per_e_"+str_SiPMs+"\tNpe_per_e_1PMT";
+  for (std::size_t i = 0, i_end_ = defs.Vs.size(); i!=i_end_; ++i) {
+    defs.inputs_generated.push_back(defs.folder+dbl_to_str(defs.Vs[i], 0) +"V/generated.dat");
+    defs.inputs_recorded.push_back(defs.folder+dbl_to_str(defs.Vs[i], 0) +"V/recorded.dat");
   }
-  std::string output_fname = folder + "Results_vs_V1.txt";
+  defs.output_fname = defs.folder + "Results_vs_V1.txt";
+  return defs;
+}
+
+
+void print_results_table(void)
+{
+  std::string this_str = "print_Npe_vs_V";
+  definitions defs = use_v10_old_setup();
+  //definitions defs = use_v11_setup_y2022();
+  //definitions defs = use_v15_GEM1();
+
   ExperimentalXY* PMTs_QE_data = LoadQE("../data/quantum_efficiency/PMT_R6041_506MOD.dat", true);
   ExperimentalXY* SiPMs_QE_data = LoadQE("../data/quantum_efficiency/SiPM_s13360-6050pe_46V.dat", true);
   PlotInfo plot_info_generated, plot_info_PMTs, plot_info_SiPMs;
@@ -66,37 +114,36 @@ void print_results_table(void)
   plot_info_SiPMs.histogram = hist_SiPMs;
 
   std::ofstream str;
-  str.open(output_fname, std::ios_base::trunc);
+  str.open(defs.output_fname, std::ios_base::trunc);
   if (!str.is_open()) {
-    std::cerr<<this_str<<":Error: Could not open output file \""<<output_fname<<"\"!"<<std::endl;
+    std::cerr<<this_str<<":Error: Could not open output file \""<<defs.output_fname<<"\"!"<<std::endl;
     return;
   }
-  str<<"//V1[V]\tN_electrons\tN_photons_per_e\tNph_"<<str_SiPMs<<"\tNph_1PMT\tLCE_"<<str_SiPMs<<"\tLCE_1PMT\tQE_"<<str_SiPMs<<"_recorded"
-      "\tQE_1PMT_recorded\tQE_"<<str_SiPMs<<"_generated\tQE_1PMT_generated\tNpe_per_e_"<<str_SiPMs<<"\tNpe_per_e_1PMT"<<std::endl;
-  for (std::size_t i = 0, i_end_ = Vs.size(); i!=i_end_; ++i) {
+  str<<defs.out_file_header<<std::endl;
+  for (std::size_t i = 0, i_end_ = defs.Vs.size(); i!=i_end_; ++i) {
     plot_info_generated.histogram->Reset("ICESM");
     plot_info_SiPMs.histogram->Reset("ICESM");
     plot_info_PMTs.histogram->Reset("ICESM");
     std::ifstream inp;
-    inp.open(inputs_gen[i]);
+    inp.open(defs.inputs_generated[i]);
     if (!inp.is_open()) {
-      std::cerr<<"Could not open file \""<<inputs_gen[i]<<"\"! Skipping."<<std::endl;
+      std::cerr<<"Could not open file \""<<defs.inputs_generated[i]<<"\"! Skipping."<<std::endl;
       continue;
     }
     FileToHist(plot_info_generated, inp);
     inp.close();
-    inp.open(inputs_rec[i]);
+    inp.open(defs.inputs_recorded[i]);
     if (!inp.is_open()) {
-      std::cerr<<"Could not open file \""<<inputs_rec[i]<<"\"! Skipping."<<std::endl;
+      std::cerr<<"Could not open file \""<<defs.inputs_recorded[i]<<"\"! Skipping."<<std::endl;
       continue;
     }
     FileToHist(plot_info_SiPMs, inp);
     FileToHist(plot_info_PMTs, inp);
     inp.close();
 
-    double Nphotons_per_e = GetNpeCh(plot_info_generated, -1) / NBrS_yield_factor / plot_info_generated.N_electrons;
-    double SiPMs_ph_rec = GetNpeSiPMsSome(plot_info_SiPMs, exclude_channles) / NBrS_yield_factor; // Total number of photoelectrons recorded in geant4 adjusted for NBrS yield factor.
-    double PMTs_ph_rec = GetNpePMTavg(plot_info_PMTs) / NBrS_yield_factor;
+    double Nphotons_per_e = GetNpeCh(plot_info_generated, -1) / defs.NBrS_yield_factor / plot_info_generated.N_electrons;
+    double SiPMs_ph_rec = GetNpeSiPMsSome(plot_info_SiPMs, defs.exclude_channles) / defs.NBrS_yield_factor; // Total number of photoelectrons recorded in geant4 adjusted for NBrS yield factor.
+    double PMTs_ph_rec = GetNpePMTavg(plot_info_PMTs) / defs.NBrS_yield_factor;
     double LCE_SiPMs = SiPMs_ph_rec / Nphotons_per_e / plot_info_generated.N_electrons; // Light collection efficiency
     double LCE_PMTs = PMTs_ph_rec / Nphotons_per_e / plot_info_generated.N_electrons;
     double SiPMs_QE_rec = CalculateNpe(hist_SiPMs, SiPMs_QE_data)/CalculateNpe(hist_SiPMs); //QE = quantum efficiency
@@ -107,7 +154,7 @@ void print_results_table(void)
     double PMTs_Npe_per_e = PMTs_QE_rec * LCE_PMTs * Nphotons_per_e;
     // Diference between SiPMs_QE_gen and SiPMs_QE_rec reflects how different are
     // spectrum of generated photons and spectrum of photons that actually reached SiPM matrix.
-    str<<dbl_to_str(Vs[i], 2)<<"\t"
+    str<<dbl_to_str(defs.Vs[i], 2)<<"\t"
        <<plot_info_generated.N_electrons<<"\t"
        <<Nphotons_per_e<<"\t"
        <<SiPMs_ph_rec<<"\t"

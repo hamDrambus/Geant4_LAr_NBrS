@@ -29,6 +29,7 @@ public:
   FunctionTable spectra; // spectrum CDF as a function of electric field. Each CDF is a function of photon energy.
 
   MediumPropertiesTables() : classname("MediumPropertiesTables") {}
+  virtual ~MediumPropertiesTables() = default;
   virtual void Initialize(void);
   virtual void InitializeFields(void) = 0; // TODO: move to settings
   bool IsReady(void) const;
@@ -40,6 +41,7 @@ protected:
   // XS = cross section, loaded from input files. In Geant4 units
   DataVector XS_energy_transfer; // f(electron energy),
   DataVector XS_momentum_transfer; // f(electron energy)
+  FunctionTable XS_NBrS_diff_exact; // f(electron energy, photon energy) in Geant4 units [mm^2/eV]
 
   virtual bool LoadCached(void);
   virtual void CalcElectronDistributions(void);
@@ -63,10 +65,62 @@ protected:
   //Normalized as integral{0, +inf} {e^(1/2)*f'(e) de} = 1. Usual distribution f(e) = e^(1/2)*f'(e).
   virtual std::pair<DataVector, DataVector> CalcFDistribution(double field) const; // eq. 5 in Atrazhev1985
   virtual DataVector CalcDiffXS(double field) const; // Spectrum normalized to yield. Integrate to get yield, normalize to unit area to get spectrum.
-  virtual DataVector CalcDiffXS_ElasticFormula(double field) const; // Default: uses elastic XS for NBrS XS calculation
-  virtual DataVector CalcDiffXS_TransferFormula(double field) const; // Uses momentum transfer XS for NBrS XS calculation (correct, but only for hv << E of electron https://doi.org/10.48550/arXiv.2206.01388)
-  virtual DataVector CalcDiffXS_ExactFormula(double field) const; // TODO: requires potential of e-atom interaction as well as electron radial wave functions
+  
+  /**
+  * Calculates probability of NBrS photon production by hot electrons at given electric
+  * field in the medium according to approximate theory (https://doi.org/10.1209/0295-5075/ac4c03)
+  * using energy-transfer electron-atom cross section.
+  * The approximation is correct only for hv << E of electron (https://doi.org/10.1016/j.nimb.2022.09.012).
+  * Used by default if formula to use is not specifield in xml settings.
+  *
+  * @param field electric field in Geant4 units.
+  * @returns Integrated cross section of photon production vs photon energy (spectrum)
+  * which is equivalent to cumulative distribution function normalized to the total yeild
+  * in number of photons per unit drift length. Photon energy is in eV in Geant4 units.
+  */
+  virtual DataVector CalcDiffXS_ElasticFormula(double field) const;
+  
+  /**
+  * Calculates probability of NBrS photon production by hot electrons at given electric
+  * field in the medium according to approximate theory (https://doi.org/10.1209/0295-5075/ac4c03)
+  * using momentum-transfer electron-atom cross section.
+  * The approximation is correct only for hv << E of electron (https://doi.org/10.1016/j.nimb.2022.09.012).
+  *
+  * @param field electric field in Geant4 units.
+  * @returns Integrated cross section of photon production vs photon energy (spectrum)
+  * which is equivalent to cumulative distribution function normalized to the total yeild
+  * in number of photons per unit drift length. Photon energy is in eV in Geant4 units.
+  */
+  virtual DataVector CalcDiffXS_TransferFormula(double field) const;
+  
+  /**
+  * Calculates probability of NBrS photon production by hot electrons at given electric
+  * field in the medium according to approximate theory (https://doi.org/10.1209/0295-5075/ac4c03).
+  * The approximation is correct only for hv << E of electron (https://doi.org/10.1016/j.nimb.2022.09.012).
+  *
+  * @param field electric field in Geant4 units.
+  * @param XS tabulated electron-atom cross section vs electron energy whic is to be used
+  * for approximation of NBrS cross section (see Eq. 6 in Borisova2021
+  * https://doi.org/10.1209/0295-5075/ac4c03).
+  * Energy is in eV and both it and cross section are in Geant4 units. 
+  * @returns Integrated cross section of photon production vs photon energy (spectrum)
+  * which is equivalent to cumulative distribution function normalized to the total yeild
+  * in number of photons per unit drift length. Photon energy is in eV in Geant4 units.
+  */
   virtual DataVector CalcDiffXS_XSFormula(double field, const DataVector & XS) const;
+  
+  /**
+  * Calculates probability of NBrS photon production by hot electrons at given electric
+  * field in the medium according to exact theory (https://doi.org/10.1016/j.nimb.2022.09.012).
+  * Uses calculations conducted in Wolfram Mathematica v13.0 and tabulated in XS_NBrS_diff_exact.
+  *
+  * @param field electric field in Geant4 units.
+  * @returns Integrated cross section of photon production vs photon energy (spectrum)
+  * which is equivalent to cumulative distribution function normalized to the total yeild
+  * in number of photons per unit drift length. Photon energy is in eV in Geant4 units.
+  */
+  virtual DataVector CalcDiffXS_ExactFormula(double field) const;
+
   virtual double CalcDriftVelocity(double field) const;
   virtual double CalcDiffusionT(double field) const;
   virtual double CalcDiffusionL(double field) const;

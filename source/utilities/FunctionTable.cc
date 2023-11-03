@@ -66,8 +66,6 @@ double FunctionTable::operator ()(double X, double Y) const
 		if (Y_inds->first == Y_inds->second) {
 			return ys_[X_inds->first].getY(Y_inds->first);
 		} else {
-			double z0 = ys_[X_inds->first].getY(Y_inds->first), z1 = ys_[X_inds->first].getY(Y_inds->second);
-			double y0 = ys_[X_inds->first].getX(Y_inds->first), y1 = ys_[X_inds->first].getX(Y_inds->second);
 			return ys_[X_inds->first](Y);
 		}
 	} else {
@@ -296,12 +294,12 @@ second:
 	ys_[X_index].insert(Y, val);//not a push_back, insert/replaces value preserving order
 }
 
-void FunctionTable::read (std::ifstream& str)
+void FunctionTable::read(std::ifstream& str)
 {
 	clear();
 	double val, val2;
 	size_t size, size_E;
-	std::size_t counter, counter_E;
+	std::size_t counter = 0, counter_E;
 	bool valid = true;
 	while (!str.eof()) {
 		str.read((char*)&size,sizeof(std::size_t));

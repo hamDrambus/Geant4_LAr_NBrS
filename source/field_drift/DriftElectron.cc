@@ -99,7 +99,7 @@ bool DriftElectron::DoDriftElectron(const double x0, const double y0,
     std::cerr << m_className << "::DriftElectron:\n";
     std::cerr << "    Field map is not available.\n";
     return false;
-  } //1.8004977683123558  -3.8561206537818222 68.410000000000011
+  }
   if (!DriftLine(x0, y0, z0, t0, -1)) {
     if (m_debug)
       std::cout<<"Electron drift failed."<<std::endl;
@@ -132,9 +132,7 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
   // Rotation angles
   double phi, cphi, sphi;
   double theta, ctheta, stheta;
-  // Collision time
-  double tau = 0.;
-
+  
   // Reset the drift line.
   m_drift.track.clear();
   stuck_check_counter = 0;
@@ -144,8 +142,6 @@ bool DriftElectron::DriftLine(const double x0, const double y0,
   point.time = t0;
 
   bool ok = true;
-  bool trapped = false;
-  bool validAlphaEta = false;
   int abortReason = 0;
 
   if (m_hasTimeWindow && (t0 < m_tMin || t0 > m_tMax)) {

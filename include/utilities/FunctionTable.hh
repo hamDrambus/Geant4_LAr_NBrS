@@ -46,6 +46,12 @@ public:
 
 	void push (double X, double Y, double val);
 	void push (double X, const DataVector& vals);
+	void scale (double x_scale, double y_scale, double z_scale) {
+    for (auto &x : xs_)
+      x *= x_scale;
+    for (auto &yz : ys_)
+      yz.scaleXY(y_scale, z_scale);
+	}
 
 	double operator()(double X, double Y) const;
 	double getY(double X, double val) const;
@@ -56,6 +62,7 @@ public:
 	bool is_empty(void) const {
 		return xs_.empty();
 	}
+
 
 	boost::optional<std::pair<double, double>> getRangeAtX(double X) const;
 	boost::optional<std::size_t> getSizeAtX(double X) const;

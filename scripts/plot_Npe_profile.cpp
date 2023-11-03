@@ -149,7 +149,7 @@ double get_SiPM_QE(std::ifstream &sim_data, ExperimentalXY* QE, int channel = -1
   return Npe_geant4 < 0.1 ? 0 : N_real/Npe_geant4;
 }
 
-// Return S2 (source) center based on weighted average.
+// Returns S2 (source) center based on weighted average.
 std::pair<double, double> plot_experiment_XY(std::map<int, double> &Npe_exp, double charge, bool do_draw = true) {
   std::pair<double, double> xy_avg(0, 0);
   double weight = 0;

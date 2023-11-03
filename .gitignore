@@ -8,5 +8,5 @@ singleTHGEM28_LAr/Elmer_v00.01/*
 singleTHGEM28_LAr/Elmer_v00.02/*
 data_cache*
 results/*
-
+data/LAr_XS/Theory_SalnikovMilstein/*.dat
 

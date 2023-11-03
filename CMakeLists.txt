@@ -71,7 +71,7 @@ if (MSVC)
     add_compile_options(/W4)
 else()
 	# additional warnings
-	add_compile_options(-Wno-pedantic -Wno-shadow)
+	add_compile_options(-Wno-pedantic -Wno-shadow -Wno-reorder -Wno-unused-parameter)
 endif()
 
 #----------------------------------------------------------------------------
@@ -90,14 +90,7 @@ set(PROJECT_SCRIPTS
   vis.mac
   .gdbinit
   )
-
-foreach(_script ${PROJECT_SCRIPTS})
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/${_script}
-    ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${_script}
-    COPYONLY
-    )
-endforeach()
+list(TRANSFORM PROJECT_SCRIPTS PREPEND ${PROJECT_SOURCE_DIR}/)
 
 add_definitions(${Geant4_DEFINITIONS} -DG4VIS_USE)
 set(CMAKE_CXX_FLAGS ${Geant4_CXX_FLAGS})
@@ -106,4 +99,5 @@ set(CMAKE_CXX_STANDARD ${Geant4_CXXSTD})
 #----------------------------------------------------------------------------
 # Install the executable to Debug/Release directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+install(FILES ${PROJECT_SCRIPTS} DESTINATION ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})

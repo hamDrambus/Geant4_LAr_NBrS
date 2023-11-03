@@ -59,13 +59,13 @@
     <StainlessSteel_SigmaAlpha_deg>10</StainlessSteel_SigmaAlpha_deg>
     <Cu_SigmaAlpha_deg>30</Cu_SigmaAlpha_deg>
     <Wire_SigmaAlpha_deg>10</Wire_SigmaAlpha_deg>
-    <FR4_reflectivity>0.20</FR4_reflectivity>
+    <FR4_reflectivity>0.10</FR4_reflectivity>
     <!-- https://www.cetem.gov.br/images/congressos/2008/CAC00560008.pdf -->
     <!-- <FR4_reflectivity>0.05</FR4_reflectivity> -->
 		<!-- Bass M. Handbook of optics, Vol.4 Edition3 -->
-    <Cu_reflectivity>0.36</Cu_reflectivity>
-    <Wire_reflectivity>0.50</Wire_reflectivity> <!-- approximately https://nvlpubs.nist.gov/nistpubs/bulletin/07/nbsbulletinv7n2p197_A2b.pdf -->
-    <StainlessSteel_reflectivity>0.50</StainlessSteel_reflectivity> <!-- doi:10.1063/1.2202915 -->
+    <Cu_reflectivity>0.30</Cu_reflectivity>
+    <Wire_reflectivity>0.45</Wire_reflectivity>
+    <StainlessSteel_reflectivity>0.45</StainlessSteel_reflectivity>
     <pmma_absorption_length_filename>absorption_length/PMMA_absorption_length_eV_mm.dat</pmma_absorption_length_filename>
 		<pmma_rindex_filename>refractive_index/PMMA_rindex_eV_1.dat</pmma_rindex_filename>
     <pmma_uv_absorption_length_filename>absorption_length/PMMA_VU_absorption_length_eV_mm.dat</pmma_uv_absorption_length_filename>
@@ -81,12 +81,13 @@
     <XS_energy_transfer_filename>LAr_XS/XS_energy_transfer_Borisova_corrected.txt</XS_energy_transfer_filename>
     <XS_momentum_transfer_filename>LAr_XS/XS_momentum_transfer_Borisova_corrected.txt</XS_momentum_transfer_filename>
     <atomic_density_cm3>2.10e22</atomic_density_cm3> <!-- OPT by default density at 87.3K & 1 atm is used (2.10e22 cm^-3 doi:10.1209/0295-5075/ac4c03)-->
-    <cache_folder>../../NBrS_THGEM_LAr_v0/data_cache_LAr_v4_transfer/</cache_folder> <!--OPT folder containing saved computations-->
+    <cache_folder>../../NBrS_THGEM_LAr_v0/data_cache_LAr_v5_exact/</cache_folder> <!--OPT folder containing saved computations-->
     <exp_drift_velocity>LAr_drift/exp_drift_velocity_data.txt</exp_drift_velocity> <!--OPT In case there is no theoretical values-->
     <exp_diffusion_transversal>LAr_drift/LAr_diffusionT_data.txt</exp_diffusion_transversal> <!--OPT In case there is no theoretical values-->
     <exp_diffusion_longitudinal>LAr_drift/LAr_diffusionL_data.txt</exp_diffusion_longitudinal> <!--OPT In case there is no theoretical values-->
-    <NBrS_formula>TransferXS</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default), TransferXS and ExactMilstein are supported -->
-
+    <NBrS_formula>ExactMilstein</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default), TransferXS and ExactMilstein are supported -->
+    <XS_NBrS_exact_table_filename>LAr_XS/Theory_SalnikovMilstein/XS_NBrS_table.dat</XS_NBrS_exact_table_filename> <!-- Mandatory if ExactMilstein NBrS
+    formula is used. Tabulated XS is obtained in Mathematica separately.-->
   </ArgonProperties>
   <Debug>
     <check_geometry_overlap>false</check_geometry_overlap> <!--OPT-->

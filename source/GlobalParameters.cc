@@ -133,6 +133,10 @@ namespace gPars
         NBrS_formula = NBrSFormula::ElasticXS;
       if (NBrS_formula_str == "TransferXS")
         NBrS_formula = NBrSFormula::TransferXS;
+      if (NBrS_formula_str == "ExactMilstein") {
+        NBrS_formula = NBrSFormula::ExactMilstein;
+        medium_props.XS_NBrS_exact_table_filename = med_props->get<std::string>("XS_NBrS_exact_table_filename");
+      }
       if (boost::none == NBrS_formula) {
         std::cerr<<"LoadSettings:Warning: NBrS_formula=\""<<NBrS_formula_str<<"\" is not supported! Default \"ElasticXS\" is used."<<std::endl;
         medium_props.NBrS_formula = NBrSFormula::ElasticXS;
@@ -174,6 +178,7 @@ namespace gPars
       medium_props.exp_drift_velocity = general.data_path + medium_props.exp_drift_velocity;
       medium_props.exp_diffusion_transversal = general.data_path + medium_props.exp_diffusion_transversal;
       medium_props.exp_diffusion_longitudinal = general.data_path + medium_props.exp_diffusion_longitudinal;
+      medium_props.XS_NBrS_exact_table_filename = general.data_path + medium_props.XS_NBrS_exact_table_filename;
 
     } catch (ptree_bad_path& e) {
       std::cout << "LoadSettings: ptree_bad_path exception:" << std::endl;

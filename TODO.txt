@@ -12,40 +12,14 @@ So that [load the code]->[run install_all.py]->[run results/*/RunSimulation.py]-
 10) Add field range configuration to settings
 11) Add variable number of events to simulate. It is usually required to simulate certain number of photons (detected or generated), not number of electrons. This is important when working with large ranges of voltages. There is an issue of how to maintain multithreading if condition to stop is certain number of photons.
 
-cd ../transfer_XS_with_diffusion
-python3 RunSimulation.py
-cd ../transfer_XS_with_diffusion_T1_R
-python3 RunSimulation.py
-cd ../transfer_XS_with_diffusion_T2_D
-python3 RunSimulation.py
-cd ../transfer_XS_with_diffusion_T4_XY
-python3 RunSimulation.py
-cd ../transfer_XS_with_diffusion_T5_XY
-python3 RunSimulation.py
-cd ../transfer_XS_with_diffusion_T7_MSH
-python3 RunSimulation.py
-cd ../elastic_XS_with_diffusion
-python3 RunSimulation.py
-cd ../elastic_XS_with_diffusion_Var6
-python3 RunSimulation.py
-cd ../elastic_XS_with_diffusion_Var7
-python3 RunSimulation.py
+python3 exact_XS_with_diffusion_T10_Tab/RunSimulation.py
+python3 exact_XS_with_diffusion_T1_R/RunSimulation.py
 
-cd ../../v15_GEM1/transfer_XS_with_diff
+python3 exact_XS_with_diffusion_T2_D/RunSimulation.py
+python3 exact_XS_with_diffusion_T4_XY/RunSimulation.py
+python3 exact_XS_with_diffusion_T5_XY/RunSimulation.py
+python3 exact_XS_with_diffusion_T7_MSH/RunSimulation.py
 
-cd ../transfer_XS_with_diff
-python3 RunSimulation.py
-cd ../transfer_XS_with_diff_T1_R
-python3 RunSimulation.py
-cd ../transfer_XS_with_diff_T2_D
-python3 RunSimulation.py
-cd ../transfer_XS_with_diff_T4_XY
-python3 RunSimulation.py
-cd ../transfer_XS_with_diff_T5_XY
-python3 RunSimulation.py
-cd ../transfer_XS_with_diff_T7_MSH
-python3 RunSimulation.py
-cd ../elastic_XS_with_diff
-python3 RunSimulation.py
-
+python3 exact_XS_with_diffusion_T8_XS/RunSimulation.py
+python3 exact_XS_with_diffusion_T11_Tr/RunSimulation.py
 

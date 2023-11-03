@@ -104,6 +104,24 @@ void MediumPropertiesTables::Initialize(void)
 		return;
 	}
 
+  if (gPars::medium_props.NBrS_formula == gPars::NBrSFormula::ExactMilstein) {
+    str.open(gPars::medium_props.XS_NBrS_exact_table_filename, std::ios_base::binary);
+    if (!str.is_open()) {
+      G4Exception((std::string("GlobalData::") + classname + "::Initialize: ").c_str(),
+            "InvalidData", FatalException, (std::string("Could not open NBrS exact cross section table datafile \"")
+            + gPars::medium_props.XS_NBrS_exact_table_filename + "\"").c_str());
+		  return;
+    }
+    XS_NBrS_diff_exact.read(str);
+    XS_NBrS_diff_exact.scale(eV, eV, angstrom*angstrom/eV); // See data files' (Mathematica's) units
+    str.close();
+    if (XS_NBrS_diff_exact.is_empty()) {
+      G4Exception((std::string("GlobalData::") + classname + "::Initialize: ").c_str(),
+            "InvalidData", FatalException, "NBrS exact cross section table is not loaded!");
+		  return;
+	  }
+  }
+
 	if (!gPars::medium_props.force_recalculation) {
 		if (LoadCached()) {
 			if (verbosity > 0)
@@ -303,6 +321,8 @@ DataVector MediumPropertiesTables::CalcDiffXS(double field) const
     return CalcDiffXS_ElasticFormula(field);
   case(gPars::NBrSFormula::TransferXS):
     return CalcDiffXS_TransferFormula(field);
+  case(gPars::NBrSFormula::ExactMilstein):
+    return CalcDiffXS_ExactFormula(field);
   default:
     G4Exception((classname + "::CalcDiffXS: ").c_str(),
           "InvalidValue", FatalException, (std::string("gPars::medium_props.NBrS_formula type ")
@@ -799,8 +819,8 @@ DataVector MediumPropertiesTables::CalcDiffXS_TransferFormula(double field) cons
 
 DataVector MediumPropertiesTables::CalcDiffXS_XSFormula(double field, const DataVector & cross_section) const
 {
-	// Calculate eq. 6 but with d(lambda) replaced by d(h*nu) in Borisova2021 (doi:doi:10.1209/0295-5075/ac4c03)
-	// but using momentum transfer XS as discussed in https://doi.org/10.48550/arXiv.2206.01388
+	// Calculate eq. 6 but with d(lambda) replaced by d(h*nu)=d(w) in Borisova2021 (doi:10.1209/0295-5075/ac4c03)
+	// using e-atom cross section (of energy- or momentum-transfer XS as discussed in https://doi.org/10.48550/arXiv.2206.01388)
 	// The equation was rewritten in a such way that integrands, energies and results are close to 1.0, so
 	// that numerical algorithms are stable. To this end, cross-section(e) = XS(e) * cross-section(0)
 	// and f(E) = f(0) * f'(E)
@@ -945,7 +965,141 @@ DataVector MediumPropertiesTables::CalcDiffXS_XSFormula(double field, const Data
 
 DataVector MediumPropertiesTables::CalcDiffXS_ExactFormula(double field) const
 {
-  return DataVector();
+  // Calculate eq. 6 but with d(lambda) replaced by d(h*nu)=d(w) in Borisova2021 (doi:10.1209/0295-5075/ac4c03)
+	// using exact tabulated NBrS cross section.
+	// The equation was rewritten in a such way that integrands, energies and results are close to 1.0, so
+	// that numerical algorithms are stable, e.g. f(E) = f(0) * f'(E)
+	DataVector out;
+	out.set_out_value(0.0); // Distribution returns 0 at energies outside specified energy range.
+	out.use_leftmost(false); out.use_rightmost(false);
+	out.setOrder(1); out.setNused(2); // Linear interpolation (energy points are quite dense).
+	DataVector Y_cdf1 = out, Y_cdf2 = out;
+
+	auto indexes = electron_distributions.getX_indices(field);
+	if (!indexes || indexes->first!=indexes->second) {
+		if (pedantic)
+			G4Exception((classname +"::CalcDiffXS_ExactFormula: ").c_str(),
+				"InvalidValue", FatalException, "Could not determine integration range (empty electron distribution f).");
+		else
+			return out;
+	}
+	const DataVector & e_distr = electron_distributions.getY_data(indexes->first);
+	if (!e_distr.size()) {
+		if (pedantic)
+			G4Exception((classname +"::CalcDiffXS_ExactFormula: ").c_str(),
+				"InvalidValue", FatalException, "Could not determine integration range (empty electron distribution f).");
+		else
+			return out;
+	}
+
+	const double lambda_max = gPars::medium_props.maximum_lambda;
+	const double rel_tol = gPars::medium_props.yield_relative_tolerance;
+	const double atomic_density = gPars::medium_props.atomic_density * m*m*m;
+	const double f0 = e_distr(0) / rel_tol; // To make sure the integrands are large numbers
+	const double invf0 = 1.0/f0;
+	const double eq_6_coeff = atomic_density * sqrt(2.0 / e_mass_SI)
+				/ (drift_velocity(field) * s / m) * eV * std::pow(e_SI, 0.5) * 1.0 / (m*m) * f0;
+
+
+	double E_min = e_distr.minX();
+	double E_max = e_distr.maxX();
+	double dE = (E_max - E_min)/e_distr.size();
+	E_min = hc / lambda_max / eV; // in eV NOT in Geant4 units
+	if (E_min/E_max > 1.0 - 2.0 * std::numeric_limits<double>::epsilon())
+		return out;
+	dE = std::max(std::min(dE, (E_max - E_min)/100.0), 5 * std::numeric_limits<double>::epsilon() * std::max(E_min, E_max));
+
+	auto ode2 = [&] (const double &Y, double &dYdw, double energy) { // integrand function
+		//energy is in eV NOT in Geant4 units
+		double photon_energy = energy;
+		if (energy < E_min || (photon_energy / E_max > 1.0 - 2.0 * std::numeric_limits<double>::epsilon())) {
+			dYdw = 0.0;
+			return;
+		}
+
+		auto ode1 = [&] (const double &dYdw, double &dYdwde, double energy) { // integrand function
+			//energy is in eV NOT in Geant4 units
+			if (photon_energy / E_max > 1.0 - 2.0 * std::numeric_limits<double>::epsilon() || energy < photon_energy) {
+				dYdwde = 0.0;
+				return;
+			}
+			const double XS = XS_NBrS_diff_exact(energy * electronvolt, photon_energy * electronvolt);
+			const double f = e_distr(energy);
+			dYdwde = energy * f * XS * invf0;
+		};
+
+		double dE_loc = std::max(std::min(dE, (E_max - photon_energy)/100.0), 5 * std::numeric_limits<double>::epsilon() * E_max );
+		double integral = 0.0;
+		double val1, val2, val3;
+		ode1(integral, val1, (0.8*photon_energy + 0.2*E_max));
+		ode1(integral, val2, (0.5*photon_energy + 0.5*E_max));
+		ode1(integral, val3, (0.0*photon_energy + 1.0*E_max));
+		double abs_tol = rel_tol * std::max({val1, val2, val3}) * (E_max - photon_energy) * 0.1;
+		odeint::integrate_adaptive(
+					odeint::make_controlled(abs_tol, rel_tol, dE_loc, odeint::runge_kutta_dopri5<double>()),
+					ode1, integral, photon_energy, E_max, dE_loc);
+		dYdw = integral;
+	};
+
+	double prev_val = 0;
+	auto observer2 = [&] (const double &Y, double energy) {
+		// energy is in eV NOT in Geant4 units
+		double val = Y;
+		if (isnan(val) || val < 0 || isinf(val)) {
+			if (pedantic)
+				G4Exception((classname + "::CalcDiffXS_XSFormula: ").c_str(),
+					"InvalidValue", FatalException, "Invalid value obtained (negative, nan, infinity or DBL_MAX).");
+			else
+				val = 0;
+		}
+		val = std::max(val, prev_val); // required only due to limited precision. On paper, val must always be greater than prev_val
+		prev_val = val;
+		Y_cdf1.insert(energy * eV, val * eq_6_coeff / m); // store in Geant4 units. 1/m is because the yield is per unit drift length.
+	};
+
+	auto observer2_rev = [&] (const double &Y, double energy) {
+		// energy is in eV NOT in Geant4 units
+		double val = Y;
+		if (isnan(val) || val < 0 || isinf(val)) {
+			if (pedantic)
+				G4Exception((classname + "::CalcDiffXS_XSFormula: ").c_str(),
+					"InvalidValue", FatalException, "Invalid value obtained (negative, nan, infinity or DBL_MAX).");
+			else
+				val = 0;
+		}
+		val = std::max(val, prev_val); // required only due to limited precision. On paper, val must always be greater than prev_val
+		prev_val = val;
+		Y_cdf2.insert(energy * eV, val * eq_6_coeff / m); // store in Geant4 units
+	};
+
+	double integral = 0.0;
+	// Approximate value of the integral near Emax threshold (lambda min) which behaves as dE^(5/2) where dE = Emax-W
+	odeint::integrate_adaptive_dense(odeint::runge_kutta_dopri5<double>(), 0.0, rel_tol,
+			ode2, integral, E_min, E_max, dE, observer2);
+	if (!Y_cdf1.size())
+		return Y_cdf1;
+	const double fraction = 0.85;
+	double half_Y = Y_cdf1.getY(Y_cdf1.size()-1) * fraction;
+	indexes = Y_cdf1.getY_indices(half_Y);
+	if (!indexes || indexes->first == 0)
+		return Y_cdf1;
+	half_Y = Y_cdf1.getY(indexes->first);
+	double half_E = Y_cdf1.getX(indexes->first) / eV;
+	integral = 0.0;
+	prev_val = 0.0;
+	// This duplicated integration is required so that spectrum is smooth at small lambdas (large energies)
+	odeint::integrate_adaptive_dense(odeint::runge_kutta_dopri5<double>(), 0.0, rel_tol,
+			ode2, integral, half_E, E_max, dE, observer2_rev);
+	if (!Y_cdf2.size()) {
+		return Y_cdf1;
+	}
+	// Merging solutions
+	out.reserve(indexes->first + Y_cdf2.size());
+	for(std::size_t i = 0, i_end_ = indexes->first + 1; i!=i_end_; ++i)
+		out.push_back(Y_cdf1[i]);
+	for(std::size_t i = 1, i_end_ = Y_cdf2.size(); i!=i_end_; ++i)
+		out.push_back(Y_cdf2.getX(i), half_Y + Y_cdf2.getY(i));
+	return out;
 }
 
 bool MediumPropertiesTables::IsReady(void) const

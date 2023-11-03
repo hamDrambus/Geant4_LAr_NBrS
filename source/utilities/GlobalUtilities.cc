@@ -219,6 +219,6 @@ char* c_str_cp (const std::string &str)
   for (std::size_t i=0; i!=i_end_; ++i) {
     ret[i] = str[i];
   }
-  ret[i_end_] = NULL;
+  ret[i_end_] = char(0);
   return ret;
 }

@@ -85,7 +85,8 @@ namespace gPars
 
 	enum NBrSFormula {
 	  ElasticXS,
-	  TransferXS
+	  TransferXS,
+	  ExactMilstein
 	};
 
 	enum Medium {
@@ -95,12 +96,13 @@ namespace gPars
 	};
 
 	struct MediumProperties {
-		Medium medium_type;
+	  Medium medium_type;
 	  bool print_calculations;
 	  bool pedantic_calculations; // if true then incorrect computations (such as division by 0,
 	  //infinities, DBL_MAX) throw error. Otherwise default values are used.
 	  std::string XS_energy_transfer_filename;
 	  std::string XS_momentum_transfer_filename;
+    std::string XS_NBrS_exact_table_filename;
 	  std::string cache_folder;
 	  std::string exp_drift_velocity; // Used only when there is no theoretically calculated one
     std::string exp_diffusion_longitudinal; // Used only when there is no theoretically calculated one

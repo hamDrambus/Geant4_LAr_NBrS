@@ -36,7 +36,7 @@
       <xy_radius_mm>0.0</xy_radius_mm> <!-- Source radius/size. Meaning depends on specified pattern-->
       <z_width_mm>0.0</z_width_mm> <!-- Source width.-->
       <Pattern>THGEM1_hole_center</Pattern> <!-- THGEM1_hole_center, EL_gap_center, Cathode_center, Cathode_14mm_coll, SiPM_shading, By_source -->
-      <angle_to_z_deg>0</angle_to_z_deg> <!-- OPT, photon angle to z axis in degrees. Works only for SiPM_shading pattern.
+      <angle_to_z_deg>0</angle_to_z_deg> <!-- OPT, photon angle to z axis in degrees. Works only for SiPM_shading pattern. -->
     </PhotonsDirectly>
     <ElectronPattern> <!-- generate electrons only according to specified pattern. Used to test/draw electon drift tracks and field map -->
       <N_events>100</N_events> <!-- Number of events to simulate-->
@@ -115,7 +115,9 @@
     <exp_drift_velocity>LAr_drift/exp_drift_velocity_data.txt</exp_drift_velocity> <!--OPT In case there is no theoretical values-->
     <exp_diffusion_transversal>LAr_drift/LAr_diffusionT_data.txt</exp_diffusion_transversal> <!--OPT In case there is no theoretical values-->
     <exp_diffusion_longitudinal>LAr_drift/LAr_diffusionL_data.txt</exp_diffusion_longitudinal> <!--OPT In case there is no theoretical values-->
-    <NBrS_formula>TransferXS</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default) and TransferXS are supported -->
+    <NBrS_formula>TransferXS</NBrS_formula> <!--OPT which formula for NBrS to use. Only ElasticXS (default), TransferXS and ExactMilstein are supported -->
+    <XS_NBrS_exact_table_filename>LAr_XS/Theory_SalnikovMilstein/XS_NBrS_table.dat</XS_NBrS_exact_table_filename> <!-- Mandatory if ExactMilstein NBrS
+    formula is used. Tabulated XS is obtained in Mathematica separately.-->
     <maximum_lambda_nm>1000</maximum_lambda_nm> <!-- OPT -->
     <m_to_M>1.373247e-5</m_to_M> <!-- OPT ratio of electron to atom mass. Default depends on the selected gas -->
     <yield_relative_tolerance>1e-3</yield_relative_tolerance> <!-- OPT double (nested) integration with this precision -->

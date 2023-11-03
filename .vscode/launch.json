@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch Debugging",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetDirectory}/${command:cmake.buildType}/${command:cmake.getLaunchTargetFilename}",
+            "args": ["${workspaceFolder}/results/v10_old_setup/exact_XS_with_diffusion/settings_6180V.xml"],
+            "stopAtEntry": false,
+            "cwd": "${command:cmake.getLaunchTargetDirectory}/${command:cmake.buildType}",
+            "environment": [
+                {
+                    "name": "PATH",
+                    "value": "${env:PATH}:${command:cmake.getLaunchTargetDirectory}/${command:cmake.buildType}"
+                }
+            ],
+            "console": "externalTerminal",
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}
