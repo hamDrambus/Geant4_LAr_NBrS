@@ -7,7 +7,7 @@
 
 ### Required/recommended for the project overall:
 
-1. CERN ROOT is strongly recommended to analyze obtained data with root_scripts/*. Alternatively, it can be done by hand using text output of Geant4_simulation (do note QE and PDE issue/quirk discussed below).
+1. CERN ROOT is strongly recommended to analyze obtained data with scripts/*. Alternatively, it can be done by hand using text output of Geant4_simulation (do note QE and PDE issue/quirk discussed below). TODO: rewrite scripts in python.
 2. FreeCAD, view3dscene or something else is recommended to view VRML2FILE (g4.wrl) visualization output. Otherwise refer to Geant4 visualization (configured from vis.mac)
 3. Gmsh v4 is required to create THGEM cell mesh (.geo file->.msh). Gmsh v3 does not have mesh options setups from .geo file (could not find its documentation) so it won't work properly.
 4. Elmer is required to calculate electric fields in the cell using Gmsh output (.msh + .sif -> .results, .header, .nodes, .elements, .boundary).
@@ -50,13 +50,11 @@ Also Note that Eclipse console is somewhat buggy. Because of that, progress bars
 		root -l
 		.L init.cpp
 		.L plot_Npe_spectrum.cpp
-		.x print_Npe_vs_V.cpp
-			
+		.x print_Npe_vs_V.cpp	
 Or			
 
 		cd ./scripts
 		root -l
-		.L init.cpp
 		.x print_results_table.cpp
 
 Alternatively, log files generated during execution of RunSimulation.py can be used directly by hand.

@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    125426,       2735]
-NotebookOptionsPosition[    121451,       2665]
-NotebookOutlinePosition[    121956,       2683]
-CellTagsIndexPosition[    121913,       2680]
+NotebookDataLength[    125450,       2735]
+NotebookOptionsPosition[    121477,       2665]
+NotebookOutlinePosition[    121980,       2683]
+CellTagsIndexPosition[    121937,       2680]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -2281,8 +2281,8 @@ Cell[CellGroupData[{
 
 Cell["Export tabulated cross section", "Subsection",
  CellChangeTimes->{{3.858735652669373*^9, 3.858735657669592*^9}, {
-  3.907286499192342*^9, 
-  3.907286510021146*^9}},ExpressionUUID->"c392602c-6739-4b82-a14b-\
+   3.907286499192342*^9, 3.907286510021146*^9}, 
+   3.9079900550221324`*^9},ExpressionUUID->"c392602c-6739-4b82-a14b-\
 d82beab07758"],
 
 Cell[BoxData[
@@ -2663,8 +2663,8 @@ d11f03bb8dae"]
 }, Open  ]]
 }, Open  ]]
 },
-WindowSize->{1440., 747.75},
-WindowMargins->{{-6, Automatic}, {Automatic, -6}},
+WindowSize->{1428., 741.75},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
 Magnification:>1. Inherited,
 FrontEndVersion->"13.0 for Microsoft Windows (64-bit) (December 2, 2021)",
 StyleDefinitions->FrontEnd`FileName[{"Creative"}, "PastelColor.nb", 
@@ -2710,7 +2710,7 @@ Cell[15427, 409, 6830, 156, 117, "Input",ExpressionUUID->"2f1020c1-7c5e-4222-a79
  InitializationCell->True],
 Cell[22260, 567, 2138, 52, 59, "Input",ExpressionUUID->"8ed007f9-3c28-4a16-936b-c2ff471f532f",
  InitializationCell->True],
-Cell[24401, 621, 16982, 395, 886, "Input",ExpressionUUID->"29d814ef-0e9e-4e95-a003-97db315e3057",
+Cell[24401, 621, 16982, 395, 848, "Input",ExpressionUUID->"29d814ef-0e9e-4e95-a003-97db315e3057",
  InitializationCell->True]
 }, Open  ]],
 Cell[CellGroupData[{
@@ -2732,9 +2732,9 @@ Cell[62663, 1504, 38782, 717, 255, "Input",ExpressionUUID->"ee43c7ad-bf72-479b-8
 Cell[101448, 2223, 2086, 53, 98, "Input",ExpressionUUID->"4e21efa2-9853-4962-8e5c-74fb92bf1f6c"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[103571, 2281, 227, 4, 36, "Subsection",ExpressionUUID->"c392602c-6739-4b82-a14b-d82beab07758"],
-Cell[103801, 2287, 10334, 224, 760, "Input",ExpressionUUID->"52bd5945-382d-4c56-9bed-b058aba93bfd"],
-Cell[114138, 2513, 7285, 148, 448, "Input",ExpressionUUID->"a7659e7b-1b58-4527-8b36-d11f03bb8dae"]
+Cell[103571, 2281, 253, 4, 36, "Subsection",ExpressionUUID->"c392602c-6739-4b82-a14b-d82beab07758"],
+Cell[103827, 2287, 10334, 224, 760, "Input",ExpressionUUID->"52bd5945-382d-4c56-9bed-b058aba93bfd"],
+Cell[114164, 2513, 7285, 148, 448, "Input",ExpressionUUID->"a7659e7b-1b58-4527-8b36-d11f03bb8dae"]
 }, Open  ]]
 }, Open  ]]
 }

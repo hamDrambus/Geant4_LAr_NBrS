@@ -11,15 +11,17 @@ So that [load the code]->[run install_all.py]->[run results/*/RunSimulation.py]-
 9) Add NBrS yield factor to output files. So that scripts can be aware of it automatically.
 10) Add field range configuration to settings
 11) Add variable number of events to simulate. It is usually required to simulate certain number of photons (detected or generated), not number of electrons. This is important when working with large ranges of voltages. There is an issue of how to maintain multithreading if condition to stop is certain number of photons.
+12) DataVector file header should be made more verbose.
+Instead of mystic "//2	1	0	1	1	0	0.0	0"
+It should be "//Np=2	Order=1	UseLeftmostVal=0	UseRightmostVal=1	IsSetLeftVal=1	IsSetRightVal=0	LeftSetVal=0.0	RightSetVal=0
+or something along those lines.
+Better yet, make the header structured: 1. Interpolation/Fitting settings, 2. strategy for x < x_min, 3. strategy for x > x_max.
+That way scaling may be potentially suported in the future for outside-bounds x, not only setting y(x) to constant.
+Idea for scaling: all derivatives at x_min or x_max should be passed to scaling function.
+13) Rewrite post-processing scripts in python.
 
-python3 exact_XS_with_diffusion_T10_Tab/RunSimulation.py
-python3 exact_XS_with_diffusion_T1_R/RunSimulation.py
-
-python3 exact_XS_with_diffusion_T2_D/RunSimulation.py
-python3 exact_XS_with_diffusion_T4_XY/RunSimulation.py
-python3 exact_XS_with_diffusion_T5_XY/RunSimulation.py
-python3 exact_XS_with_diffusion_T7_MSH/RunSimulation.py
-
-python3 exact_XS_with_diffusion_T8_XS/RunSimulation.py
-python3 exact_XS_with_diffusion_T11_Tr/RunSimulation.py
+python3 exact_XS_T11_Tr_Atrazhev_AvgS_Avgmu_B8.9_sh/RunSimulation.py
+python3 exact_XS_T11_Tr_Atrazhev_AvgS_Avgmu_McE14_sh/RunSimulation.py
+python3 exact_XS_T11_Tr_Var9/RunSimulation.py
+python3 exact_XS_T11_Tr_Var10/RunSimulation.py
 

@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetDirectory}/${command:cmake.buildType}/${command:cmake.getLaunchTargetFilename}",
-            "args": ["${workspaceFolder}/results/v10_old_setup/exact_XS_with_diffusion/settings_6180V.xml"],
+            "args": ["${workspaceFolder}/results/v10_old_setup/exact_XS_T11_Tr_Atrazhev_AvgS_Avgmu_B8.9/settings_200V.xml"],
             "stopAtEntry": false,
             "cwd": "${command:cmake.getLaunchTargetDirectory}/${command:cmake.buildType}",
             "environment": [

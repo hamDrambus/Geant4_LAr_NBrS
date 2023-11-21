@@ -1,5 +1,4 @@
-// Run .L init.cpp
-// before executing this script
+#include "init.cpp"
 
 // Prints all results obtained in simulation vs voltage (or drift step):
 // 1. Total generated N electrons
@@ -28,7 +27,7 @@ struct definitions {
 
 definitions use_v10_old_setup(void) {
   definitions defs;
-  defs.folder = "../results/v10_old_setup/exact_XS_with_diffusion_T11_Tr_Boyle15/";
+  defs.folder = "../results/v10_old_setup/exact_XS_T11_Tr_Var10/";
   defs.NBrS_yield_factor = 20;
   // parameters below should be rarely changed
   defs.Vs = {200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, \
