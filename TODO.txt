@@ -19,6 +19,8 @@ Better yet, make the header structured: 1. Interpolation/Fitting settings, 2. st
 That way scaling may be potentially suported in the future for outside-bounds x, not only setting y(x) to constant.
 Idea for scaling: all derivatives at x_min or x_max should be passed to scaling function.
 13) Rewrite post-processing scripts in python.
+14) DriftMedium.cc has small error in debug printing. Diffusion coefficents there are in mm^2/ns, not in mm^(1/2).
+15) Use faster strtoken implementation (from Documents/Detector_fields/CylinderLAr/CylinderCharge.cpp). In other projects as well.
 
 python3 exact_XS_T11_Tr_Atrazhev_AvgS_Avgmu_B8.9_sh/RunSimulation.py
 python3 exact_XS_T11_Tr_Atrazhev_AvgS_Avgmu_McE14_sh/RunSimulation.py
