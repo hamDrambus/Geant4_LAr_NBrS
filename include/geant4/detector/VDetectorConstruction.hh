@@ -64,6 +64,7 @@ protected:
   G4Material* matPMMA;
   G4Material* matPMMA_UV;
   G4Material* matTPB;
+  G4Material* matFSQ_RG715;
 
   G4Box*             solidWorld;
   G4LogicalVolume*   logicWorld;

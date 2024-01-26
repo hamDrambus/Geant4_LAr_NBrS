@@ -90,7 +90,8 @@
     <Wire_SigmaAlpha_deg>5</Wire_SigmaAlpha_deg>
     <LAr_SigmaAlpha_deg>5</LAr_SigmaAlpha_deg> <!-- OPT, default is 0 -->
     <PMMA_SigmaAlpha_deg>5</PMMA_SigmaAlpha_deg> <!-- OPT, default is 0 -->
-    <!-- model_25b -->
+    <FSQ_RG715_SigmaAlpha_deg>2</FSQ_RG715_SigmaAlpha_deg> <!-- OPT, default is 0 -->
+    <!-- model_25b (Vlad) -->
     <FR4_reflectivity>0.20</FR4_reflectivity>
     <!-- https://www.cetem.gov.br/images/congressos/2008/CAC00560008.pdf -->
     <!-- <FR4_reflectivity>0.05</FR4_reflectivity> -->
@@ -103,6 +104,8 @@
     <TPB_abs_length_filename>WLS/TPB_in_polystyrene/Absorption_length.dat</TPB_abs_length_filename>
     <TPB_efficiency_filename>WLS/TPB_in_polystyrene/Efficiency.dat</TPB_efficiency_filename>
     <TPB_emission_spectrum_filename>WLS/TPB_in_polystyrene/Emission_spectrum.dat</TPB_emission_spectrum_filename>
+    <FSQ_RG715_absorption_length_filename>absorption_length/fsq_rg715_absorption_length_eV_mm_manuf.dat</FSQ_RG715_absorption_length_filename>
+    <FSQ_RG715_rindex_filename>refractive_index/fsq_rg715_rindex_eV_manuf.dat</FSQ_RG715_rindex_filename>
 
     <no_reflections>false</no_reflections> <!--OPT if true, then all non-transparent materials have 0 reflectivity-->
     <no_diffused_reflections>false</no_diffused_reflections> <!--OPT if true, then all reflections are not diffusial-->

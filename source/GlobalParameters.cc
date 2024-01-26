@@ -82,6 +82,7 @@ namespace gPars
       det_opt.StainlessSteel_SigmaAlpha = optics.get<double>("StainlessSteel_SigmaAlpha_deg") * deg;
       det_opt.Cu_SigmaAlpha = optics.get<double>("Cu_SigmaAlpha_deg") * deg;
       det_opt.Wire_SigmaAlpha = optics.get<double>("Wire_SigmaAlpha_deg") * deg;
+      det_opt.FSQ_RG715_SigmaAlpha = optics.get<double>("FSQ_RG715_SigmaAlpha_deg", 0) * deg;
       det_opt.FR4_reflectivity = optics.get<double>("FR4_reflectivity");
       det_opt.Cu_reflectivity = optics.get<double>("Cu_reflectivity");
       det_opt.StainlessSteel_reflectivity = optics.get<double>("StainlessSteel_reflectivity", 0.5); // doi:10.1063/1.2202915
@@ -93,6 +94,8 @@ namespace gPars
       det_opt.TPB_abs_length_filename = optics.get<std::string>("TPB_abs_length_filename");
       det_opt.TPB_efficiency_filename = optics.get<std::string>("TPB_efficiency_filename");
       det_opt.TPB_emission_spectrum_filename = optics.get<std::string>("TPB_emission_spectrum_filename");
+      det_opt.FSQ_RG715_absorption_length_filename = optics.get<std::string>("FSQ_RG715_absorption_length_filename");
+      det_opt.FSQ_RG715_rindex_filename = optics.get<std::string>("FSQ_RG715_rindex_filename");
 
       general.no_reflections = optics.get<bool>("no_reflections", false);
       general.no_diffused_reflections = optics.get<bool>("no_diffused_reflections", false);
