@@ -4,6 +4,15 @@ sys.dont_write_bytecode = True
 import shutil
 from pathlib import Path as path
 
+""" This is a helpful script to make changes to all xml settings in this project.
+This is required if some mandatory setting was added (e.g. filename with new material property)
+and it is too bothersome to code it to be optional in c++ code. (The logic of when if is mandatory
+and when it is not can be quite complicated.)
+
+Another application is to replace some settings values to new ones.
+It can be done only for subset of folders using filename and content filtering.
+"""
+
 def find_all_settings(root_dir: path, fname_filter = lambda fname : True, content_filter = lambda opened_file : True):
     file_list = [p for p in root_dir.rglob("*.xml") if fname_filter(p)]
     file_list_by_content = []
