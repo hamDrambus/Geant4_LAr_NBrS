@@ -24,7 +24,8 @@ public:
     Full_detector,
     THGEM1_detailed,
     THGEM1_SiPM_shading,
-		Full_detector_y2022
+		Full_detector_y2022,
+    Full_detector_y2024_NIR
   };
   DetectorType detector_type;
 
@@ -90,6 +91,12 @@ public:
 	// For convenience and/or testing purposes. Set in VDetectorConstruction::SetSizeAndPosition()
 	G4ThreeVector THGEM0_single_cell_position;
 	G4ThreeVector THGEM0_center;
+};
+
+class DetectorDimsFullY2024NIR : public DetectorDimsFullY2022
+{
+public:
+  DetectorDimsFullY2024NIR() : DetectorDimsFullY2022() { detector_type = Full_detector_y2024_NIR; }
 };
 
 #endif // DetectorSettings_h

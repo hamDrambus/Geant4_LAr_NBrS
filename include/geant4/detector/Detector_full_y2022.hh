@@ -59,7 +59,7 @@ public:
 	virtual G4VPhysicalVolume* Construct() override;
 	virtual void ConstructSDandField() override;
 
-private:
+protected:
 	virtual void SetSizeAndPosition() override;
 	virtual void CreateTHGEM0Cell(G4Material* medium);
 	virtual void SetupTHGEMsMapping() override; //Finds THGEM1 and THGEM0 volumes and initializes mapping class gPars::THGEM1_mapping
@@ -75,6 +75,13 @@ private:
 
 	G4VPhysicalVolume* phys_THGEM0_cell_LAr;
 	G4VPhysicalVolume* phys_THGEM0_container;
+
+	// Need this variable to be able to delete PMMA plate in descendants.
+	G4VPhysicalVolume* phys_PMMA_plate;
+
+	// Need these variables to be able to move (shift) SiPMs when PMMA plate is replaced.
+	G4VPhysicalVolume* phys_SiPM_container;
+	G4VPhysicalVolume* phys_SiPMFR4;
 
 	// SiPMs
 	int Nx_SiPMs;

@@ -218,7 +218,7 @@ G4VPhysicalVolume * Detector_full_y2022::Construct()
     // Create PMMA plate
     G4Box* solid_PMMA_plate = new G4Box("solid_tracker_anode_grid", PMMA_plate_size_xy / 2.0, PMMA_plate_size_xy / 2.0, PMMA_plate_size_z / 2.0);
     G4LogicalVolume* logic_PMMA_plate = new G4LogicalVolume(solid_PMMA_plate, matPMMA, "logic_PMMA_plate", 0, 0, 0);
-    G4VPhysicalVolume* phys_PMMA_plate = new G4PVPlacement(0, position_PMMA_plate, logic_PMMA_plate, "phys_PMMA_plate",
+    phys_PMMA_plate = new G4PVPlacement(0, position_PMMA_plate, logic_PMMA_plate, "phys_PMMA_plate",
         logicWorld, false, 0, fCheckOverlaps);
 
     //--------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ G4VPhysicalVolume * Detector_full_y2022::Construct()
     // create container (this is required for SiPM_matrix parameterisation)
     G4Box* solid_SiPM_conntainer = new G4Box("solid_SiPM_conntainer", SiPM_cont_size_xy / 2.0, SiPM_cont_size_xy / 2.0, SiPM_cont_size_z / 2.0);
     G4LogicalVolume* logic_SiPM_container = new G4LogicalVolume(solid_SiPM_conntainer, matGas, "logic_SiPM_conntainer", 0, 0, 0);
-    G4VPhysicalVolume* phys_SiPM_container = new G4PVPlacement(0, position_SiPM_container, logic_SiPM_container, "phys_SiPM_conntainer", logicWorld,
+    phys_SiPM_container = new G4PVPlacement(0, position_SiPM_container, logic_SiPM_container, "phys_SiPM_conntainer", logicWorld,
         false, 0, fCheckOverlaps);
 
     G4Box* solid_SiPM = new G4Box("solid_SiPM", SiPM_size / 2.0, SiPM_size / 2.0, SiPM_thickness / 2.0);
@@ -237,7 +237,7 @@ G4VPhysicalVolume * Detector_full_y2022::Construct()
 
     G4Box* solid_SiPMFR4 = new G4Box("solid_SiPMFR4", SiPM_cont_size_xy / 2.0, SiPM_cont_size_xy / 2.0, SiPM_FR4_size_z / 2.0);
     G4LogicalVolume* logic_SiPMFR4 = new G4LogicalVolume(solid_SiPMFR4, matGas, "logic_SiPMFR4", 0, 0, 0);
-    G4VPhysicalVolume* phys_SiPMFR4 = new G4PVPlacement(0, position_SiPMFR4, logic_SiPMFR4, "phys_SiPMFR4",
+    phys_SiPMFR4 = new G4PVPlacement(0, position_SiPMFR4, logic_SiPMFR4, "phys_SiPMFR4",
         logicWorld, false, 0, fCheckOverlaps);
 
     //--------------------------------------------------------------------------------
@@ -547,14 +547,15 @@ void Detector_full_y2022::SetSizeAndPosition()
     anode_grid_z_bottom = THGEM1_bottom_z + dims->THGEM1_width_total + 5 * mm;
     // Anode grid's container
     anode_grid_cont_size_xy = anode_wire_length;
-    anode_grid_cont_size_z = std::max(anode_grid_thickness, anode_wire_radius * 2.1);
-    position_anode_grid_container = G4ThreeVector(0, 0, anode_grid_z_bottom + 0.5 * anode_grid_cont_size_z);
+    anode_grid_cont_size_z = anode_wire_radius * 2.1;
+    // Wire container is placed so that wire centers are at the bottom of anode support frame.
+    position_anode_grid_container = G4ThreeVector(0, 0, anode_grid_z_bottom);
     position_anode_grid_frame = G4ThreeVector(0, 0, anode_grid_z_bottom + 0.5 * anode_grid_thickness);
 
     // PMMA plate, before SiPMs
     PMMA_plate_size_xy = THGEMs_size_xy;
     PMMA_plate_size_z = 1.5 * mm;
-    position_PMMA_plate = G4ThreeVector(0, 0, anode_grid_z_bottom + anode_grid_cont_size_z + 0.01 * mm + PMMA_plate_size_z / 2.0); // 0.01 mm because there is no optical contact
+    position_PMMA_plate = G4ThreeVector(0, 0, anode_grid_z_bottom + anode_grid_thickness + 1.0 * mm + PMMA_plate_size_z / 2.0); // there is 1.0 mm support between PMMA and anode.
 
     // SiPMs
     Nx_SiPMs = 5;
@@ -669,6 +670,7 @@ void Detector_full_y2022::SetSizeAndPosition()
 
 void Detector_full_y2022::SetupTHGEMsMapping()
 {
+    gData.mapping_manager.ClearMappings();
     DetectorDimsFullY2022 *dims = (DetectorDimsFullY2022*) gPars::det_dims;
     std::vector<G4PhysicalVolumesSearchScene::Findings> cells = LocatePV(phys_THGEM1_cell_LAr);
     std::vector<G4PhysicalVolumesSearchScene::Findings> containers = LocatePV(phys_THGEM1_container);

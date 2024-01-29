@@ -63,7 +63,7 @@ public:
 	virtual G4VPhysicalVolume* Construct() override;
 	virtual void ConstructSDandField() override;
 
-private:
+protected:
 	virtual void SetSizeAndPosition() override;
 
 	G4LogicalVolume*   logic_sensor;

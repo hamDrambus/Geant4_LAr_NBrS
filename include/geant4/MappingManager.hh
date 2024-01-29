@@ -19,21 +19,22 @@ public:
 	std::vector<HexagonalMapping> mappings;
 	void AddMapping(HexagonalMapping& mapping);
 	void RemoveMapping(std::string name_id);
-  bool HasMapping(void) const {
-  	for (auto i : mappings) {
-  		if (i.isValid())
-  			return true;
-  	}
-    return false;
-  }
-  bool HasFieldMapping(void) const {
+	void ClearMappings(void);
+	bool HasMapping(void) const {
 		for (auto i : mappings) {
-			if (i.isValid() && i.has_field_map)
+			if (i.isValid())
 				return true;
 		}
 		return false;
 	}
-  // These two overloaded functions have different logic!
+	bool HasFieldMapping(void) const {
+			for (auto i : mappings) {
+				if (i.isValid() && i.has_field_map)
+					return true;
+			}
+			return false;
+	}
+  	// These two overloaded functions have different logic!
 	// Called in TeleportationProcess (during particle transport)
 	HexagonalMappingData GetNewState(const G4Track& aTrack, const G4Step& aStep, const HexagonalMappingData& old_state) const;
 	// Called in PrimaryGenerator (during particle creation)

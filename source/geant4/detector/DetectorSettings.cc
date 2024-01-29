@@ -29,8 +29,8 @@ VDetectorDimensions* CreateDetectorSettings(std::string filename)
     } else if (type == "THGEM1 shading") {
       DetectorDimsTGHEM1Shading *settings = new DetectorDimsTGHEM1Shading();
       out = settings;
-    } else if (type == "Full_y2022") {
-    	DetectorDimsFullY2022 *settings = new DetectorDimsFullY2022();
+    } else if (type == "Full_y2022" || type == "Full_y2024_NIR") {
+    	DetectorDimsFullY2022 *settings = (type == "Full_y2022" ?  new DetectorDimsFullY2022() : new DetectorDimsFullY2024NIR());
       out = settings;
       settings->THGEM0_copper_thickness = det.get<double>("THGEM0_copper_thickness_mm") * mm;
       settings->THGEM0_hole_radius = det.get<double>("THGEM0_hole_radius_mm") * mm;

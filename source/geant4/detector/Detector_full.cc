@@ -9,9 +9,9 @@ Detector_full::~Detector_full()
 
 G4VPhysicalVolume * Detector_full::Construct()
 {
-  SetSizeAndPosition();
-  defineMaterials();
-  defineSurfaces();
+	SetSizeAndPosition();
+	defineMaterials();
+	defineSurfaces();
 	//-------------------------------------------------------------------------------
 
 	solidWorld = new G4Box("sworld", HalfWorldLength, HalfWorldLength, HalfWorldLength);
@@ -223,18 +223,18 @@ G4VPhysicalVolume * Detector_full::Construct()
 	G4Box* solid_whole_THGEM1 = new G4Box("solid_whole_THGEM1", x_size_THGEM1 / 2.0, y_size_THGEM1 / 2.0, z_size_THGEM1 / 2.0);
 	G4Box* solid_active_THGEM1 = new G4Box("solid_whole_THGEM1", x_size_THGEM1_container / 2.0, y_size_THGEM1_container / 2.0, z_size_THGEM1 / 2.0);
 	G4SubtractionSolid* solid_THGEM1_frame = new G4SubtractionSolid("solid_THGEM1_frame", solid_whole_THGEM1, solid_active_THGEM1);
-  G4LogicalVolume* logic_THGEM1_frame = new G4LogicalVolume(solid_THGEM1_frame, matFR4, "logic_THGEM1_frame", 0, 0, 0);
-  G4VPhysicalVolume* phys_THGEM1_frame = new G4PVPlacement(0, position_THGEM1_frame, logic_THGEM1_frame, "phys_THGEM1_frame",
-      logic_LAr_inner, false, 0, fCheckOverlaps);
+	G4LogicalVolume* logic_THGEM1_frame = new G4LogicalVolume(solid_THGEM1_frame, matFR4, "logic_THGEM1_frame", 0, 0, 0);
+	G4VPhysicalVolume* phys_THGEM1_frame = new G4PVPlacement(0, position_THGEM1_frame, logic_THGEM1_frame, "phys_THGEM1_frame",
+		logic_LAr_inner, false, 0, fCheckOverlaps);
 
-  G4Box* solid_THGEM1_container = new G4Box("solid_THGEM1_container", x_size_THGEM1_container / 2.0, y_size_THGEM1_container / 2.0, z_size_THGEM1_container / 2.0);
-  G4LogicalVolume* logic_THGEM1_container = new G4LogicalVolume(solid_THGEM1_container, matLAr, "logic_THGEM1_container", 0, 0, 0);
-  phys_THGEM1_container = new G4PVPlacement(0, position_THGEM1_container, logic_THGEM1_container, "phys_THGEM1_cell_container",
-        logic_LAr_inner, false, 0, fCheckOverlaps);
+	G4Box* solid_THGEM1_container = new G4Box("solid_THGEM1_container", x_size_THGEM1_container / 2.0, y_size_THGEM1_container / 2.0, z_size_THGEM1_container / 2.0);
+	G4LogicalVolume* logic_THGEM1_container = new G4LogicalVolume(solid_THGEM1_container, matLAr, "logic_THGEM1_container", 0, 0, 0);
+	phys_THGEM1_container = new G4PVPlacement(0, position_THGEM1_container, logic_THGEM1_container, "phys_THGEM1_cell_container",
+			logic_LAr_inner, false, 0, fCheckOverlaps);
 
-  G4LogicalVolume* logic_THGEM1_copper = new G4LogicalVolume(solid_active_THGEM1, matFR4, "logic_THGEM1_copper", 0, 0, 0);
-  G4VPhysicalVolume* phys_THGEM1_copper = new G4PVPlacement(0, position_THGEM1_copper_plate, logic_THGEM1_copper, "phys_THGEM1_copper",
-      logic_THGEM1_container, false, 0, fCheckOverlaps);
+	G4LogicalVolume* logic_THGEM1_copper = new G4LogicalVolume(solid_active_THGEM1, matFR4, "logic_THGEM1_copper", 0, 0, 0);
+	G4VPhysicalVolume* phys_THGEM1_copper = new G4PVPlacement(0, position_THGEM1_copper_plate, logic_THGEM1_copper, "phys_THGEM1_copper",
+		logic_THGEM1_container, false, 0, fCheckOverlaps);
 
 	//--------------------------------------------------------------------------------
 	// Create insulator box
@@ -291,7 +291,7 @@ G4VPhysicalVolume * Detector_full::Construct()
 	G4LogicalBorderSurface* PMTAnodeGridTrackerLiquidGas = new G4LogicalBorderSurface("PMTAnodeGridTrackerLiquid-Gas", phys_PMTAnodeGridTrackerLiquid_1, phys_PMTAnodeGridTrackerGas_1, LAr_OpticalSurface);
 	G4LogicalBorderSurface* PMTAnodeGridTrackerLiquidGas1 = new G4LogicalBorderSurface("PMTAnodeGridTrackerLiquid-Gas1", phys_PMTAnodeGridTrackerGas_1, phys_PMTAnodeGridTrackerLiquid_1, LAr_OpticalSurface);
 	G4LogicalBorderSurface* PMTAnodeGridTrackerLiquidGasInner = new G4LogicalBorderSurface("PMTAnodeGridTrackerGas-Liquid", phys_PMTAnodeGridTrackerLiquidInner_1, phys_PMTAnodeGridTrackerGasInner_1, LAr_OpticalSurface);
-  G4LogicalBorderSurface* PMTAnodeGridTrackerLiquidGasInner1 = new G4LogicalBorderSurface("PMTAnodeGridTrackerGas-Liquid1", phys_PMTAnodeGridTrackerGasInner_1, phys_PMTAnodeGridTrackerLiquidInner_1, LAr_OpticalSurface);
+	G4LogicalBorderSurface* PMTAnodeGridTrackerLiquidGasInner1 = new G4LogicalBorderSurface("PMTAnodeGridTrackerGas-Liquid1", phys_PMTAnodeGridTrackerGasInner_1, phys_PMTAnodeGridTrackerLiquidInner_1, LAr_OpticalSurface);
 	G4LogicalSkinSurface* PMTGridWire0 = new G4LogicalSkinSurface("PMTGridWire_surface0", logic_PMTGridWire, stainlessSteel);
 	G4LogicalSkinSurface* PMTGridWire1 = new G4LogicalSkinSurface("PMTGridWire_surface1", logic_PMTGridWireGasInner, stainlessSteel);
 	G4LogicalSkinSurface* PMTGridWire2 = new G4LogicalSkinSurface("PMTGridWire_surface2", logic_PMTGridWireLiquidInner, stainlessSteel);
@@ -310,9 +310,9 @@ G4VPhysicalVolume * Detector_full::Construct()
 	G4LogicalSkinSurface* AlWindow = new G4LogicalSkinSurface("AlWindow_surface", logic_Al_window, stainlessSteel);
 
 	G4LogicalSkinSurface* THGEM1_cell_cu = new G4LogicalSkinSurface("THGEM1_cell_cu_surface", logic_THGEM1_cell_copper, Cu_THGEM);
-  G4LogicalSkinSurface* THGEM1_cell_FR4 = new G4LogicalSkinSurface("THGEM1_cell_FR4_surface", logic_THGEM1_cell_FR4, FR4_unified);
-  G4LogicalBorderSurface* THGEM1_cell_isolation = new G4LogicalBorderSurface("THGEM1_cell_isolation_surface", physiWorld, phys_THGEM1_cell, AbsorberMaterial);
-  G4LogicalBorderSurface* THGEM1_cell_isolation1 = new G4LogicalBorderSurface("THGEM1_cell_isolation_surface1", phys_THGEM1_cell, physiWorld, AbsorberMaterial);
+	G4LogicalSkinSurface* THGEM1_cell_FR4 = new G4LogicalSkinSurface("THGEM1_cell_FR4_surface", logic_THGEM1_cell_FR4, FR4_unified);
+	G4LogicalBorderSurface* THGEM1_cell_isolation = new G4LogicalBorderSurface("THGEM1_cell_isolation_surface", physiWorld, phys_THGEM1_cell, AbsorberMaterial);
+	G4LogicalBorderSurface* THGEM1_cell_isolation1 = new G4LogicalBorderSurface("THGEM1_cell_isolation_surface1", phys_THGEM1_cell, physiWorld, AbsorberMaterial);
 
 	G4LogicalBorderSurface* World2THGEM1_without_hole = new G4LogicalBorderSurface("World2THGEM1_without_hole", physiWorld, phys_THGEM1_frame, FR4_unified);
 	G4LogicalBorderSurface* phys_LAr_inner_2_THGEM1_without_hole = new G4LogicalBorderSurface("phys_LAr_inner_2_THGEM1_without_hole", phys_LAr_inner, phys_THGEM1_frame, FR4_unified);
@@ -338,10 +338,10 @@ G4VPhysicalVolume * Detector_full::Construct()
 	logic_anode_wire->SetVisAttributes(Wires_VisAtt);
 	logic_anode_grid_frame->SetVisAttributes(FR4_VisAtt);
 	logic_SiPM->SetVisAttributes(Sensor_VisAtt);
-  trackerLV->SetVisAttributes(gas_VisAtt);
-  FR4_VisAtt.SetVisibility(false);
-  logic_SiPMFR4->SetVisAttributes(FR4_VisAtt);
-  FR4_VisAtt.SetVisibility(true);
+	trackerLV->SetVisAttributes(gas_VisAtt);
+	FR4_VisAtt.SetVisibility(false);
+	logic_SiPMFR4->SetVisAttributes(FR4_VisAtt);
+	FR4_VisAtt.SetVisibility(true);
 
 	// Interface grid
 	logic_Interface_wire->SetVisAttributes(Wires_VisAtt);
@@ -391,10 +391,10 @@ G4VPhysicalVolume * Detector_full::Construct()
 
 void Detector_full::ConstructSDandField()
 {
-  DetectorSensor *thePhotoDetector = new DetectorSensor("/detector/sensitiveDetector");
-  G4SDManager::GetSDMpointer()->AddNewDetector(thePhotoDetector);
-  SetSensitiveDetector(logic_SiPM, thePhotoDetector); // takes ownership of DetectorSensor*
-  SetSensitiveDetector(logic_PMT, thePhotoDetector);
+	DetectorSensor *thePhotoDetector = new DetectorSensor("/detector/sensitiveDetector");
+	G4SDManager::GetSDMpointer()->AddNewDetector(thePhotoDetector);
+	SetSensitiveDetector(logic_SiPM, thePhotoDetector); // takes ownership of DetectorSensor*
+	SetSensitiveDetector(logic_PMT, thePhotoDetector);
 }
 
 void Detector_full::SetSizeAndPosition()
@@ -402,18 +402,18 @@ void Detector_full::SetSizeAndPosition()
 	HalfWorldLength = 17 * cm;
 
 	double width_interface_grid_support = 1.4 * mm; // Interface grid frame width at support pillars
-  double width_interface_grid_frame = 5.0 * mm; // Interface grid frame full width (there are holes drilled for pillars)
-  double LAr_drift_width = 48.0 * mm; // Distance between cathode top and interface grid bottom
-  double max_EL_gap_thickness = 22.0 * mm; // Distance between interface grid top and THGEM1 bottom
-  double THGEM_cathode_width = 0.5 * mm;
-  double THGEM1_active_area_size = 100 * mm;
+	double width_interface_grid_frame = 5.0 * mm; // Interface grid frame full width (there are holes drilled for pillars)
+	double LAr_drift_width = 48.0 * mm; // Distance between cathode top and interface grid bottom
+	double max_EL_gap_thickness = 22.0 * mm; // Distance between interface grid top and THGEM1 bottom
+	double THGEM_cathode_width = 0.5 * mm;
+	double THGEM1_active_area_size = 100 * mm;
 
-  int n_SiPMs_rows = 5; // total number = n_SiPMs_rows^2
-  SiPM_size = 6 * mm; // Full size of SiPM active area
-  SiPM_pitch = 10 * mm; // Distance between SiPM centers
-  double EL_gap_thickness = -4 * mm; // Must be negative (single phase). From THGEM1 real bottom
-  double z_top_interface_grid = LAr_drift_width + width_interface_grid_support;
-  double z_bottom_THGEM1 =z_top_interface_grid + max_EL_gap_thickness; //=71.4
+	int n_SiPMs_rows = 5; // total number = n_SiPMs_rows^2
+	SiPM_size = 6 * mm; // Full size of SiPM active area
+	SiPM_pitch = 10 * mm; // Distance between SiPM centers
+	double EL_gap_thickness = -4 * mm; // Must be negative (single phase). From THGEM1 real bottom
+	double z_top_interface_grid = LAr_drift_width + width_interface_grid_support;
+	double z_bottom_THGEM1 =z_top_interface_grid + max_EL_gap_thickness; //=71.4
 
 	//PMTs
 	radius_PMT = 45 * mm / 2.0;
@@ -422,17 +422,17 @@ void Detector_full::SetSizeAndPosition()
 	y_pos_PMT = x_pos_PMT;
 	z_pos_PMT = 27.2 * mm + 63 * mm / 2.0;
 
-	//anode wire
-	radius_wire = 100 / 2.0 * um;//you can understand this from photo
-	length_wire = 60 * mm; // 108*mm future case
-	step_wire = 1 * mm;
-	N_wire = length_wire / step_wire - 1; // 107 in future case
-
 	//interface wire
 	radius_Interface_wire = 100 / 2.0 * um; //from Chegodaev
 	length_Interface_wire = 100 * mm; // active region
 	step_Interface_wire = 1 * mm; //from Chegodaev
 	N_Interface_wire = length_Interface_wire / step_wire - 1;
+
+	//anode wire
+	radius_wire = 100 / 2.0 * um;//you can understand this from photo
+	length_wire = 60 * mm; // 108*mm future case
+	step_wire = 1 * mm;
+	N_wire = length_wire / step_wire - 1; // 107 in future case
 
 	//Anode_grid
 	thickness_anode_grid = 1.5 * mm;
@@ -445,7 +445,7 @@ void Detector_full::SetSizeAndPosition()
 	x_size_PMMA_plate = size_anode_grid;
 	y_size_PMMA_plate = size_anode_grid;
 	z_size_PMMA_plate = 1.5 * mm;
-	double z_PMMA_plate_center = z_anode_grid_center + thickness_anode_grid / 2.0 + 0.01 * mm + z_size_PMMA_plate / 2.0; // 0.01 * mm because there is no optical contact
+	double z_PMMA_plate_center = z_anode_grid_center + thickness_anode_grid / 2.0 + 1.0 * mm + z_size_PMMA_plate / 2.0; // there is 1.0 mm support between PMMA and anode.
 
 	//SiPMs
 	Nx_SiPMs = n_SiPMs_rows;
@@ -472,11 +472,11 @@ void Detector_full::SetSizeAndPosition()
 
 	// THGEM1
 	x_size_THGEM1 = size_anode_grid;
-  y_size_THGEM1 = size_anode_grid;
-  z_size_THGEM1 = gPars::det_dims->THGEM1_width_total;
-  x_size_THGEM1_container = THGEM1_active_area_size;
-  y_size_THGEM1_container = THGEM1_active_area_size;
-  z_size_THGEM1_container = gPars::det_dims->THGEM1_container_width;
+	y_size_THGEM1 = size_anode_grid;
+	z_size_THGEM1 = gPars::det_dims->THGEM1_width_total;
+	x_size_THGEM1_container = THGEM1_active_area_size;
+	y_size_THGEM1_container = THGEM1_active_area_size;
+	z_size_THGEM1_container = gPars::det_dims->THGEM1_container_width;
 
 	//Interface_grid
 	x_size_tracker_Interface_grid = x_size_tracker_THGEM2;
@@ -614,8 +614,8 @@ void Detector_full::SetSizeAndPosition()
 	position_SiPMFR4 = G4ThreeVector(0, 0, z_SiPM_center + z_size_tracker /2.0 + z_size_SiPMFR4/2.0);
 
 	position_THGEM1_frame = G4ThreeVector(0, 0, z_bottom_THGEM1 + z_size_THGEM1 / 2.0 - z_size_LAr_inner / 2.0);
-  position_THGEM1_container = G4ThreeVector(0, 0, z_bottom_THGEM1 + z_size_THGEM1 / 2.0 - z_size_LAr_inner / 2.0);
-  position_THGEM1_copper_plate = G4ThreeVector(0, 0, 0); //is inside THGEM1_container
+	position_THGEM1_container = G4ThreeVector(0, 0, z_bottom_THGEM1 + z_size_THGEM1 / 2.0 - z_size_LAr_inner / 2.0);
+	position_THGEM1_copper_plate = G4ThreeVector(0, 0, 0); //is inside THGEM1_container
 
 	position_interface_wire_container = G4ThreeVector(0, 0, z_top_interface_grid - radius_Interface_wire - z_size_LAr_inner / 2.0);
 	position_interface_frame = G4ThreeVector(0, 0, z_top_interface_grid - z_size_Interface_grid_substrate / 2.0 - z_size_LAr_inner / 2.0);

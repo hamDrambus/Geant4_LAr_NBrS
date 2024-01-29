@@ -31,6 +31,11 @@ void MappingManager::RemoveMapping(std::string name_id)
 	mappings.erase(std::remove_if(mappings.begin(), mappings.end(), [name_id](const HexagonalMapping& t) {return t.name_id == name_id;}), mappings.end());
 }
 
+void MappingManager::ClearMappings(void)
+{
+	mappings.clear();
+}
+
 
 HexagonalMappingData MappingManager::GetNewState(const G4Track& aTrack, const G4Step& aStep, const HexagonalMappingData& old_state) const
 {

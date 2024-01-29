@@ -61,7 +61,7 @@ public:
 public:
 	virtual G4VPhysicalVolume* Construct() override;
 
-private:
+protected:
 	virtual void SetSizeAndPosition() override;
 };
 
